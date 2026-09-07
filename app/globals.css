@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-kuning: #D9A400;
+  --color-kuning-muda: #F6EACB;
+  --color-hijau: #2F4A3C;
+  --color-merah: #7A2E27;
+  --color-krem: #FBF6EC;
+  --color-teks: #2B2117;
+
+  --color-background: var(--krem);
+  --color-foreground: var(--teks);
+
+  --font-sans: var(--font-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+:root {
+  --krem: #FBF6EC;
+  --teks: #2B2117;
+}
+
+body {
+  background: var(--krem);
+  color: var(--teks);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utilities for motif borders */
+@layer utilities {
+  .border-motif {
+    position: relative;
+  }
+  .border-motif::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid transparent;
+    border-image: repeating-linear-gradient(45deg, #D9A400 0, #D9A400 10px, transparent 10px, transparent 20px) 2;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 10;
+  }
+}
