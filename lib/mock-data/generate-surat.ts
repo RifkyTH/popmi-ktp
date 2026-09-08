@@ -1129,14 +1129,15 @@ export function generateSuratHTML(surat: Surat): string {
       </div>`
     }
 
-    default: return `
+    default: {
+      const f = surat.data_form || {}
+      return `
       <div class="print-page" style="${base}">
         ${kopSurat()}
-        <p>Surat ${f.jenis} untuk ${surat.pemohon}</p>
-        <p>${f.perihal}</p>
+        <p>Surat ${surat.jenis} untuk ${surat.pemohon}</p>
+        <p>${surat.perihal || f.perihal || ""}</p>
         ${ttdCamat(tanggal, isSigned)}
       </div>`
+    }
   }
 }
-
-

@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { createServiceClient } from "@/lib/supabase/server"
-import { STATUS_PENGADUAN_LABELS, KATEGORI_LABELS } from "@/lib/mock-data/pengaduan"
+import { STATUS_PENGADUAN_LABELS, KATEGORI_LABELS, StatusPengaduan, KategoriPengaduan } from "@/lib/mock-data/pengaduan"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { StatusTimeline } from "@/components/ui/status-timeline"
-import { ArrowLeft, User, Phone, MapPin, Calendar, Clock, CheckCircle } from "lucide-react"
+import { ArrowLeft, MapPin, CheckCircle } from "lucide-react"
 
 const statusOrder = ["masuk", "verifikasi", "proses", "selesai"]
 
@@ -35,11 +35,14 @@ export default async function DetailPengaduanPage({
 
   const riwayat = riwayatList || []
 
-  const currentIndex = statusOrder.indexOf(report.status)
+  const reportStatus = report.status as StatusPengaduan
+  const reportKategori = report.kategori as KategoriPengaduan
+
+  const currentIndex = statusOrder.indexOf(reportStatus)
   const timelineSteps = statusOrder.map((status, i) => {
     const r = riwayat.find((x) => x.status === status)
     return {
-      label: STATUS_PENGADUAN_LABELS[status as keyof typeof STATUS_PENGADUAN_LABELS] || status,
+      label: STATUS_PENGADUAN_LABELS[status as StatusPengaduan] || status,
       description: r ? r.catatan : undefined,
       timestamp: r?.tanggal,
       done: i < currentIndex,
@@ -65,14 +68,14 @@ export default async function DetailPengaduanPage({
               <span className="font-mono font-bold text-hijau text-sm">{report.tiket}</span>
               <span
                 className={`text-xs px-2.5 py-1 rounded-full font-bold uppercase ${
-                  report.status === "selesai"
+                  reportStatus === "selesai"
                     ? "bg-green-100 text-green-800"
-                    : report.status === "proses"
+                    : reportStatus === "proses"
                     ? "bg-blue-100 text-blue-800"
                     : "bg-orange-100 text-orange-800"
                 }`}
               >
-                {STATUS_PENGADUAN_LABELS[report.status]}
+                {STATUS_PENGADUAN_LABELS[reportStatus]}
               </span>
             </div>
 
@@ -84,7 +87,7 @@ export default async function DetailPengaduanPage({
 
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-1">Kategori</h3>
-                <p className="text-sm font-semibold text-teks">{KATEGORI_LABELS[report.kategori]}</p>
+                <p className="text-sm font-semibold text-teks">{KATEGORI_LABELS[reportKategori]}</p>
               </div>
 
               <div>

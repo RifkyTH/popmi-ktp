@@ -25,6 +25,7 @@ export type Surat = {
   disetujuiOleh?: string
   perihal: string
   keterangan?: string
+  data_form?: Record<string, string>
   riwayat: {
     status: StatusSurat
     oleh: string
