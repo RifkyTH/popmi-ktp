@@ -142,6 +142,8 @@ export default async function PengaturanPage() {
                   : log.status === 'edit_pengguna' ? 'Pembaruan Pengguna'
                   : log.status === 'hapus_pengguna' ? 'Penghapusan Pengguna'
                   : log.status === 'status_pengguna' ? 'Ubah Status Pengguna'
+                  : log.status === 'hapus_surat' ? 'Menghapus Surat'
+                  : log.status === 'hapus_semua_surat' ? 'Menghapus Semua Surat'
                   : 'Aktivitas Sistem'
               }
               

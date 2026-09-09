@@ -130,7 +130,13 @@ export async function verifikasiKasi(suratId: string, namaKasi: string) {
 
 export async function hapusSurat(suratId: string) {
   const supabase = await createServiceClient()
+  const cookieStore = await cookies()
+  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
+  const creatorName = sessionUser?.nama || "Sistem"
   
+  // Ambil data surat sebelum dihapus untuk log
+  const { data: surat } = await supabase.from("surat").select("judul").eq("id", suratId).single()
+
   // Hapus riwayat dulu karena ada foreign key constraint (jika ada)
   await supabase.from("surat_riwayat").delete().eq("surat_id", suratId)
   
@@ -138,15 +144,35 @@ export async function hapusSurat(suratId: string) {
   const { error } = await supabase.from("surat").delete().eq("id", suratId)
   if (error) throw new Error(error.message)
 
+  // Log ke sistem
+  if (surat) {
+    await supabase.from("log_sistem").insert({
+      aksi: "hapus_surat",
+      keterangan: `Menghapus surat: ${surat.judul}`,
+      oleh: creatorName
+    })
+  }
+
   revalidatePath("/internal/surat")
   revalidatePath("/internal/beranda")
 }
 
 export async function hapusSemuaSurat() {
   const supabase = await createServiceClient()
+  const cookieStore = await cookies()
+  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
+  const creatorName = sessionUser?.nama || "Sistem"
+
   await supabase.from('surat_riwayat').delete().not('id', 'is', null)
   const { error } = await supabase.from('surat').delete().not('id', 'is', null)
   if (error) throw new Error(error.message)
+
+  await supabase.from("log_sistem").insert({
+    aksi: "hapus_semua_surat",
+    keterangan: `Menghapus seluruh data surat secara massal`,
+    oleh: creatorName
+  })
+
   revalidatePath('/internal/surat')
 }
 
