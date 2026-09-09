@@ -187,48 +187,50 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
             </div>
           )}
 
-          {/* Actions */}
-          {((surat.status === "draf" && isKasi) || surat.status === "verifikasi" || surat.status === "menunggu_ttd") && (
-            <div className="bg-white rounded-xl border border-kuning-muda p-6 mt-5">
-              <h2 className="font-bold font-serif text-hijau text-base mb-3">Aksi Tersedia</h2>
-              <div className="flex flex-wrap gap-3">
-                {surat.status === "draf" && isKasi && (
-                  <form action={async () => {
-                    "use server"
-                    const { verifikasiKasi } = await import("../actions")
-                    await verifikasiKasi(surat.id, user?.nama || "Kasi")
-                  }}>
-                    <Button type="submit" size="sm" variant="secondary">
-                      <FileCheck className="w-4 h-4 mr-2" /> Verifikasi (Kasi)
-                    </Button>
-                  </form>
-                )}
-                {surat.status === "verifikasi" && user?.role === "staf" && (
-                  <form action={async () => {
-                    "use server"
-                    const { teruskanKeCamat } = await import("../actions")
-                    await teruskanKeCamat(surat.id, user?.nama || "Staf")
-                  }}>
-                    <Button type="submit" size="sm" variant="secondary">
-                      <FileCheck className="w-4 h-4 mr-2" /> Teruskan ke Camat
-                    </Button>
-                  </form>
-                )}
-                  {surat.status === "menunggu_ttd" && user?.role === "camat" && (
-                    <form action={async () => {
-                      "use server"
-                      const { terbitkanSurat } = await import("../actions")
-                      await terbitkanSurat(surat.id, user?.nama || "Camat")
-                    }}>
-                      <Button type="submit" size="sm">
-                        <CheckCheck className="w-4 h-4 mr-2" /> Tandatangani &amp; Terbitkan (Camat)
-                      </Button>
-                    </form>
-                  )}
-              </div>
+        {/* Actions */}
+        {((surat.status === "draf" && (isKasi || user?.role === "super_admin")) || 
+          (surat.status === "verifikasi" && (user?.role === "staf" || user?.role === "super_admin")) || 
+          (surat.status === "menunggu_ttd" && (user?.role === "camat" || user?.role === "super_admin"))) && (
+          <div className="bg-white rounded-xl border border-kuning-muda p-6 mt-5">
+            <h2 className="font-bold font-serif text-hijau text-base mb-3">Aksi Tersedia</h2>
+            <div className="flex flex-wrap gap-3">
+              {surat.status === "draf" && (isKasi || user?.role === "super_admin") && (
+                <form action={async () => {
+                  "use server"
+                  const { verifikasiKasi } = await import("../actions")
+                  await verifikasiKasi(surat.id, user?.nama || "Super Admin")
+                }}>
+                  <Button type="submit" size="sm" variant="secondary">
+                    <FileCheck className="w-4 h-4 mr-2" /> Verifikasi (Kasi)
+                  </Button>
+                </form>
+              )}
+              {surat.status === "verifikasi" && (user?.role === "staf" || user?.role === "super_admin") && (
+                <form action={async () => {
+                  "use server"
+                  const { teruskanKeCamat } = await import("../actions")
+                  await teruskanKeCamat(surat.id, user?.nama || "Super Admin")
+                }}>
+                  <Button type="submit" size="sm" variant="secondary">
+                    <FileCheck className="w-4 h-4 mr-2" /> Teruskan ke Camat
+                  </Button>
+                </form>
+              )}
+              {surat.status === "menunggu_ttd" && (user?.role === "camat" || user?.role === "super_admin") && (
+                <form action={async () => {
+                  "use server"
+                  const { terbitkanSurat } = await import("../actions")
+                  await terbitkanSurat(surat.id, user?.nama || "Super Admin")
+                }}>
+                  <Button type="submit" size="sm">
+                    <CheckCheck className="w-4 h-4 mr-2" /> Tandatangani &amp; Terbitkan (Camat)
+                  </Button>
+                </form>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
         {/* Timeline */}
         <div className="bg-white rounded-xl border border-kuning-muda p-6 h-fit">
