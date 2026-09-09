@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { STATUS_PENGADUAN_LABELS, KATEGORI_LABELS } from "@/lib/mock-data/pengaduan"
+import { STATUS_PENGADUAN_LABELS, KATEGORI_LABELS, StatusPengaduan, KategoriPengaduan } from "@/lib/mock-data/pengaduan"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,9 +9,19 @@ import { Search, MapPin, Calendar, FileText, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { cariPengaduan } from "../actions"
 
+type SearchResult = {
+  id: string
+  tiket: string
+  judul: string
+  kategori: KategoriPengaduan
+  status: StatusPengaduan
+  desa: string
+  tanggal_masuk: string
+}
+
 export default function CekPengaduanPage() {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<any[] | null>(null)
+  const [results, setResults] = useState<SearchResult[] | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handleSearch(e: React.FormEvent) {
