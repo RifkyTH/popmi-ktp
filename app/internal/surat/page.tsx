@@ -22,6 +22,7 @@ export default async function DaftarSuratPage() {
     .from("surat")
     .select("id, nomor, jenis, judul, pemohon, desa, tanggal_buat, status, dibuat_oleh")
     .order("tanggal_buat", { ascending: false })
+    .limit(10)
 
   const surat = suratList || []
 
