@@ -16,15 +16,23 @@ const statusColors: Record<StatusSurat, string> = {
   terkirim: "bg-teal-100 text-teal-700",
 }
 
-export default async function DaftarSuratPage() {
+export default async function DaftarSuratPage(props: { searchParams: any }) {
+  const searchParams = await props.searchParams
+  const page = searchParams?.page ? parseInt(searchParams.page as string, 10) : 1
+  const limit = 10
+  const from = (page - 1) * limit
+  const to = from + limit - 1
+
   const supabase = await createServiceClient()
-  const { data: suratList } = await supabase
+  const { data: suratList, count } = await supabase
     .from("surat")
-    .select("id, nomor, jenis, judul, pemohon, desa, tanggal_buat, status, dibuat_oleh")
+    .select("id, nomor, jenis, judul, pemohon, desa, tanggal_buat, status, dibuat_oleh", { count: "exact" })
     .order("tanggal_buat", { ascending: false })
-    .limit(10)
+    .range(from, to)
 
   const surat = suratList || []
+  const totalItems = count || 0
+  const totalPages = Math.ceil(totalItems / limit) || 1
 
   return (
     <div>
@@ -102,10 +110,10 @@ export default async function DaftarSuratPage() {
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <Link
-                        href={`/internal/surat/${s.id}`}
-                        className="text-xs font-semibold text-hijau hover:text-kuning transition-colors whitespace-nowrap"
+                         href={`/internal/surat/${s.id}`}
+                         className="text-xs font-semibold text-hijau hover:text-kuning transition-colors whitespace-nowrap"
                       >
-                        Lihat Detail &rarr;
+                         Lihat Detail &rarr;
                       </Link>
                       <DeleteButton id={s.id} />
                     </div>
@@ -123,8 +131,42 @@ export default async function DaftarSuratPage() {
           </table>
         </div>
 
-        <div className="px-5 py-3 border-t border-gray-100 text-xs text-teks/50">
-          Menampilkan {surat.length} surat
+        {/* Pagination Controls */}
+        <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="text-xs text-teks/50">
+            Menampilkan {totalItems === 0 ? 0 : from + 1} - {Math.min(to + 1, totalItems)} dari {totalItems} surat
+          </div>
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <Link
+                href={`/internal/surat?page=${page - 1}`}
+                className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg hover:bg-gray-50 text-teks transition-colors"
+              >
+                Sebelumnya
+              </Link>
+            ) : (
+              <button disabled className="px-3 py-1.5 text-xs font-medium border border-gray-100 rounded-lg bg-gray-50 text-teks/30 cursor-not-allowed">
+                Sebelumnya
+              </button>
+            )}
+            
+            <div className="text-xs font-semibold px-2 text-teks/70">
+              Hal {page} dari {totalPages}
+            </div>
+
+            {page < totalPages ? (
+              <Link
+                href={`/internal/surat?page=${page + 1}`}
+                className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg hover:bg-gray-50 text-teks transition-colors"
+              >
+                Selanjutnya
+              </Link>
+            ) : (
+              <button disabled className="px-3 py-1.5 text-xs font-medium border border-gray-100 rounded-lg bg-gray-50 text-teks/30 cursor-not-allowed">
+                Selanjutnya
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
