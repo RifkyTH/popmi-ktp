@@ -69,12 +69,6 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Surat & Rekomendasi", items: [buatSurat, daftarSurat] },
       ]
 
-    case "operator_desa":
-      return [
-        { group: "Utama", items: [beranda] },
-        { group: "Desa", items: [pengajuanDesa] },
-      ]
-
     case "petugas":
       return [
         { group: "Utama", items: [beranda] },
@@ -92,7 +86,6 @@ const ROLE_LABELS: Record<UserRole, string> = {
   camat: "Camat",
   kasi: "Kasi",
   staf: "Staf",
-  operator_desa: "Operator Desa",
   petugas: "Petugas",
 }
 

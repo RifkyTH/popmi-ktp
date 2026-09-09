@@ -1,6 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/server"
 
-export type UserRole = "staf" | "kasi" | "camat" | "admin" | "operator_desa" | "petugas" | "super_admin"
+export type UserRole = "staf" | "kasi" | "camat" | "admin" | "petugas" | "super_admin"
 export type User = { id: string; nama: string; role: UserRole; jabatan: string; username: string; desa?: string }
 
 export const AUTH_COOKIE_NAME = "silat_session"

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { X, Eye, EyeOff, UserPlus, Pencil } from "lucide-react"
 import type { UserRole } from "@/lib/auth"
 import { tambahPengguna, editPengguna } from "./actions"
-import { DESA_LIST } from "@/lib/mock-data/desa"
 
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "super_admin", label: "Super Admin" },
@@ -13,7 +12,6 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "camat", label: "Camat" },
   { value: "kasi", label: "Kasi Pemerintahan" },
   { value: "staf", label: "Staf Administrasi" },
-  { value: "operator_desa", label: "Operator Desa" },
   { value: "petugas", label: "Petugas Pengaduan" },
 ]
 
@@ -39,12 +37,9 @@ export function UserDialog({ mode, pengguna, onClose, onSuccess }: UserDialogPro
   const [password, setPassword] = useState("")
   const [role, setRole] = useState<UserRole>(pengguna?.role ?? "staf")
   const [jabatan, setJabatan] = useState(pengguna?.jabatan ?? "")
-  const [desa, setDesa] = useState(pengguna?.desa ?? "")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-
-  const needsDesa = role === "operator_desa"
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -54,17 +49,13 @@ export function UserDialog({ mode, pengguna, onClose, onSuccess }: UserDialogPro
       setError("Password wajib diisi untuk pengguna baru.")
       return
     }
-    if (needsDesa && !desa) {
-      setError("Desa wajib diisi untuk Operator Desa.")
-      return
-    }
 
     setLoading(true)
     try {
       if (mode === "tambah") {
-        await tambahPengguna({ nama, username, password, role, jabatan, desa: needsDesa ? desa : undefined })
+        await tambahPengguna({ nama, username, password, role, jabatan, desa: undefined })
       } else if (pengguna) {
-        await editPengguna(pengguna.id, { nama, role, jabatan, desa: needsDesa ? desa : undefined, password: password || undefined })
+        await editPengguna(pengguna.id, { nama, role, jabatan, desa: undefined, password: password || undefined })
       }
       onSuccess()
       onClose()
@@ -184,25 +175,6 @@ export function UserDialog({ mode, pengguna, onClose, onSuccess }: UserDialogPro
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
             />
           </div>
-
-          {/* Desa — hanya untuk operator_desa */}
-          {needsDesa && (
-            <div>
-              <label className="block text-xs font-bold text-teks/60 uppercase tracking-wider mb-1.5">
-                Desa <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={desa}
-                onChange={(e) => setDesa(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning bg-white"
-              >
-                <option value="">Pilih Desa...</option>
-                {DESA_LIST.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-          )}
 
           {/* Error */}
           {error && (

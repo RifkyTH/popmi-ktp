@@ -1,4 +1,4 @@
-export type UserRole = "staf" | "kasi" | "camat" | "admin" | "operator_desa" | "petugas"
+export type UserRole = "staf" | "kasi" | "camat" | "admin" | "petugas"
 
 export type User = {
   id: string

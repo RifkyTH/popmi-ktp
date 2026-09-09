@@ -33,7 +33,6 @@ const ROLE_LABELS: Record<UserRole, string> = {
   camat: "Camat",
   kasi: "Kasi",
   staf: "Staf",
-  operator_desa: "Operator Desa",
   petugas: "Petugas",
 }
 
@@ -43,7 +42,6 @@ const ROLE_COLORS: Record<UserRole, string> = {
   camat: "bg-green-100 text-green-800",
   kasi: "bg-teal-100 text-teal-800",
   staf: "bg-gray-100 text-gray-700",
-  operator_desa: "bg-orange-100 text-orange-800",
   petugas: "bg-yellow-100 text-yellow-800",
 }
 

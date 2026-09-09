@@ -187,7 +187,7 @@ function LoginForm() {
       <div className="mt-8 pt-6 border-t border-gray-100">
         <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Akses Demo</p>
         <div className="flex flex-wrap gap-2">
-          {['staf', 'kasi', 'camat', 'admin'].map((role) => (
+          {['staf', 'kasi', 'camat', 'admin', 'superadmin'].map((role) => (
             <button 
               key={role}
               type="button"

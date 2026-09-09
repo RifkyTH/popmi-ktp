@@ -14,7 +14,7 @@ create table if not exists pengguna (
   nama text not null,
   username text unique not null,
   password text not null,
-  role text not null check (role in ('staf', 'kasi', 'camat', 'admin', 'operator_desa', 'petugas', 'super_admin')),
+  role text not null check (role in ('staf', 'kasi', 'camat', 'admin', 'petugas', 'super_admin')),
   jabatan text not null,
   desa text,
   aktif boolean default true,
@@ -144,9 +144,8 @@ insert into pengguna (id, nama, username, password, role, jabatan) values
   ('00000001-0000-0000-0000-000000000002', 'Hj. Siti Rahayu, S.Sos', 'kasi', 'kasi123', 'kasi', 'Kasi Pemerintahan'),
   ('00000001-0000-0000-0000-000000000003', 'Drs. Muhammad Rizal', 'camat', 'camat123', 'camat', 'Camat Temiang Pesisir'),
   ('00000001-0000-0000-0000-000000000004', 'Admin Sistem', 'admin', 'admin123', 'admin', 'Administrator'),
-  ('00000001-0000-0000-0000-000000000005', 'Budi Santoso', 'desa_temiang', 'desa123', 'operator_desa', 'Operator Desa Temiang'),
   ('00000001-0000-0000-0000-000000000006', 'Reni Wulandari', 'petugas', 'petugas123', 'petugas', 'Petugas Pengaduan'),
-  ('00000001-0000-0000-0000-000000000007', 'Super Admin', 'superadmin', 'super123', 'super_admin', 'Super Administrator')
+  ('00000001-0000-0000-0000-000000000007', 'Super Admin', 'superadmin', 'superadmin123', 'super_admin', 'Super Administrator')
 on conflict (username) do nothing;
 
 -- ============================================================
