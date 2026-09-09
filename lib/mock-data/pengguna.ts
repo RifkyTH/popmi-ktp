@@ -46,7 +46,7 @@ export const USERS: User[] = [
   {
     id: "U005",
     nama: "Budi Santoso",
-    role: "operator_desa",
+    role: "staf",
     jabatan: "Operator Desa Temiang",
     desa: "Temiang",
     username: "desa_temiang",

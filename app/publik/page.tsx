@@ -1,10 +1,43 @@
 import Link from "next/link"
 import { INFORMASI_DATA } from "@/lib/mock-data/informasi"
 import { Card, CardContent } from "@/components/ui/card"
-import { MessageSquare, CheckCircle, Clock, Eye, FileText, ArrowRight } from "lucide-react"
+import { MessageSquare, Eye, ArrowRight } from "lucide-react"
+import { createServiceClient } from "@/lib/supabase/server"
+import { StatsCounter } from "./stats-counter"
 
-export default function PublikHomePage() {
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+export default async function PublikHomePage() {
   const latestNews = INFORMASI_DATA.slice(0, 3)
+
+  const supabase = await createServiceClient()
+
+  const { count: total } = await supabase
+    .from("pengaduan")
+    .select("*", { count: "exact", head: true })
+
+  const { count: menunggu } = await supabase
+    .from("pengaduan")
+    .select("*", { count: "exact", head: true })
+    .in("status", ["masuk", "verifikasi"])
+
+  const { count: proses } = await supabase
+    .from("pengaduan")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "proses")
+
+  const { count: selesai } = await supabase
+    .from("pengaduan")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "selesai")
+
+  const initialCounts = {
+    total: total ?? 0,
+    menunggu: menunggu ?? 0,
+    proses: proses ?? 0,
+    selesai: selesai ?? 0,
+  }
 
   return (
     <div className="space-y-12 pb-12">
@@ -39,36 +72,7 @@ export default function PublikHomePage() {
 
       {/* Stats Counter */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Laporan Diterima</span>
-              <MessageSquare className="w-4 h-4 text-kuning" />
-            </div>
-            <p className="text-3xl font-serif font-bold text-hijau">128</p>
-          </div>
-          <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Menunggu Verifikasi</span>
-              <Clock className="w-4 h-4 text-orange-500" />
-            </div>
-            <p className="text-3xl font-serif font-bold text-orange-600">11</p>
-          </div>
-          <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Sedang Diproses</span>
-              <Clock className="w-4 h-4 text-blue-500" />
-            </div>
-            <p className="text-3xl font-serif font-bold text-blue-600">21</p>
-          </div>
-          <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Laporan Selesai</span>
-              <CheckCircle className="w-4 h-4 text-green-500" />
-            </div>
-            <p className="text-3xl font-serif font-bold text-green-600">96</p>
-          </div>
-        </div>
+        <StatsCounter initialCounts={initialCounts} />
       </section>
 
       {/* Alur Proses */}

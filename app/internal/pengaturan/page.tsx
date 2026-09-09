@@ -31,21 +31,27 @@ export default async function PengaturanPage() {
     .limit(5)
 
   // Format and merge logs
-  const suratLogs = (riwayatSurat || []).map(s => ({
-    type: 'surat',
-    status: s.status,
-    oleh: s.oleh,
-    tanggal: s.tanggal,
-    title: Array.isArray(s.surat) ? s.surat[0]?.judul : s.surat?.judul
-  }))
+  const suratLogs = (riwayatSurat || []).map(s => {
+    const suratObj = (s as any).surat
+    return {
+      type: 'surat',
+      status: s.status,
+      oleh: s.oleh,
+      tanggal: s.tanggal,
+      title: Array.isArray(suratObj) ? suratObj[0]?.judul : suratObj?.judul
+    }
+  })
 
-  const pengaduanLogs = (riwayatPengaduan || []).map(p => ({
-    type: 'pengaduan',
-    status: p.status,
-    oleh: p.oleh,
-    tanggal: p.tanggal,
-    title: Array.isArray(p.pengaduan) ? p.pengaduan[0]?.judul : p.pengaduan?.judul
-  }))
+  const pengaduanLogs = (riwayatPengaduan || []).map(p => {
+    const pengaduanObj = (p as any).pengaduan
+    return {
+      type: 'pengaduan',
+      status: p.status,
+      oleh: p.oleh,
+      tanggal: p.tanggal,
+      title: Array.isArray(pengaduanObj) ? pengaduanObj[0]?.judul : pengaduanObj?.judul
+    }
+  })
 
   const sistemLogs = (riwayatSistem || []).map(l => ({
     type: 'sistem',

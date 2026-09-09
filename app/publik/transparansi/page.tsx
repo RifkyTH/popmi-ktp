@@ -1,18 +1,27 @@
-import { PENGADUAN_DATA, STATUS_PENGADUAN_LABELS, KATEGORI_LABELS } from "@/lib/mock-data/pengaduan"
+import { createServiceClient } from "@/lib/supabase/server"
+import { STATUS_PENGADUAN_LABELS, KATEGORI_LABELS } from "@/lib/mock-data/pengaduan"
 import { DESA_LIST } from "@/lib/mock-data/desa"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
-export default function TransparansiPage() {
-  const total = PENGADUAN_DATA.length
-  const selesai = PENGADUAN_DATA.filter((p) => p.status === "selesai").length
-  const proses = PENGADUAN_DATA.filter((p) => p.status === "proses" || p.status === "verifikasi").length
-  const masuk = PENGADUAN_DATA.filter((p) => p.status === "masuk").length
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+export default async function TransparansiPage() {
+  const supabase = await createServiceClient()
+  const { data: pengaduanList } = await supabase
+    .from("pengaduan")
+    .select("kategori, desa, status")
+
+  const data = pengaduanList || []
+  const total = data.length
+  const selesai = data.filter((p) => p.status === "selesai").length
+  const proses = data.filter((p) => p.status === "proses").length
+  const masuk = data.filter((p) => p.status === "masuk" || p.status === "verifikasi").length
 
   // Calculate stats by Category
   const categoryStats = Object.keys(KATEGORI_LABELS).map((key) => {
-    const count = PENGADUAN_DATA.filter((p) => p.kategori === key).length
+    const count = data.filter((p) => p.kategori === key).length
     return {
       kategori: KATEGORI_LABELS[key as keyof typeof KATEGORI_LABELS],
       jumlah: count,
@@ -21,8 +30,9 @@ export default function TransparansiPage() {
   })
 
   // Calculate stats by Desa
-  const desaStats = DESA_LIST.map((desa) => {
-    const count = PENGADUAN_DATA.filter((p) => p.desa === desa).length
+  const allDesas = Array.from(new Set([...DESA_LIST, ...data.map((d) => d.desa).filter(Boolean)]))
+  const desaStats = allDesas.map((desa) => {
+    const count = data.filter((p) => p.desa === desa).length
     return {
       desa,
       jumlah: count,

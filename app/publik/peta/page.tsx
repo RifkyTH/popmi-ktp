@@ -1,9 +1,31 @@
-import { PENGADUAN_DATA, KATEGORI_LABELS, KATEGORI_COLORS } from "@/lib/mock-data/pengaduan"
+import { createServiceClient } from "@/lib/supabase/server"
+import { DESA_LIST } from "@/lib/mock-data/desa"
 import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Map, MapPin, Layers, Info } from "lucide-react"
 
-export default function PetaPengaduanPage() {
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+export default async function PetaPengaduanPage() {
+  const supabase = await createServiceClient()
+  const { data: pengaduanList } = await supabase
+    .from("pengaduan")
+    .select("*")
+    .order("tanggal_masuk", { ascending: false })
+
+  const data = pengaduanList || []
+  const totalPins = data.length
+
+  // Sebaran per desa
+  const allDesas = Array.from(new Set([...DESA_LIST, ...data.map((d) => d.desa).filter(Boolean)]))
+  const sebaranDesa = allDesas.map((desa) => ({
+    name: desa,
+    count: data.filter((d) => d.desa === desa).length,
+  })).sort((a, b) => b.count - a.count)
+
+  const recentReports = data.slice(0, 3)
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <PageHeader
@@ -21,7 +43,7 @@ export default function PetaPengaduanPage() {
                 <Layers className="w-3.5 h-3.5" /> Peta Temiang Pesisir (Mockup)
               </span>
               <span className="bg-kuning-muda font-semibold px-2 py-0.5 rounded text-teks/80">
-                128 Pin Aktif
+                {totalPins} Pin Laporan Aktif
               </span>
             </div>
 
@@ -96,14 +118,7 @@ export default function PetaPengaduanPage() {
             <CardContent className="p-5 space-y-4">
               <h3 className="font-serif font-bold text-hijau text-sm">Sebaran per Desa</h3>
               <div className="space-y-2 text-xs">
-                {[
-                  { name: "Temiang", count: 42 },
-                  { name: "Pasir Panjang", count: 28 },
-                  { name: "Duara", count: 21 },
-                  { name: "Penuba", count: 18 },
-                  { name: "Berindat", count: 12 },
-                  { name: "Air Glubi", count: 7 },
-                ].map((d) => (
+                {sebaranDesa.slice(0, 6).map((d) => (
                   <div key={d.name} className="flex justify-between items-center pb-1.5 border-b border-gray-50">
                     <span className="text-teks/80">Desa {d.name}</span>
                     <span className="font-bold text-teks bg-krem px-2 py-0.5 rounded">{d.count} aduan</span>
@@ -117,16 +132,28 @@ export default function PetaPengaduanPage() {
             <CardContent className="p-5 space-y-4">
               <h3 className="font-serif font-bold text-hijau text-sm">Laporan Terbaru</h3>
               <div className="space-y-3">
-                {PENGADUAN_DATA.slice(0, 3).map((p) => (
-                  <div key={p.id} className="text-xs space-y-1">
-                    <div className="flex justify-between font-semibold">
-                      <span className="text-hijau">{p.tiket}</span>
-                      <span className="text-teks/50">{p.tanggalMasuk}</span>
+                {recentReports.length === 0 ? (
+                  <p className="text-xs text-teks/50 italic">Belum ada laporan</p>
+                ) : (
+                  recentReports.map((p) => (
+                    <div key={p.id} className="text-xs space-y-1">
+                      <div className="flex justify-between font-semibold">
+                        <span className="text-hijau">{p.tiket}</span>
+                        <span className="text-teks/50">
+                          {p.tanggal_masuk
+                            ? new Date(p.tanggal_masuk).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "-"}
+                        </span>
+                      </div>
+                      <p className="font-medium text-teks line-clamp-1">{p.judul}</p>
+                      <p className="text-[10px] text-teks/50">Desa {p.desa || "-"}</p>
                     </div>
-                    <p className="font-medium text-teks line-clamp-1">{p.judul}</p>
-                    <p className="text-[10px] text-teks/50">Desa {p.desa}</p>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
