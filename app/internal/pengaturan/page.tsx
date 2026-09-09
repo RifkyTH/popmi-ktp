@@ -2,8 +2,22 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { createServiceClient } from "@/lib/supabase/server"
+import { formatDistanceToNow } from "date-fns"
+import { id as localeId } from "date-fns/locale"
 
-export default function PengaturanPage() {
+export default async function PengaturanPage() {
+  const supabase = await createServiceClient()
+  
+  // Fetch latest 5 activities from surat_riwayat
+  const { data: riwayatSurat } = await supabase
+    .from("surat_riwayat")
+    .select("status, oleh, tanggal, surat:surat_id(judul)")
+    .order("tanggal", { ascending: false })
+    .limit(5)
+
+  const logs = riwayatSurat || []
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -42,17 +56,17 @@ export default function PengaturanPage() {
                 <p className="text-sm font-semibold text-teks">Notifikasi WhatsApp</p>
                 <p className="text-xs text-teks/50">Kirim status pengaduan via WhatsApp API</p>
               </div>
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktif</span>
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Nonaktif</span>
             </div>
             <div className="flex items-center justify-between pb-1">
               <div>
                 <p className="text-sm font-semibold text-teks">Notifikasi Email</p>
                 <p className="text-xs text-teks/50">Kirim email otomatis ke warga saat status update</p>
               </div>
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Aktif</span>
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Nonaktif</span>
             </div>
             <div className="pt-2 flex gap-2">
-              <Button size="sm" variant="outline">Konfigurasi Ulang</Button>
+              <Button size="sm" variant="outline" disabled>Sedang Dikembangkan</Button>
             </div>
           </CardContent>
         </Card>
@@ -64,20 +78,31 @@ export default function PengaturanPage() {
             <CardDescription>Jejak audit aktivitas staf dan status perubahan sistem terbaru</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-teks/80">
-            <div className="border-l-2 border-kuning pl-4 py-1">
-              <p className="font-semibold text-teks">Integrasi WhatsApp & Email diaktifkan</p>
-              <p className="text-xs text-teks/50 mt-0.5">Baru saja · Super Admin</p>
-            </div>
-            <div className="border-l-2 border-gray-200 pl-4 py-1">
-              <p className="font-semibold text-teks">Pembaruan konfigurasi Manajemen Pengguna</p>
-              <p className="text-xs text-teks/50 mt-0.5">Hari ini · Sistem</p>
-            </div>
-            <div className="border-l-2 border-gray-200 pl-4 py-1">
-              <p className="font-semibold text-teks">Staf login berhasil</p>
-              <p className="text-xs text-teks/50 mt-0.5">Kemarin · Ahmad Fauzi</p>
-            </div>
+            {logs.length > 0 ? logs.map((log, idx) => {
+              const actionTitle = log.status === 'draf' ? 'Membuat draf surat' 
+                : log.status === 'verifikasi' ? 'Memverifikasi surat'
+                : log.status === 'terbit' ? 'Menerbitkan surat'
+                : log.status === 'menunggu_ttd' ? 'Meneruskan ke Camat'
+                : 'Mengubah surat'
+              
+              const suratTitle = Array.isArray(log.surat) ? log.surat[0]?.judul : log.surat?.judul
+              
+              return (
+                <div key={idx} className="border-l-2 border-kuning pl-4 py-1">
+                  <p className="font-semibold text-teks">{actionTitle}: {suratTitle || 'Surat'}</p>
+                  <p className="text-xs text-teks/50 mt-0.5">
+                    {formatDistanceToNow(new Date(log.tanggal), { addSuffix: true, locale: localeId })} · {log.oleh}
+                  </p>
+                </div>
+              )
+            }) : (
+              <p className="text-teks/50 text-sm">Belum ada aktivitas tercatat.</p>
+            )}
+            
             <div className="pt-3">
-              <Button size="sm" variant="outline">Muat Lebih Banyak Log</Button>
+              <Link href="/internal/surat">
+                <Button size="sm" variant="outline">Lihat Semua Surat</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
