@@ -34,7 +34,7 @@ export async function buatSuratBaru(jenis: JenisSurat, formData: Record<string, 
   const { count } = await supabase.from("surat").select("*", { count: "exact", head: true })
   
   const newId = `S${String((count || 0) + 1).padStart(3, "0")}-${Date.now()}`
-  const urutManual = formData.nomorUrut ? parseInt(formData.nomorUrut, 10) : null
+  const urutManual = formData.nomorUrut ? formData.nomorUrut : null
   const nomor = generateNomorSurat(jenis, urutManual || ((count || 0) + 1), formData.nomorBulan, formData.nomorTahun)
 
   const { data: newSurat, error } = await supabase.from("surat").insert({
@@ -89,13 +89,19 @@ export async function editSurat(suratId: string, formData: Record<string, string
   else if (jenis.startsWith("rekomendasi_")) judul = `Rekomendasi Desa ${formData.desa || ""}`
   else if (jenis === "pemberhentian_perangkat") judul = `Pemberhentian Perangkat Desa ${formData.desa || ""}`
 
-  const { error } = await supabase.from("surat").update({
+  const updatePayload: Record<string, any> = {
     judul,
     pemohon,
     desa: formData.desa || formData.desaPengantar || null,
     perihal: judul,
     data_form: formData,
-  }).eq("id", suratId)
+  }
+
+  if (formData.nomorUrut) {
+    updatePayload.nomor = generateNomorSurat(jenis, formData.nomorUrut, formData.nomorBulan, formData.nomorTahun)
+  }
+
+  const { error } = await supabase.from("surat").update(updatePayload).eq("id", suratId)
 
   if (error) throw new Error(error.message)
 

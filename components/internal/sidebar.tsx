@@ -37,7 +37,7 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
-        { group: "Desa & Laporan", items: [pengajuanDesa, aduan, rekap] },
+        { group: "Desa & Laporan", items: [aduan, rekap] },
         { group: "Sistem", items: [pengguna, pengaturan] },
       ]
 

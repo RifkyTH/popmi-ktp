@@ -4,13 +4,12 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
-import { JENIS_SURAT_LABELS, JenisSurat } from "@/lib/mock-data/surat"
+import { JENIS_SURAT_LABELS, JenisSurat, NOMOR_FORMAT, ROMAN_MONTHS, generateNomorSurat } from "@/lib/mock-data/surat"
 import { DESA_LIST } from "@/lib/mock-data/desa"
 import { ChevronLeft, Save, Eye } from "lucide-react"
 import Link from "next/link"
 import { editSurat } from "../../actions"
 import { generateSuratHTML } from "@/lib/mock-data/generate-surat"
-import { generateNomorSurat } from "@/lib/mock-data/surat"
 
 const FORM_FIELDS: Record<string, { label: string; key: string; type: string; required: boolean; options?: string[]; section?: string; placeholder?: string }[]> = {
   dispensasi_nikah: [
@@ -128,11 +127,33 @@ interface EditSuratClientProps {
 
 export default function EditSuratClient({ suratId, jenis, nomor, initialData }: EditSuratClientProps) {
   const router = useRouter()
-  const [formData, setFormData] = useState<Record<string, string>>(initialData)
+  
+  // Parse initial nomor if nomorUrut not present in initialData
+  const parts = nomor.split("/").map(s => s.trim())
+  const defaultUrut = initialData.nomorUrut || (parts.length >= 3 ? parts[parts.length - 2] : "039")
+  const defaultTahun = initialData.nomorTahun || (parts.length >= 2 ? parts[parts.length - 1] : new Date().getFullYear().toString())
+
+  const [formData, setFormData] = useState<Record<string, string>>({
+    ...initialData,
+    nomorUrut: defaultUrut,
+    nomorTahun: defaultTahun,
+    nomorBulan: initialData.nomorBulan || ROMAN_MONTHS[new Date().getMonth()],
+  })
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
 
-  const fields = FORM_FIELDS[jenis] || []
+  const rawFields = FORM_FIELDS[jenis] || []
+  const fields = [...rawFields]
+  if (!fields.find(f => f.key === "nomorUrut")) {
+    fields.unshift({
+      label: "Nomor Urut Surat",
+      key: "nomorUrut",
+      type: "text",
+      required: false,
+      section: fields[0]?.section || "Identitas Pemohon"
+    })
+  }
+
   const sections = fields.reduce<Record<string, typeof fields>>((acc, field) => {
     const section = field.section || "Umum"
     if (!acc[section]) acc[section] = []
@@ -156,9 +177,11 @@ export default function EditSuratClient({ suratId, jenis, nomor, initialData }: 
     }
   }
 
+  const currentNomor = generateNomorSurat(jenis, formData.nomorUrut || "039", formData.nomorBulan, formData.nomorTahun)
+
   const previewHTML = showPreview ? generateSuratHTML({
     id: suratId,
-    nomor,
+    nomor: currentNomor,
     jenis,
     judul: JENIS_SURAT_LABELS[jenis] || jenis,
     pemohon: formData.pemohon || formData.namaSuami || "Pemohon",
@@ -173,7 +196,7 @@ export default function EditSuratClient({ suratId, jenis, nomor, initialData }: 
     <div>
       <PageHeader
         title={`Edit: ${JENIS_SURAT_LABELS[jenis] || jenis}`}
-        subtitle={`Nomor: ${nomor}`}
+        subtitle={`Nomor: ${currentNomor}`}
       >
         <Link href={`/internal/surat/${suratId}`}>
           <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">
@@ -193,7 +216,57 @@ export default function EditSuratClient({ suratId, jenis, nomor, initialData }: 
                     <label className="block text-xs font-semibold text-teks/60 mb-1.5">
                       {field.label} {field.required && <span className="text-red-500">*</span>}
                     </label>
-                    {field.type === "select" ? (
+                    {field.key === "nomorUrut" ? (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {jenis === "bbm_jbkp" || jenis === "bbm_jbt" ? (
+                          <>
+                            <input
+                              type="text"
+                              value={formData.nomorUrut || ""}
+                              onChange={(e) => handleFieldChange("nomorUrut", e.target.value.replace(/\D/g, '').slice(0, jenis === "bbm_jbt" ? 4 : 3))}
+                              className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono text-center"
+                              placeholder={jenis === "bbm_jbt" ? "0039" : "039"}
+                            />
+                            <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
+                              / TEMIANG PESISIR / 21 / 21.04 / {jenis === "bbm_jbkp" ? "TRANS / JBKP" : "RT-MIKRO / JBT"} /
+                            </div>
+                            <select
+                              value={formData.nomorBulan || ROMAN_MONTHS[new Date().getMonth()]}
+                              onChange={(e) => handleFieldChange("nomorBulan", e.target.value)}
+                              className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
+                            >
+                              {ROMAN_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                            </select>
+                            <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
+                              /
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="border border-gray-200 rounded-lg px-2.5 py-2.5 text-sm bg-gray-50 text-gray-700 font-mono font-medium">
+                              {NOMOR_FORMAT[jenis] || "451.1/CMT-TP"}/
+                            </div>
+                            <input
+                              type="text"
+                              value={formData.nomorUrut || ""}
+                              onChange={(e) => handleFieldChange("nomorUrut", e.target.value.replace(/\D/g, '').slice(0, 4))}
+                              className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono text-center"
+                              placeholder="039"
+                            />
+                            <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
+                              /
+                            </div>
+                          </>
+                        )}
+                        <select
+                          value={formData.nomorTahun || new Date().getFullYear().toString()}
+                          onChange={(e) => handleFieldChange("nomorTahun", e.target.value)}
+                          className="w-[84px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
+                        >
+                          {['2024','2025','2026','2027','2028','2029','2030'].map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+                      </div>
+                    ) : field.type === "select" ? (
                       <select
                         value={formData[field.key] || ""}
                         onChange={(e) => handleFieldChange(field.key, e.target.value)}

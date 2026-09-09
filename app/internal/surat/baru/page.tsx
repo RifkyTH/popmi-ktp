@@ -144,18 +144,28 @@ export default function BuatSuratPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (jenis === "bbm_jbkp" || jenis === "bbm_jbt") {
+    if (jenis) {
       setFormData(prev => ({
         ...prev,
-        nomorUrut: jenis === "bbm_jbt" ? "0039" : "039",
-        nomorBulan: ROMAN_MONTHS[new Date().getMonth()],
-        nomorTahun: new Date().getFullYear().toString()
+        nomorUrut: prev.nomorUrut || (jenis === "bbm_jbt" ? "0039" : "039"),
+        nomorBulan: prev.nomorBulan || ROMAN_MONTHS[new Date().getMonth()],
+        nomorTahun: prev.nomorTahun || new Date().getFullYear().toString()
       }))
     }
   }, [jenis])
 
   const jenisList = Object.keys(JENIS_SURAT_LABELS) as JenisSurat[]
-  const fields = jenis ? FORM_FIELDS[jenis] : []
+  const rawFields = jenis ? FORM_FIELDS[jenis] : []
+  const fields = [...rawFields]
+  if (jenis && !fields.find(f => f.key === "nomorUrut")) {
+    fields.unshift({
+      label: "Nomor Urut Surat",
+      key: "nomorUrut",
+      type: "text",
+      required: false,
+      section: fields[0]?.section || "Identitas Pemohon"
+    })
+  }
 
   // Group fields by section
   const sections = fields.reduce<Record<string, typeof fields>>((acc, field) => {
@@ -256,28 +266,48 @@ export default function BuatSuratPage() {
                         <label className="block text-xs font-semibold text-teks/60 mb-1.5">
                           {field.label} {field.required && <span className="text-merah">*</span>}
                         </label>
-                        {field.key === "nomorUrut" && (jenis === "bbm_jbkp" || jenis === "bbm_jbt") ? (
+                        {field.key === "nomorUrut" ? (
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <input
-                              type="text"
-                              value={formData.nomorUrut || ""}
-                              onChange={(e) => handleFieldChange("nomorUrut", e.target.value.replace(/\D/g, '').slice(0, jenis === "bbm_jbt" ? 4 : 3))}
-                              className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono text-center"
-                              placeholder={jenis === "bbm_jbt" ? "0039" : "039"}
-                            />
-                            <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
-                              / TEMIANG PESISIR / 21 / 21.04 / {jenis === "bbm_jbkp" ? "TRANS / JBKP" : "RT-MIKRO / JBT"} /
-                            </div>
-                            <select
-                              value={formData.nomorBulan || ROMAN_MONTHS[new Date().getMonth()]}
-                              onChange={(e) => handleFieldChange("nomorBulan", e.target.value)}
-                              className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
-                            >
-                              {ROMAN_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
-                            </select>
-                            <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
-                              /
-                            </div>
+                            {jenis === "bbm_jbkp" || jenis === "bbm_jbt" ? (
+                              <>
+                                <input
+                                  type="text"
+                                  value={formData.nomorUrut || ""}
+                                  onChange={(e) => handleFieldChange("nomorUrut", e.target.value.replace(/\D/g, '').slice(0, jenis === "bbm_jbt" ? 4 : 3))}
+                                  className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono text-center"
+                                  placeholder={jenis === "bbm_jbt" ? "0039" : "039"}
+                                />
+                                <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
+                                  / TEMIANG PESISIR / 21 / 21.04 / {jenis === "bbm_jbkp" ? "TRANS / JBKP" : "RT-MIKRO / JBT"} /
+                                </div>
+                                <select
+                                  value={formData.nomorBulan || ROMAN_MONTHS[new Date().getMonth()]}
+                                  onChange={(e) => handleFieldChange("nomorBulan", e.target.value)}
+                                  className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
+                                >
+                                  {ROMAN_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                                <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
+                                  /
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="border border-gray-200 rounded-lg px-2.5 py-2.5 text-sm bg-gray-50 text-gray-700 font-mono font-medium">
+                                  {NOMOR_FORMAT[jenis] || "451.1/CMT-TP"}/
+                                </div>
+                                <input
+                                  type="text"
+                                  value={formData.nomorUrut || ""}
+                                  onChange={(e) => handleFieldChange("nomorUrut", e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                  className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono text-center"
+                                  placeholder="039"
+                                />
+                                <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
+                                  /
+                                </div>
+                              </>
+                            )}
                             <select
                               value={formData.nomorTahun || new Date().getFullYear().toString()}
                               onChange={(e) => handleFieldChange("nomorTahun", e.target.value)}
