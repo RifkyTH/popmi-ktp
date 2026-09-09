@@ -5,7 +5,7 @@ import { DESA_LIST } from "@/lib/mock-data/desa"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { generateTiketPengaduan } from "@/lib/nomor-surat"
-import { CheckCircle2, Copy, FileText, ClipboardCheck, ImageIcon, X, Loader2 } from "lucide-react"
+import { CheckCircle2, Copy, FileText, ClipboardCheck, ImageIcon, X, Loader2, Navigation2, MapPin, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { simpanPengaduan } from "../actions"
 import { compressImage } from "@/lib/utils/compress-image"
@@ -21,6 +21,12 @@ export default function BuatPengaduanPage() {
   const [deskripsi, setDeskripsi] = useState("")
   const [lokasi, setLokasi] = useState("")
 
+  // GPS state
+  const [gpsLat, setGpsLat] = useState<number | null>(null)
+  const [gpsLng, setGpsLng] = useState<number | null>(null)
+  const [gpsLoading, setGpsLoading] = useState(false)
+  const [gpsError, setGpsError] = useState<string | null>(null)
+
   const [fotoFile, setFotoFile] = useState<File | null>(null)
   const [fotoPreview, setFotoPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -31,6 +37,35 @@ export default function BuatPengaduanPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleAmbilGPS() {
+    if (!navigator.geolocation) {
+      setGpsError("Browser Anda tidak mendukung GPS")
+      return
+    }
+    setGpsLoading(true)
+    setGpsError(null)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setGpsLat(pos.coords.latitude)
+        setGpsLng(pos.coords.longitude)
+        setGpsLoading(false)
+      },
+      (err) => {
+        setGpsLoading(false)
+        if (err.code === 1) setGpsError("Izin lokasi ditolak. Aktifkan GPS di browser Anda.")
+        else if (err.code === 2) setGpsError("Lokasi tidak tersedia. Pastikan GPS aktif.")
+        else setGpsError("Gagal mendapatkan lokasi. Coba lagi.")
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+
+  function handleHapusGPS() {
+    setGpsLat(null)
+    setGpsLng(null)
+    setGpsError(null)
+  }
 
   function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -134,6 +169,8 @@ export default function BuatPengaduanPage() {
         deskripsi,
         lokasi,
         foto_url: fotoUrl || undefined,
+        lat: gpsLat ?? undefined,
+        lng: gpsLng ?? undefined,
       })
 
       setTicket(generatedTicket)
@@ -311,18 +348,63 @@ export default function BuatPengaduanPage() {
           />
         </div>
 
-        {/* Detail Lokasi */}
+        {/* Detail Lokasi + GPS */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-            Detail Lokasi Fisik / Landmark (Opsional)
+            Lokasi Fisik / Landmark (Opsional)
           </label>
           <input
             type="text"
             value={lokasi}
             onChange={(e) => setLokasi(e.target.value)}
-            placeholder="Contoh: Depan SD, Sebelah mushola..."
+            placeholder="Contoh: Depan SD Negeri 01, Sebelah mushola..."
             className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
           />
+
+          {/* GPS Section */}
+          <div className="mt-2">
+            {gpsLat && gpsLng ? (
+              /* GPS berhasil */
+              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-xs text-green-700">
+                  <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span className="font-semibold">Lokasi GPS terdeteksi</span>
+                  <span className="text-green-600/70 font-mono">
+                    {gpsLat.toFixed(6)}, {gpsLng.toFixed(6)}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleHapusGPS}
+                  className="text-green-600 hover:text-red-600 ml-2"
+                  title="Hapus lokasi GPS"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              /* Tombol ambil GPS */
+              <button
+                type="button"
+                onClick={handleAmbilGPS}
+                disabled={gpsLoading}
+                className="flex items-center gap-2 text-xs font-semibold text-hijau hover:text-hijau/80 border border-hijau/30 bg-hijau/5 hover:bg-hijau/10 rounded-lg px-3 py-2 transition-colors disabled:opacity-60"
+              >
+                {gpsLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Navigation2 className="w-3.5 h-3.5" />
+                )}
+                {gpsLoading ? "Mendeteksi lokasi GPS..." : "Gunakan Lokasi GPS dari HP"}
+              </button>
+            )}
+            {gpsError && (
+              <p className="mt-1 text-xs text-red-600">{gpsError}</p>
+            )}
+            <p className="mt-1 text-[10px] text-teks/40">
+              Koordinat GPS membuat posisi laporan lebih akurat di peta
+            </p>
+          </div>
         </div>
 
         {/* Foto */}

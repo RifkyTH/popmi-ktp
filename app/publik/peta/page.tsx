@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Layers } from "lucide-react"
 import { PetaMapWrapper } from "./map-wrapper"
-import type { DesaMarker } from "./map-client"
+import type { DesaMarker, GpsReport } from "./map-client"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -31,11 +31,25 @@ export default async function PetaPengaduanPage() {
   const supabase = await createServiceClient()
   const { data: pengaduanList } = await supabase
     .from("pengaduan")
-    .select("id, tiket, judul, desa, kategori, status, tanggal_masuk")
+    .select("id, tiket, judul, desa, kategori, status, tanggal_masuk, lat, lng")
     .order("tanggal_masuk", { ascending: false })
 
   const data = pengaduanList || []
   const totalPins = data.length
+
+  // Laporan dengan GPS akurat
+  const gpsReports: GpsReport[] = data
+    .filter((d) => d.lat != null && d.lng != null)
+    .map((d) => ({
+      id: d.id,
+      tiket: d.tiket,
+      judul: d.judul,
+      desa: d.desa,
+      kategori: d.kategori,
+      status: d.status,
+      lat: d.lat as number,
+      lng: d.lng as number,
+    }))
 
   // Gabungkan desa dari DB + DESA_LIST
   const allDesas = Array.from(new Set([...DESA_LIST, ...data.map((d) => d.desa).filter(Boolean)]))
@@ -77,20 +91,29 @@ export default async function PetaPengaduanPage() {
 
             {/* Map */}
             <div className="h-[420px] w-full">
-              <PetaMapWrapper markers={markers} recentReports={recentReports} />
+              <PetaMapWrapper markers={markers} gpsReports={gpsReports} recentReports={recentReports} />
             </div>
           </div>
 
           {/* Legenda */}
-          <div className="bg-white rounded-xl border border-kuning-muda p-4 flex flex-wrap gap-x-5 gap-y-2 justify-center text-xs">
-            {Object.entries(KATEGORI_LABEL).map(([key, label]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <span className={`w-2.5 h-2.5 rounded-full ${KATEGORI_DOT[key]}`} />
-                <span>{label}</span>
+          <div className="bg-white rounded-xl border border-kuning-muda p-4 space-y-3 text-xs">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center">
+              {Object.entries(KATEGORI_LABEL).map(([key, label]) => (
+                <div key={key} className="flex items-center gap-1.5">
+                  <span className={`w-2.5 h-2.5 rounded-full ${KATEGORI_DOT[key]}`} />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-1 justify-center text-[10px] text-teks/50 border-t border-gray-100 pt-2">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-hijau border-2 border-white shadow" />
+                <span>Pin GPS — lokasi laporan akurat dari HP</span>
               </div>
-            ))}
-            <div className="w-full text-center text-[10px] text-teks/40 pt-1">
-              Ukuran lingkaran proporsional terhadap jumlah laporan. Klik marker untuk detail.
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full border-2 border-dashed border-gray-400" />
+                <span>Lingkaran — estimasi per desa (tanpa GPS)</span>
+              </div>
             </div>
           </div>
         </div>
