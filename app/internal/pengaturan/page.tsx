@@ -9,14 +9,41 @@ import { id as localeId } from "date-fns/locale"
 export default async function PengaturanPage() {
   const supabase = await createServiceClient()
   
-  // Fetch latest 5 activities from surat_riwayat
+  // Fetch latest activities from surat
   const { data: riwayatSurat } = await supabase
     .from("surat_riwayat")
     .select("status, oleh, tanggal, surat:surat_id(judul)")
     .order("tanggal", { ascending: false })
     .limit(5)
 
-  const logs = riwayatSurat || []
+  // Fetch latest activities from pengaduan
+  const { data: riwayatPengaduan } = await supabase
+    .from("pengaduan_riwayat")
+    .select("status, oleh, tanggal, pengaduan:pengaduan_id(judul)")
+    .order("tanggal", { ascending: false })
+    .limit(5)
+
+  // Format and merge logs
+  const suratLogs = (riwayatSurat || []).map(s => ({
+    type: 'surat',
+    status: s.status,
+    oleh: s.oleh,
+    tanggal: s.tanggal,
+    title: Array.isArray(s.surat) ? s.surat[0]?.judul : s.surat?.judul
+  }))
+
+  const pengaduanLogs = (riwayatPengaduan || []).map(p => ({
+    type: 'pengaduan',
+    status: p.status,
+    oleh: p.oleh,
+    tanggal: p.tanggal,
+    title: Array.isArray(p.pengaduan) ? p.pengaduan[0]?.judul : p.pengaduan?.judul
+  }))
+
+  // Sort combined logs by date (newest first) and take top 5
+  const combinedLogs = [...suratLogs, ...pengaduanLogs]
+    .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
+    .slice(0, 5)
 
   return (
     <div className="space-y-6">
@@ -78,18 +105,30 @@ export default async function PengaturanPage() {
             <CardDescription>Jejak audit aktivitas staf dan status perubahan sistem terbaru</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-teks/80">
-            {logs.length > 0 ? logs.map((log, idx) => {
-              const actionTitle = log.status === 'draf' ? 'Membuat draf surat' 
-                : log.status === 'verifikasi' ? 'Memverifikasi surat'
-                : log.status === 'terbit' ? 'Menerbitkan surat'
-                : log.status === 'menunggu_ttd' ? 'Meneruskan ke Camat'
-                : 'Mengubah surat'
+            {combinedLogs.length > 0 ? combinedLogs.map((log, idx) => {
+              let actionTitle = ''
               
-              const suratTitle = Array.isArray(log.surat) ? log.surat[0]?.judul : log.surat?.judul
+              if (log.type === 'surat') {
+                actionTitle = log.status === 'draf' ? 'Membuat draf surat' 
+                  : log.status === 'verifikasi' ? 'Memverifikasi surat'
+                  : log.status === 'terbit' ? 'Menerbitkan surat'
+                  : log.status === 'menunggu_ttd' ? 'Meneruskan ke Camat'
+                  : 'Pembaruan surat'
+              } else {
+                actionTitle = log.status === 'masuk' ? 'Menerima pengaduan baru' 
+                  : log.status === 'verifikasi' ? 'Memverifikasi pengaduan'
+                  : log.status === 'proses' ? 'Memproses pengaduan'
+                  : log.status === 'selesai' ? 'Menyelesaikan pengaduan'
+                  : log.status === 'ditolak' ? 'Menolak pengaduan'
+                  : 'Pembaruan pengaduan'
+              }
+              
+              const title = log.title || (log.type === 'surat' ? 'Surat' : 'Pengaduan')
+              const borderColor = log.type === 'pengaduan' ? 'border-orange-400' : 'border-kuning'
               
               return (
-                <div key={idx} className="border-l-2 border-kuning pl-4 py-1">
-                  <p className="font-semibold text-teks">{actionTitle}: {suratTitle || 'Surat'}</p>
+                <div key={idx} className={`border-l-2 ${borderColor} pl-4 py-1`}>
+                  <p className="font-semibold text-teks">{actionTitle}: {title}</p>
                   <p className="text-xs text-teks/50 mt-0.5">
                     {formatDistanceToNow(new Date(log.tanggal), { addSuffix: true, locale: localeId })} · {log.oleh}
                   </p>
@@ -99,9 +138,12 @@ export default async function PengaturanPage() {
               <p className="text-teks/50 text-sm">Belum ada aktivitas tercatat.</p>
             )}
             
-            <div className="pt-3">
+            <div className="pt-3 flex gap-2">
               <Link href="/internal/surat">
-                <Button size="sm" variant="outline">Lihat Semua Surat</Button>
+                <Button size="sm" variant="outline">Lihat Surat</Button>
+              </Link>
+              <Link href="/internal/pengaduan">
+                <Button size="sm" variant="outline">Lihat Pengaduan</Button>
               </Link>
             </div>
           </CardContent>
