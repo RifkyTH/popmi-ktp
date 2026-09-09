@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Layers } from "lucide-react"
 import { PetaMapWrapper } from "./map-wrapper"
-import type { DesaMarker, GpsReport } from "./map-client"
+import type { PinReport, DesaMarker } from "./map-client"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -27,6 +27,25 @@ const KATEGORI_DOT: Record<string, string> = {
   lainnya:       "bg-slate-500",
 }
 
+/**
+ * Jitter deterministik berdasarkan string seed (tiket).
+ * Menghasilkan offset lat/lng konsisten — tidak berubah setiap render.
+ * Range ±0.0025 derajat ≈ ±270 meter — cukup jauh agar tidak tumpuk.
+ */
+function deterministicJitter(seed: string, range = 0.0025): [number, number] {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57
+  for (let i = 0; i < seed.length; i++) {
+    const c = seed.charCodeAt(i)
+    h1 = Math.imul(h1 ^ c, 2246822519)
+    h2 = Math.imul(h2 ^ c, 3266489917)
+  }
+  h1 = (Math.imul(h1 ^ (h1 >>> 17), 2246822519) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489917)) >>> 0
+  h2 = (Math.imul(h2 ^ (h2 >>> 16), 2246822519) ^ Math.imul(h1 ^ (h1 >>> 15), 3266489917)) >>> 0
+  const latOff = ((h1 / 0xFFFFFFFF) - 0.5) * range * 2
+  const lngOff = ((h2 / 0xFFFFFFFF) - 0.5) * range * 2
+  return [latOff, lngOff]
+}
+
 export default async function PetaPengaduanPage() {
   const supabase = await createServiceClient()
   const { data: pengaduanList } = await supabase
@@ -37,25 +56,45 @@ export default async function PetaPengaduanPage() {
   const data = pengaduanList || []
   const totalPins = data.length
 
-  // Laporan dengan GPS akurat
-  const gpsReports: GpsReport[] = data
-    .filter((d) => d.lat != null && d.lng != null)
-    .map((d) => ({
-      id: d.id,
-      tiket: d.tiket,
-      judul: d.judul,
-      desa: d.desa,
-      kategori: d.kategori,
-      status: d.status,
-      lat: d.lat as number,
-      lng: d.lng as number,
-    }))
+  // Buat pin untuk setiap laporan
+  const pinReports: PinReport[] = data
+    .map((d) => {
+      if (d.lat != null && d.lng != null) {
+        // ✅ Punya GPS akurat
+        return {
+          id: d.id,
+          tiket: d.tiket,
+          judul: d.judul,
+          desa: d.desa,
+          kategori: d.kategori,
+          status: d.status,
+          lat: d.lat as number,
+          lng: d.lng as number,
+          isGps: true,
+        } as PinReport
+      } else if (d.desa && DESA_KOORDINAT[d.desa]) {
+        // 📍 Pakai koordinat desa + jitter agar tidak tumpuk
+        const [baseLat, baseLng] = DESA_KOORDINAT[d.desa]
+        const [jLat, jLng] = deterministicJitter(d.tiket ?? d.id)
+        return {
+          id: d.id,
+          tiket: d.tiket,
+          judul: d.judul,
+          desa: d.desa,
+          kategori: d.kategori,
+          status: d.status,
+          lat: baseLat + jLat,
+          lng: baseLng + jLng,
+          isGps: false,
+        } as PinReport
+      }
+      return null
+    })
+    .filter(Boolean) as PinReport[]
 
-  // Gabungkan desa dari DB + DESA_LIST
+  // Sebaran per desa untuk side panel
   const allDesas = Array.from(new Set([...DESA_LIST, ...data.map((d) => d.desa).filter(Boolean)]))
-
-  // Hitung sebaran per desa + breakdown kategori
-  const markers: DesaMarker[] = allDesas.map((desa) => {
+  const desaMarkers: DesaMarker[] = allDesas.map((desa) => {
     const desaReports = data.filter((d) => d.desa === desa)
     const breakdown: Record<string, number> = {}
     for (const r of desaReports) {
@@ -65,7 +104,6 @@ export default async function PetaPengaduanPage() {
     return { name: desa, count: desaReports.length, breakdown }
   }).sort((a, b) => b.count - a.count)
 
-  const sebaranDesa = [...markers].sort((a, b) => b.count - a.count)
   const recentReports = data.slice(0, 5)
 
   return (
@@ -84,14 +122,19 @@ export default async function PetaPengaduanPage() {
               <span className="font-bold uppercase tracking-wider flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5" /> Peta Interaktif Temiang Pesisir
               </span>
-              <span className="bg-kuning-muda font-semibold px-2 py-0.5 rounded text-teks/80">
-                {totalPins} Laporan Aktif
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="bg-kuning-muda font-semibold px-2 py-0.5 rounded text-teks/80">
+                  {totalPins} Laporan
+                </span>
+                <span className="text-green-700 font-semibold bg-green-100 px-2 py-0.5 rounded">
+                  {pinReports.filter((p) => p.isGps).length} GPS
+                </span>
+              </div>
             </div>
 
             {/* Map */}
             <div className="h-[420px] w-full">
-              <PetaMapWrapper markers={markers} gpsReports={gpsReports} recentReports={recentReports} />
+              <PetaMapWrapper pinReports={pinReports} desaMarkers={desaMarkers} recentReports={recentReports} />
             </div>
           </div>
 
@@ -107,12 +150,12 @@ export default async function PetaPengaduanPage() {
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-1 justify-center text-[10px] text-teks/50 border-t border-gray-100 pt-2">
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-hijau border-2 border-white shadow" />
-                <span>Pin GPS — lokasi laporan akurat dari HP</span>
+                <span className="inline-block w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow" />
+                <span>Pin solid — lokasi GPS akurat dari HP</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full border-2 border-dashed border-gray-400" />
-                <span>Lingkaran — estimasi per desa (tanpa GPS)</span>
+                <span className="inline-block w-3 h-3 rounded-full border-2 border-gray-400 bg-gray-100" />
+                <span>Pin transparan — estimasi dari desa pilihan</span>
               </div>
             </div>
           </div>
@@ -124,19 +167,16 @@ export default async function PetaPengaduanPage() {
             <CardContent className="p-5 space-y-4">
               <h3 className="font-serif font-bold text-hijau text-sm">Sebaran per Desa</h3>
               <div className="space-y-2 text-xs">
-                {sebaranDesa.map((d) => {
-                  const hasCoords = !!DESA_KOORDINAT[d.name]
-                  return (
-                    <div key={d.name} className="flex justify-between items-center pb-1.5 border-b border-gray-50 last:border-0">
-                      <span className={`${hasCoords ? "text-teks/80" : "text-teks/40 italic"}`}>
-                        Desa {d.name}
-                      </span>
-                      <span className={`font-bold px-2 py-0.5 rounded ${d.count > 0 ? "text-teks bg-krem" : "text-teks/30 bg-gray-50"}`}>
-                        {d.count} aduan
-                      </span>
-                    </div>
-                  )
-                })}
+                {desaMarkers.map((d) => (
+                  <div key={d.name} className="flex justify-between items-center pb-1.5 border-b border-gray-50 last:border-0">
+                    <span className={d.count > 0 ? "text-teks/80" : "text-teks/40 italic"}>
+                      Desa {d.name}
+                    </span>
+                    <span className={`font-bold px-2 py-0.5 rounded ${d.count > 0 ? "text-teks bg-krem" : "text-teks/30 bg-gray-50"}`}>
+                      {d.count} aduan
+                    </span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

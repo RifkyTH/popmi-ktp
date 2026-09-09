@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import type { DesaMarker, GpsReport, RecentReport } from "./map-client"
+import type { PinReport, DesaMarker, RecentReport } from "./map-client"
 
 const PetaMap = dynamic(
   () => import("./map-client").then((m) => ({ default: m.PetaMap })),
@@ -19,13 +19,13 @@ const PetaMap = dynamic(
 )
 
 export function PetaMapWrapper({
-  markers,
-  gpsReports,
+  pinReports,
+  desaMarkers,
   recentReports,
 }: {
-  markers: DesaMarker[]
-  gpsReports: GpsReport[]
+  pinReports: PinReport[]
+  desaMarkers: DesaMarker[]
   recentReports: RecentReport[]
 }) {
-  return <PetaMap markers={markers} gpsReports={gpsReports} recentReports={recentReports} />
+  return <PetaMap pinReports={pinReports} desaMarkers={desaMarkers} recentReports={recentReports} />
 }
