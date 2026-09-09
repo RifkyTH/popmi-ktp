@@ -23,6 +23,13 @@ export default async function PengaturanPage() {
     .order("tanggal", { ascending: false })
     .limit(5)
 
+  // Fetch latest activities from sistem (login, user actions)
+  const { data: riwayatSistem } = await supabase
+    .from("log_sistem")
+    .select("aksi, keterangan, oleh, tanggal")
+    .order("tanggal", { ascending: false })
+    .limit(5)
+
   // Format and merge logs
   const suratLogs = (riwayatSurat || []).map(s => ({
     type: 'surat',
@@ -40,8 +47,16 @@ export default async function PengaturanPage() {
     title: Array.isArray(p.pengaduan) ? p.pengaduan[0]?.judul : p.pengaduan?.judul
   }))
 
+  const sistemLogs = (riwayatSistem || []).map(l => ({
+    type: 'sistem',
+    status: l.aksi,
+    oleh: l.oleh,
+    tanggal: l.tanggal,
+    title: l.keterangan
+  }))
+
   // Sort combined logs by date (newest first) and take top 5
-  const combinedLogs = [...suratLogs, ...pengaduanLogs]
+  const combinedLogs = [...suratLogs, ...pengaduanLogs, ...sistemLogs]
     .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
     .slice(0, 5)
 
@@ -114,17 +129,26 @@ export default async function PengaturanPage() {
                   : log.status === 'terbit' ? 'Menerbitkan surat'
                   : log.status === 'menunggu_ttd' ? 'Meneruskan ke Camat'
                   : 'Pembaruan surat'
-              } else {
+              } else if (log.type === 'pengaduan') {
                 actionTitle = log.status === 'masuk' ? 'Menerima pengaduan baru' 
                   : log.status === 'verifikasi' ? 'Memverifikasi pengaduan'
                   : log.status === 'proses' ? 'Memproses pengaduan'
                   : log.status === 'selesai' ? 'Menyelesaikan pengaduan'
                   : log.status === 'ditolak' ? 'Menolak pengaduan'
                   : 'Pembaruan pengaduan'
+              } else {
+                actionTitle = log.status === 'login' ? 'Login' 
+                  : log.status === 'tambah_pengguna' ? 'Menambah Pengguna'
+                  : log.status === 'edit_pengguna' ? 'Pembaruan Pengguna'
+                  : log.status === 'hapus_pengguna' ? 'Penghapusan Pengguna'
+                  : log.status === 'status_pengguna' ? 'Ubah Status Pengguna'
+                  : 'Aktivitas Sistem'
               }
               
               const title = log.title || (log.type === 'surat' ? 'Surat' : 'Pengaduan')
-              const borderColor = log.type === 'pengaduan' ? 'border-orange-400' : 'border-kuning'
+              const borderColor = log.type === 'pengaduan' ? 'border-orange-400' 
+                : log.type === 'sistem' ? 'border-blue-400' 
+                : 'border-kuning'
               
               return (
                 <div key={idx} className={`border-l-2 ${borderColor} pl-4 py-1`}>

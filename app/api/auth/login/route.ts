@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { loginFromSupabase, createSessionToken, AUTH_COOKIE_NAME } from "@/lib/auth"
+import { createServiceClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest) {
   const { username, password } = await request.json()
@@ -8,6 +9,18 @@ export async function POST(request: NextRequest) {
   
   if (!user) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+  }
+
+  // Log to system
+  try {
+    const supabase = await createServiceClient()
+    await supabase.from("log_sistem").insert({
+      aksi: "login",
+      keterangan: `Berhasil login ke sistem`,
+      oleh: user.nama
+    })
+  } catch (e) {
+    // ignore logging errors to not break login
   }
 
   const token = createSessionToken(user)
