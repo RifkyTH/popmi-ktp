@@ -12,6 +12,7 @@ export async function simpanPengaduan(data: {
   judul: string
   deskripsi: string
   lokasi?: string
+  foto_url?: string
 }) {
   const supabase = await createServiceClient()
   const now = new Date().toISOString()
@@ -25,6 +26,7 @@ export async function simpanPengaduan(data: {
     deskripsi: data.deskripsi,
     desa: data.desa,
     lokasi: data.lokasi || null,
+    foto_url: data.foto_url || null,
     status: "masuk",
     tanggal_masuk: now,
     tanggal_update: now,

@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { createServiceClient } from "@/lib/supabase/server"
 import { STATUS_PENGADUAN_LABELS, KATEGORI_LABELS, StatusPengaduan, KategoriPengaduan } from "@/lib/mock-data/pengaduan"
 import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, User, Phone, MapPin, CheckCircle } from "lucide-react"
+import { ArrowLeft, User, Phone, MapPin, CheckCircle, ImageIcon } from "lucide-react"
 import { UpdateAduanForm } from "../update-form"
 import { getSessionFromCookie } from "@/lib/auth"
 import { cookies } from "next/headers"
@@ -81,6 +82,30 @@ export default async function DetailAduanInternalPage({
                   <p className="text-sm text-teks/80 flex items-center gap-1">
                     <MapPin className="w-4 h-4 text-hijau shrink-0" /> {report.lokasi}
                   </p>
+                </div>
+              )}
+
+              {/* Foto Bukti */}
+              {report.foto_url && (
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-2 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5" /> Foto Bukti Fisik
+                  </h3>
+                  <a href={report.foto_url} target="_blank" rel="noopener noreferrer" className="block group">
+                    <div className="relative rounded-xl overflow-hidden border border-kuning-muda shadow-sm">
+                      <Image
+                        src={report.foto_url}
+                        alt="Foto bukti pengaduan"
+                        width={800}
+                        height={450}
+                        className="w-full max-h-80 object-cover group-hover:scale-[1.01] transition-transform duration-200"
+                        unoptimized
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/30 text-white text-[10px] text-center py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Klik untuk lihat ukuran penuh
+                      </div>
+                    </div>
+                  </a>
                 </div>
               )}
             </div>
