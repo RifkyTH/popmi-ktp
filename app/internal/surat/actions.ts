@@ -4,8 +4,15 @@ import { revalidatePath } from "next/cache"
 import { createServiceClient } from "@/lib/supabase/server"
 import { JenisSurat, NOMOR_FORMAT, generateNomorSurat } from "@/lib/mock-data/surat"
 
+import { cookies } from "next/headers"
+import { getSessionFromCookie } from "@/lib/auth"
+
 export async function buatSuratBaru(jenis: JenisSurat, formData: Record<string, string>) {
   const supabase = await createServiceClient()
+  const cookieStore = await cookies()
+  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
+  const creatorName = sessionUser?.nama || "Sistem"
+
   const today = new Date()
   const dateStr = today.toISOString().split("T")[0]
   
@@ -39,7 +46,7 @@ export async function buatSuratBaru(jenis: JenisSurat, formData: Record<string, 
     desa: formData.desa || formData.desaPengantar || null,
     tanggal_buat: dateStr,
     status: "draf",
-    dibuat_oleh: "Ahmad Fauzi",
+    dibuat_oleh: creatorName,
     perihal: judul,
     data_form: formData,
   }).select().single()
@@ -52,7 +59,7 @@ export async function buatSuratBaru(jenis: JenisSurat, formData: Record<string, 
   await supabase.from("surat_riwayat").insert({
     surat_id: newId,
     status: "draf",
-    oleh: "Ahmad Fauzi",
+    oleh: creatorName,
     tanggal: new Date().toISOString(),
     catatan: "Surat dibuat dari sistem",
   })
