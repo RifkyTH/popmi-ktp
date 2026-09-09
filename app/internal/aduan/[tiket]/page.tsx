@@ -8,6 +8,7 @@ import { ArrowLeft, User, Phone, MapPin, CheckCircle } from "lucide-react"
 import { UpdateAduanForm } from "../update-form"
 import { getSessionFromCookie } from "@/lib/auth"
 import { cookies } from "next/headers"
+import { DeleteDetailAduanButton } from "../delete-detail-button"
 
 export default async function DetailAduanInternalPage({
   params,
@@ -40,6 +41,7 @@ export default async function DetailAduanInternalPage({
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
           </Button>
         </Link>
+        <DeleteDetailAduanButton id={report.id} tiket={report.tiket} />
       </PageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
