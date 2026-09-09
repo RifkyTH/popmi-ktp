@@ -224,3 +224,28 @@ export async function teruskanKeCamat(suratId: string, namaStaf: string) {
   revalidatePath("/internal/surat")
   revalidatePath(`/internal/surat/${suratId}`)
 }
+
+export async function arsipkanSurat(suratId: string, namaStaf: string) {
+  const supabase = await createServiceClient()
+  
+  const { error } = await supabase
+    .from("surat")
+    .update({ 
+      status: "terkirim"
+    })
+    .eq("id", suratId)
+
+  if (error) throw new Error(error.message)
+
+  await supabase.from("surat_riwayat").insert({
+    surat_id: suratId,
+    status: "terkirim",
+    oleh: namaStaf,
+    tanggal: new Date().toISOString(),
+    catatan: "Surat telah diserahkan/dikirim dan diarsipkan",
+  })
+
+  revalidatePath("/internal/surat")
+  revalidatePath(`/internal/surat/${suratId}`)
+  revalidatePath("/internal/arsip")
+}

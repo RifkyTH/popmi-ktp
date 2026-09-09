@@ -190,7 +190,8 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
         {/* Actions */}
         {((surat.status === "draf" && (isKasi || user?.role === "super_admin")) || 
           (surat.status === "verifikasi" && (user?.role === "staf" || user?.role === "super_admin")) || 
-          (surat.status === "menunggu_ttd" && (user?.role === "camat" || user?.role === "super_admin"))) && (
+          (surat.status === "menunggu_ttd" && (user?.role === "camat" || user?.role === "super_admin")) ||
+          (surat.status === "terbit" && (user?.role === "staf" || user?.role === "super_admin"))) && (
           <div className="bg-white rounded-xl border border-kuning-muda p-6 mt-5">
             <h2 className="font-bold font-serif text-hijau text-base mb-3">Aksi Tersedia</h2>
             <div className="flex flex-wrap gap-3">
@@ -224,6 +225,17 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                 }}>
                   <Button type="submit" size="sm">
                     <CheckCheck className="w-4 h-4 mr-2" /> Tandatangani &amp; Terbitkan (Camat)
+                  </Button>
+                </form>
+              )}
+              {surat.status === "terbit" && (user?.role === "staf" || user?.role === "super_admin") && (
+                <form action={async () => {
+                  "use server"
+                  const { arsipkanSurat } = await import("../actions")
+                  await arsipkanSurat(surat.id, user?.nama || "Super Admin")
+                }}>
+                  <Button type="submit" size="sm" className="bg-teal-600 hover:bg-teal-700">
+                    <CheckCheck className="w-4 h-4 mr-2" /> Serahkan / Arsipkan Surat
                   </Button>
                 </form>
               )}
