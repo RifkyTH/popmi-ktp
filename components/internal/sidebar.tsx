@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import type { User, UserRole } from "@/lib/auth"
 import {
   LayoutDashboard,
   FileText,
@@ -13,41 +14,92 @@ import {
   Building2,
   LogOut,
   ChevronRight,
+  Users,
+  MessageSquareWarning,
 } from "lucide-react"
 
-const navItems = [
-  {
-    group: "Utama",
-    items: [
-      { href: "/internal/beranda", label: "Beranda", icon: LayoutDashboard },
-    ],
-  },
-  {
-    group: "Surat & Rekomendasi",
-    items: [
-      { href: "/internal/surat", label: "Daftar Surat", icon: FileText },
-      { href: "/internal/surat/baru", label: "Buat Surat Baru", icon: FilePlus },
-      { href: "/internal/arsip", label: "Arsip Surat", icon: Archive },
-    ],
-  },
-  {
-    group: "Desa & Laporan",
-    items: [
-      { href: "/internal/pengajuan-desa", label: "Pengajuan Desa", icon: Building2 },
-      { href: "/internal/aduan", label: "Aduan Masyarakat", icon: FileText },
-      { href: "/internal/rekap", label: "Rekap & Statistik", icon: BarChart3 },
-    ],
-  },
-  {
-    group: "Sistem",
-    items: [
-      { href: "/internal/pengaturan", label: "Pengaturan", icon: Settings },
-    ],
-  },
-]
+type NavItem = { href: string; label: string; icon: React.ElementType }
+type NavGroup = { group: string; items: NavItem[] }
 
-export function Sidebar() {
+function getNavItems(role: UserRole): NavGroup[] {
+  const beranda: NavItem = { href: "/internal/beranda", label: "Beranda", icon: LayoutDashboard }
+  const daftarSurat: NavItem = { href: "/internal/surat", label: "Daftar Surat", icon: FileText }
+  const buatSurat: NavItem = { href: "/internal/surat/baru", label: "Buat Surat Baru", icon: FilePlus }
+  const arsip: NavItem = { href: "/internal/arsip", label: "Arsip Surat", icon: Archive }
+  const pengajuanDesa: NavItem = { href: "/internal/pengajuan-desa", label: "Pengajuan Desa", icon: Building2 }
+  const aduan: NavItem = { href: "/internal/aduan", label: "Aduan Masyarakat", icon: MessageSquareWarning }
+  const rekap: NavItem = { href: "/internal/rekap", label: "Rekap & Statistik", icon: BarChart3 }
+  const pengaturan: NavItem = { href: "/internal/pengaturan", label: "Pengaturan", icon: Settings }
+  const pengguna: NavItem = { href: "/internal/pengguna", label: "Manajemen User", icon: Users }
+
+  switch (role) {
+    case "super_admin":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
+        { group: "Desa & Laporan", items: [pengajuanDesa, aduan, rekap] },
+        { group: "Sistem", items: [pengguna, pengaturan] },
+      ]
+
+    case "admin":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
+        { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Sistem", items: [pengaturan] },
+      ]
+
+    case "camat":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Surat & Rekomendasi", items: [daftarSurat, arsip] },
+        { group: "Laporan", items: [rekap] },
+      ]
+
+    case "kasi":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
+        { group: "Desa & Laporan", items: [aduan, rekap] },
+      ]
+
+    case "staf":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Surat & Rekomendasi", items: [buatSurat, daftarSurat] },
+      ]
+
+    case "operator_desa":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Desa", items: [pengajuanDesa] },
+      ]
+
+    case "petugas":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Pengaduan", items: [aduan] },
+      ]
+
+    default:
+      return [{ group: "Utama", items: [beranda] }]
+  }
+}
+
+const ROLE_LABELS: Record<UserRole, string> = {
+  super_admin: "Super Admin",
+  admin: "Admin",
+  camat: "Camat",
+  kasi: "Kasi",
+  staf: "Staf",
+  operator_desa: "Operator Desa",
+  petugas: "Petugas",
+}
+
+export function Sidebar({ user }: { user: User | null }) {
   const pathname = usePathname()
+  const role = user?.role ?? "staf"
+  const navItems = getNavItems(role)
 
   return (
     <aside className="w-64 shrink-0 bg-hijau h-full flex-1 flex flex-col shadow-xl lg:shadow-none">
@@ -64,6 +116,19 @@ export function Sidebar() {
         </Link>
       </div>
 
+      {/* User Info */}
+      {user && (
+        <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-kuning flex items-center justify-center text-teks text-xs font-bold shrink-0">
+            {user.nama.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="text-white text-xs font-semibold truncate leading-tight">{user.nama}</p>
+            <p className="text-white/50 text-[10px] mt-0.5">{ROLE_LABELS[role]}</p>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {navItems.map((group) => (
@@ -74,7 +139,6 @@ export function Sidebar() {
             {group.items.map((item) => {
               const isActive = (() => {
                 if (pathname === item.href) return true
-                // For /internal/surat, only active on /internal/surat/[id] (not /baru)
                 if (item.href === "/internal/surat") {
                   return pathname.startsWith("/internal/surat/") && !pathname.startsWith("/internal/surat/baru")
                 }

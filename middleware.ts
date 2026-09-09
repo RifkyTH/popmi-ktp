@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { getSessionFromCookie } from "@/lib/auth"
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -10,11 +11,19 @@ export function middleware(request: NextRequest) {
     !pathname.startsWith("/internal/login") &&
     !pathname.includes("/cetak")
   ) {
-    const session = request.cookies.get("silat_session")
-    if (!session) {
+    const sessionCookie = request.cookies.get("silat_session")
+    if (!sessionCookie) {
       const loginUrl = new URL("/internal/login", request.url)
       loginUrl.searchParams.set("from", pathname)
       return NextResponse.redirect(loginUrl)
+    }
+
+    // Guard: /internal/pengguna hanya untuk super_admin
+    if (pathname.startsWith("/internal/pengguna")) {
+      const user = getSessionFromCookie(sessionCookie.value)
+      if (!user || user.role !== "super_admin") {
+        return NextResponse.redirect(new URL("/internal/beranda", request.url))
+      }
     }
   }
 
