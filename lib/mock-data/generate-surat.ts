@@ -1,4 +1,4 @@
-import type { Surat } from "./surat"
+﻿import type { Surat } from "./surat"
 
 // ─── Logo (base64 placeholder — diambil dari path publik saat runtime) ─────────
 // e-TEPI menggunakan LOGO_KAB_LINGGA sebagai konstanta base64 atau URL
@@ -296,23 +296,24 @@ export function generateSuratHTML(surat: Surat): string {
                   <td style="padding-bottom:4px;">Tajur Biru, ${formatTanggal(tanggal)}</td>
                 </tr>
                 <tr>
-                  <td style="font-weight:bold; vertical-align:top;">a.n&nbsp;</td>
-                  <td style="font-weight:bold; vertical-align:top;">Camat Temiang Pesisir</td>
+                  <td colspan="2" style="font-weight:bold; vertical-align:top; padding-bottom:2px;">CAMAT TEMIANG PESISIR,</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="height:${isSigned ? `10px` : `70px`};">
+                    ${isSigned ? `<div style="position:absolute;margin:-5px 0 0 -5px;"><img src="/ttd-camat.jpeg" style="width:130px;height:auto;mix-blend-mode:multiply;" /></div>` : ``}
+                  </td>
                 </tr>
                 <tr>
                   <td></td>
-                  <td style="font-weight:bold;">Sekretaris Kecamatan</td>
-                </tr>
-                <tr>
-                  <td colspan="2" style="height:70px;"></td>
+                  <td style="font-weight:bold;"><span style="text-decoration:underline;">HENDRA, S.STP</span></td>
                 </tr>
                 <tr>
                   <td></td>
-                  <td style="font-weight:bold;"><span style="text-decoration:underline;">JUBIR, S.Pd.SD</span></td>
+                  <td style="font-weight:bold;">PEMBINA / IV.a</td>
                 </tr>
                 <tr>
                   <td></td>
-                  <td style="font-weight:bold;">NIP. 19690202 199909 1 001</td>
+                  <td style="font-weight:bold;">NIP. 198507122006021001</td>
                 </tr>
               </table>
             </td>
