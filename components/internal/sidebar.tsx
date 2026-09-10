@@ -84,7 +84,10 @@ const ROLE_LABELS: Record<UserRole, string> = {
   super_admin: "Super Admin",
   admin: "Admin",
   camat: "Camat",
-  kasi: "Kasi",
+  sekretaris: "Sekretaris",
+  kasi: "Kasi Pemerintahan",
+  kasi_ekobang: "Kasi Ekobang",
+  kasi_kessos: "Kasi Kessos",
   staf: "Staf",
   petugas: "Petugas",
 }

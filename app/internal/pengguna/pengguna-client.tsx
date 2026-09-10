@@ -31,7 +31,10 @@ const ROLE_LABELS: Record<UserRole, string> = {
   super_admin: "Super Admin",
   admin: "Admin",
   camat: "Camat",
-  kasi: "Kasi",
+  sekretaris: "Sekretaris",
+  kasi: "Kasi Pemerintahan",
+  kasi_ekobang: "Kasi Ekobang",
+  kasi_kessos: "Kasi Kessos",
   staf: "Staf",
   petugas: "Petugas",
 }
@@ -40,7 +43,10 @@ const ROLE_COLORS: Record<UserRole, string> = {
   super_admin: "bg-purple-100 text-purple-800",
   admin: "bg-blue-100 text-blue-800",
   camat: "bg-green-100 text-green-800",
+  sekretaris: "bg-indigo-100 text-indigo-800",
   kasi: "bg-teal-100 text-teal-800",
+  kasi_ekobang: "bg-orange-100 text-orange-800",
+  kasi_kessos: "bg-pink-100 text-pink-800",
   staf: "bg-gray-100 text-gray-700",
   petugas: "bg-yellow-100 text-yellow-800",
 }

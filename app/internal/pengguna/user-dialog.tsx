@@ -10,7 +10,10 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "super_admin", label: "Super Admin" },
   { value: "admin", label: "Admin" },
   { value: "camat", label: "Camat" },
-  { value: "kasi", label: "Kasi Pemerintahan" },
+  { value: "sekretaris", label: "Sekretaris" },
+  { value: "kasi", label: "Kepala Seksi Pemerintahan dan Ketertiban Umum" },
+  { value: "kasi_ekobang", label: "Kepala Seksi Ekonomi dan Pembangunan" },
+  { value: "kasi_kessos", label: "Kepala Seksi Kesejahteraan Sosial dan Pelayanan Umum" },
   { value: "staf", label: "Staf Administrasi" },
   { value: "petugas", label: "Petugas Pengaduan" },
 ]
