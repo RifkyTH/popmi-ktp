@@ -211,6 +211,7 @@ export function generateSuratHTML(surat: Surat): string {
   const base = "font-family:Arial;font-size:12pt;color:#000;line-height:1.15;"
   const tanggal = surat.tanggalTerbit || new Date().toISOString().split("T")[0]
   const desa = surat.desa || "Pulau Batang"
+  const formData = (surat.data_form || {}) as Record<string, string>
 
   switch (surat.jenis) {
 
@@ -744,22 +745,22 @@ export function generateSuratHTML(surat: Surat): string {
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">a.</td>
               <td style="border:1px solid #000;padding:6px;">Surat Permohonan Kepala Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekA === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">b.</td>
               <td style="border:1px solid #000;padding:6px;">FotoCopy Print Out Buku Rekening Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekB === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">c.</td>
               <td style="border:1px solid #000;padding:6px;">FotoCopy NPWP Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekC === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">d.</td>
               <td style="border:1px solid #000;padding:6px;">Laporan Realisasi pelaksanaan kegiatan dan anggaran penggunaan ADD Bulan sebelumnya dengan menunjukkan penggunaan Dana minimal 75% (tujuh puluh lima persen)</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekD === "true" ? "✓" : ""}</td>
             </tr>
           </tbody>
         </table>
@@ -891,37 +892,37 @@ export function generateSuratHTML(surat: Surat): string {
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">1.</td>
               <td style="border:1px solid #000;padding:6px;">Surat Permohonan Kepala Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek1 === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2.</td>
               <td style="border:1px solid #000;padding:6px;">Foto Copy Buku Bank/ Print Rekening Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek2 === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">3.</td>
               <td style="border:1px solid #000;padding:6px;">Foto Copy NPWP Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek3 === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">4.</td>
               <td style="border:1px solid #000;padding:6px;">Surat Pernyataan TanggungJawab Mutlak Atas Penggunaan Dana kurang bayar ADD Tahun Anggaran 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek4 === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">5.</td>
               <td style="border:1px solid #000;padding:6px;">APBDesa Perubahan Anggaran 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek5 === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">6.</td>
               <td style="border:1px solid #000;padding:6px;">Laporan Realisasi Anggaran Tahun Anggaran 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek6 === "true" ? "✓" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">7.</td>
               <td style="border:1px solid #000;padding:6px;">Laporan Realisasi ADD Tunda Salur Bulan November 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;"></td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek7 === "true" ? "✓" : ""}</td>
             </tr>
           </tbody>
         </table>

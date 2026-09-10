@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -92,6 +92,10 @@ const FORM_FIELDS: Record<JenisSurat, { label: string; key: string; type: string
     { label: "Tanggal Verifikasi", key: "tanggalVerifikasi", type: "date", required: true, section: "Detail ADD" },
     { label: "Nomor Surat Permohonan Kepala Desa", key: "nomorSuratDesa", type: "text", required: false, section: "Detail ADD" },
     { label: "Catatan Verifikasi / Keterangan", key: "keterangan", type: "textarea", required: false, section: "Detail ADD" },
+    { label: "a. Surat Permohonan Kepala Desa", key: "cekA", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "b. FotoCopy Print Out Buku Rekening Pemerintah Desa", key: "cekB", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "c. FotoCopy NPWP Pemerintah Desa", key: "cekC", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "d. Laporan Realisasi penggunaan ADD Bulan sebelumnya (penggunaan Dana minimal 75%)", key: "cekD", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
   ],
   tunda_salur_add: [
     { label: "Nama Desa", key: "desa", type: "select", required: true, options: DESA_LIST, section: "Identitas Desa" },
@@ -100,6 +104,13 @@ const FORM_FIELDS: Record<JenisSurat, { label: string; key: string; type: string
     { label: "Tahun Anggaran", key: "tahun", type: "text", required: true, section: "Detail Tunda Salur" },
     { label: "Tanggal Verifikasi", key: "tanggalVerifikasi", type: "date", required: true, section: "Detail Tunda Salur" },
     { label: "Catatan Verifikasi", key: "keterangan", type: "textarea", required: false, section: "Detail Tunda Salur" },
+    { label: "1. Surat Permohonan Kepala Desa", key: "cek1", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "2. Foto Copy Buku Bank / Print Rekening Pemerintah Desa", key: "cek2", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "3. Foto Copy NPWP Pemerintah Desa", key: "cek3", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "4. Surat Pernyataan TanggungJawab Mutlak Atas Penggunaan Dana kurang bayar ADD", key: "cek4", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "5. APBDesa Perubahan Anggaran", key: "cek5", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "6. Laporan Realisasi Anggaran Tahun Anggaran", key: "cek6", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
+    { label: "7. Laporan Realisasi ADD Tunda Salur Bulan Sebelumnya", key: "cek7", type: "checkbox", required: false, section: "Kelengkapan Dokumen" },
   ],
   ahli_waris: [
     // Data Pewaris (Almarhum/Almarhumah)
@@ -262,10 +273,12 @@ export default function BuatSuratPage() {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-hijau mb-3 pb-1 border-b border-kuning-muda">{sectionName}</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {sectionFields.map((field) => (
-                      <div key={field.key} className={cn(field.type === "textarea" && "sm:col-span-2")}>
-                        <label className="block text-xs font-semibold text-teks/60 mb-1.5">
-                          {field.label} {field.required && <span className="text-merah">*</span>}
-                        </label>
+                      <div key={field.key} className={cn((field.type === "textarea" || field.type === "checkbox") && "sm:col-span-2")}>
+                        {field.type !== "checkbox" && (
+                          <label className="block text-xs font-semibold text-teks/60 mb-1.5">
+                            {field.label} {field.required && <span className="text-merah">*</span>}
+                          </label>
+                        )}
                         {field.key === "nomorUrut" ? (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {jenis === "bbm_jbkp" || jenis === "bbm_jbt" ? (
@@ -346,6 +359,16 @@ export default function BuatSuratPage() {
                             <option value="">Pilih...</option>
                             {field.options?.map((o) => <option key={o} value={o}>{o}</option>)}
                           </select>
+                        ) : field.type === "checkbox" ? (
+                          <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border border-gray-200 hover:border-kuning hover:bg-kuning/5 transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={formData[field.key] === "true"}
+                              onChange={(e) => handleFieldChange(field.key, e.target.checked ? "true" : "false")}
+                              className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-hijau cursor-pointer flex-shrink-0"
+                            />
+                            <span className="text-sm text-teks font-medium leading-snug">{field.label}</span>
+                          </label>
                         ) : field.type === "textarea" ? (
                           <textarea
                             value={formData[field.key] || ""}
