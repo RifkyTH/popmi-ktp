@@ -185,16 +185,23 @@ function LoginForm() {
 
       {/* Demo credentials - minimal look */}
       <div className="mt-8 pt-6 border-t border-gray-100">
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Akses Demo</p>
+        <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Akses Cepat Demo</p>
         <div className="flex flex-wrap gap-2">
-          {['staf', 'kasi', 'camat', 'admin', 'superadmin'].map((role) => (
+          {[
+            { label: 'Staf', u: 'staf', p: 'staf123' },
+            { label: 'Kasi Pem (Zakaria)', u: 'zakaria', p: 'kecamatan123' },
+            { label: 'Sekretaris (Jubir)', u: 'jubir', p: 'kecamatan123' },
+            { label: 'Camat', u: 'camat', p: 'camat123' },
+            { label: 'Admin', u: 'admin', p: 'admin123' },
+            { label: 'Superadmin', u: 'superadmin', p: 'superadmin123' },
+          ].map((item) => (
             <button 
-              key={role}
+              key={item.u}
               type="button"
-              onClick={() => { setUsername(role); setPassword(`${role}123`); }}
+              onClick={() => { setUsername(item.u); setPassword(item.p); }}
               className="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
             >
-              {role}
+              {item.label}
             </button>
           ))}
         </div>

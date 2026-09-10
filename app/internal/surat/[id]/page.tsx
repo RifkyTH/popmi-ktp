@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { StatusTimeline } from "@/components/ui/status-timeline"
 import { Printer, ArrowLeft, FileCheck, CheckCheck, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { UbahVerifikatorForm } from "@/components/internal/ubah-verifikator-form"
 
 const statusColors: Record<StatusSurat, string> = {
   draf: "bg-gray-100 text-gray-700",
@@ -65,11 +66,64 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
   }
 
   const hasTimVerifikasi = ["rekomendasi_dd", "rekomendasi_add", "tunda_salur_add"].includes(surat.jenis)
-  const isJubirUser = Boolean(user?.username?.toLowerCase().includes("jubir") || user?.nama?.toLowerCase().includes("jubir"))
-  const isZakariaUser = Boolean(user?.username?.toLowerCase().includes("zakaria") || user?.nama?.toLowerCase().includes("zakaria"))
   const isAdminOrSuper = user?.role === "super_admin" || user?.role === "admin"
   const isSignedJubir = Boolean(surat.dataForm?.ttd_jubir) && surat.dataForm?.ttd_jubir !== "false"
   const isSignedZakaria = Boolean(surat.dataForm?.ttd_zakaria) && surat.dataForm?.ttd_zakaria !== "false"
+
+  // Ambil spesimen TTD terbaru dari tabel pengguna agar sinkron dengan yang diunggah di profil
+  const { data: signers } = await supabase
+    .from("pengguna")
+    .select("id, username, role, nama, jabatan, ttd_url")
+    .order("username", { ascending: true })
+
+  const camatUser = signers?.find((u) => u.role === "camat")
+
+  // Cek jika superadmin sudah override penandatangan slot jubir/zakaria
+  const overrideJubir = surat.dataForm?.penandatangan_jubir as { userId: string; nama: string; jabatan: string; ttd_url: string | null } | undefined
+  const overrideZakaria = surat.dataForm?.penandatangan_zakaria as { userId: string; nama: string; jabatan: string; ttd_url: string | null } | undefined
+
+  // Resolusi user verifikator efektif: prioritaskan override, lalu cari berdasarkan username tepat
+  const jubirUser = overrideJubir
+    ? (signers?.find((u) => u.id === overrideJubir.userId) ?? { id: overrideJubir.userId, nama: overrideJubir.nama, jabatan: overrideJubir.jabatan, ttd_url: overrideJubir.ttd_url })
+    : (signers?.find((u) => u.username === "jubir") 
+        ?? signers?.find((u) => u.role === "sekretaris") 
+        ?? null)
+
+  const zakariaUser = overrideZakaria
+    ? (signers?.find((u) => u.id === overrideZakaria.userId) ?? { id: overrideZakaria.userId, nama: overrideZakaria.nama, jabatan: overrideZakaria.jabatan, ttd_url: overrideZakaria.ttd_url })
+    : (signers?.find((u) => u.username === "zakaria")
+        ?? signers?.find((u) => u.role === "kasi_kesos")
+        ?? null)
+
+  // Apakah user yang login cocok dengan penandatangan efektif?
+  const isJubirUser = Boolean(
+    (user?.id && jubirUser && user.id === jubirUser.id) ||
+    (!overrideJubir && (user?.username?.toLowerCase().includes("jubir") || user?.role === "sekretaris"))
+  )
+  const isZakariaUser = Boolean(
+    (user?.id && zakariaUser && user.id === zakariaUser.id) ||
+    (!overrideZakaria && (user?.username?.toLowerCase().includes("zakaria") || user?.role === "kasi_kesos" || user?.role === "kasi_pem" || user?.role === "kasi_ekbang" || user?.role === "kasi"))
+  )
+
+  const camatTtdSrc = camatUser?.ttd_url || surat.dataForm?.ttd_camat_url || "/ttd-camat.jpeg"
+  
+  // TTD verifikator: HANYA diambil dari profil pengguna yang bersangkutan di tabel pengguna.
+  // Jika pengguna belum upload TTD di profilnya, nilainya WAJIB null (kosong).
+  // JANGAN PERNAH fallback ke ttd_url pengguna lain atau snapshot lama.
+  const jubirRealTtdUrl = jubirUser?.id
+    ? (signers?.find((u) => u.id === jubirUser.id)?.ttd_url || null)
+    : null
+  const zakariaRealTtdUrl = zakariaUser?.id
+    ? (signers?.find((u) => u.id === zakariaUser.id)?.ttd_url || null)
+    : null
+
+  const jubirTtdSrc = jubirRealTtdUrl
+  const zakariaTtdSrc = zakariaRealTtdUrl
+
+  // Daftar pengguna untuk dropdown ubah verifikator (hanya tampil ke superadmin)
+  const penggunaDropdown = (signers || [])
+    .filter((u) => !["super_admin", "admin", "petugas", "camat"].includes(u.role))
+    .map((u) => ({ id: u.id, nama: u.nama, jabatan: u.jabatan, ttd_url: u.ttd_url }))
 
   const currentIndex = STATUS_ORDER.indexOf(surat.status)
   const timelineSteps = STATUS_ORDER.map((status, i) => {
@@ -184,9 +238,9 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                     <div className="relative inline-block">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="/ttd-camat.jpeg"
+                        src={camatTtdSrc}
                         alt="TTD Camat"
-                        className="w-28 h-auto mix-blend-multiply"
+                        className="w-28 h-auto mix-blend-multiply object-contain max-h-28"
                       />
                     </div>
                     <p className="text-xs font-bold underline mt-1">HENDRA, S.STP</p>
@@ -259,7 +313,7 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* 1. JUBIR */}
+                {/* 1. Penandatangan Slot Jubir */}
                 <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/60 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -274,13 +328,28 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                         </span>
                       )}
                     </div>
-                    <p className="font-bold text-sm text-teks">JUBIR, S.Pd.SD</p>
-                    <p className="text-xs text-teks/60">Tim Verifikasi Kecamatan</p>
+                    <p className="font-bold text-sm text-teks">{jubirUser?.nama ?? "JUBIR, S.Pd.SD"}</p>
+                    <p className="text-xs text-teks/60">{jubirUser?.jabatan ?? "Tim Verifikasi Kecamatan"}</p>
+
+                    {/* Form ubah penandatangan slot 1 — hanya superadmin */}
+                    {isAdminOrSuper && !isSignedJubir && (
+                      <UbahVerifikatorForm
+                        suratId={surat.id}
+                        slot="jubir"
+                        slotLabel="Anggota Tim 1"
+                        currentNama={jubirUser?.nama ?? "JUBIR, S.Pd.SD"}
+                        penggunaList={penggunaDropdown}
+                      />
+                    )}
 
                     {isSignedJubir && (
                       <div className="mt-3 flex items-center gap-3 p-2.5 bg-white rounded-lg border border-gray-200">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/ttd-digital.jpeg" alt="TTD Jubir" className="w-12 h-12 mix-blend-multiply object-contain" />
+                        {jubirTtdSrc ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={jubirTtdSrc} alt="TTD Jubir" className="w-14 h-14 mix-blend-multiply object-contain" />
+                        ) : (
+                          <div className="w-14 h-14 flex items-center justify-center bg-gray-100 rounded text-xs text-gray-400 text-center">Tanpa TTD</div>
+                        )}
                         <div className="text-xs text-teks/70">
                           <p className="font-semibold text-green-700">Tanda Tangan Digital Terpasang</p>
                           <p className="text-[11px] text-teks/50">
@@ -297,14 +366,14 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                         <form action={async () => {
                           "use server"
                           const { tandaTanganiVerifikasi } = await import("../actions")
-                          await tandaTanganiVerifikasi(surat.id, "jubir", user?.nama || "JUBIR, S.Pd.SD")
+                          await tandaTanganiVerifikasi(surat.id, "jubir", user?.nama || jubirUser?.nama || "JUBIR, S.Pd.SD")
                         }} className="w-full">
                           <Button type="submit" size="sm" className="w-full bg-hijau hover:bg-hijau/90 text-white font-medium">
-                            <FileCheck className="w-4 h-4 mr-1.5" /> Tanda Tangani (Jubir, S.Pd.SD)
+                            <FileCheck className="w-4 h-4 mr-1.5" /> Tanda Tangani ({jubirUser?.nama ?? "Jubir, S.Pd.SD"})
                           </Button>
                         </form>
                       ) : (
-                        <p className="text-xs text-teks/40 italic">Login sebagai akun Jubir untuk menandatangani</p>
+                        <p className="text-xs text-teks/40 italic">Login sebagai {jubirUser?.nama ?? "akun Jubir"} untuk menandatangani</p>
                       )
                     ) : (
                       (isJubirUser || isAdminOrSuper) && (
@@ -322,7 +391,7 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                   </div>
                 </div>
 
-                {/* 2. ZAKARIA */}
+                {/* 2. Penandatangan Slot Zakaria */}
                 <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/60 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -337,13 +406,28 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                         </span>
                       )}
                     </div>
-                    <p className="font-bold text-sm text-teks">ZAKARIA, A.Ma.Pd</p>
-                    <p className="text-xs text-teks/60">Tim Verifikasi Kecamatan</p>
+                    <p className="font-bold text-sm text-teks">{zakariaUser?.nama ?? "ZAKARIA, A.Ma.Pd"}</p>
+                    <p className="text-xs text-teks/60">{zakariaUser?.jabatan ?? "Tim Verifikasi Kecamatan"}</p>
+
+                    {/* Form ubah penandatangan slot 2 — hanya superadmin */}
+                    {isAdminOrSuper && !isSignedZakaria && (
+                      <UbahVerifikatorForm
+                        suratId={surat.id}
+                        slot="zakaria"
+                        slotLabel="Anggota Tim 2"
+                        currentNama={zakariaUser?.nama ?? "ZAKARIA, A.Ma.Pd"}
+                        penggunaList={penggunaDropdown}
+                      />
+                    )}
 
                     {isSignedZakaria && (
                       <div className="mt-3 flex items-center gap-3 p-2.5 bg-white rounded-lg border border-gray-200">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/ttd-digital.jpeg" alt="TTD Zakaria" className="w-12 h-12 mix-blend-multiply object-contain" />
+                        {zakariaTtdSrc ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={zakariaTtdSrc} alt="TTD Zakaria" className="w-14 h-14 mix-blend-multiply object-contain" />
+                        ) : (
+                          <div className="w-14 h-14 flex items-center justify-center bg-gray-100 rounded text-xs text-gray-400 text-center">Tanpa TTD</div>
+                        )}
                         <div className="text-xs text-teks/70">
                           <p className="font-semibold text-green-700">Tanda Tangan Digital Terpasang</p>
                           <p className="text-[11px] text-teks/50">
@@ -360,14 +444,14 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                         <form action={async () => {
                           "use server"
                           const { tandaTanganiVerifikasi } = await import("../actions")
-                          await tandaTanganiVerifikasi(surat.id, "zakaria", user?.nama || "ZAKARIA, A.Ma.Pd")
+                          await tandaTanganiVerifikasi(surat.id, "zakaria", user?.nama || zakariaUser?.nama || "ZAKARIA, A.Ma.Pd")
                         }} className="w-full">
                           <Button type="submit" size="sm" className="w-full bg-hijau hover:bg-hijau/90 text-white font-medium">
-                            <FileCheck className="w-4 h-4 mr-1.5" /> Tanda Tangani (Zakaria, A.Ma.Pd)
+                            <FileCheck className="w-4 h-4 mr-1.5" /> Tanda Tangani ({zakariaUser?.nama ?? "Zakaria, A.Ma.Pd"})
                           </Button>
                         </form>
                       ) : (
-                        <p className="text-xs text-teks/40 italic">Login sebagai akun Zakaria untuk menandatangani</p>
+                        <p className="text-xs text-teks/40 italic">Login sebagai {zakariaUser?.nama ?? "akun Zakaria"} untuk menandatangani</p>
                       )
                     ) : (
                       (isZakariaUser || isAdminOrSuper) && (

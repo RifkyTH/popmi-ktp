@@ -1,10 +1,10 @@
-import type { Surat } from "./surat"
+﻿import type { Surat } from "./surat"
 
-// ─── Logo (base64 placeholder — diambil dari path publik saat runtime) ─────────
+// â”€â”€â”€ Logo (base64 placeholder â€” diambil dari path publik saat runtime) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // e-TEPI menggunakan LOGO_KAB_LINGGA sebagai konstanta base64 atau URL
 const LOGO_URL = "/logo-lingga.png"
 
-// ─── Helper format tanggal ────────────────────────────────────────────────────
+// â”€â”€â”€ Helper format tanggal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function formatTanggal(iso: string): string {
   const bulan = [
     "Januari","Februari","Maret","April","Mei","Juni",
@@ -14,7 +14,7 @@ export function formatTanggal(iso: string): string {
   return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`
 }
 
-// ─── Kop Surat (identik dengan e-TEPI print.js kopSurat()) ────────────────────
+// â”€â”€â”€ Kop Surat (identik dengan e-TEPI print.js kopSurat()) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function kopSurat(): string {
   return `
   <table width="100%" style="font-family:Arial;border-collapse:collapse;">
@@ -55,7 +55,7 @@ function judulSurat(judul: string, nomor: string): string {
   </div>`
 }
 
-// ─── Blok TTD Camat ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Blok TTD Camat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ttdCamat(tanggal: string, isSigned: boolean = false, jabatan = "CAMAT TEMIANG PESISIR", nama = "HENDRA, S.STP", pangkat = "PEMBINA / IV.a", nip = "NIP. 198507122006021001", showDate: boolean = true, ttdImgUrl = "/ttd-camat.jpeg"): string {
   return `
   <table style="width:100%;font-family:Arial;font-size:12pt;margin-top:40px;">
@@ -73,7 +73,7 @@ function ttdCamat(tanggal: string, isSigned: boolean = false, jabatan = "CAMAT T
   </table>`
 }
 
-// ─── Isi Surat Khusus ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Isi Surat Khusus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getIsiSurat(surat: Surat): string {
   const f = surat.data_form || {}
   
@@ -205,7 +205,7 @@ function getIsiSurat(surat: Surat): string {
   </div>`
 }
 
-// ─── GENERATOR UTAMA ──────────────────────────────────────────────────────────
+// â”€â”€â”€ GENERATOR UTAMA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function generateSuratHTML(surat: Surat): string {
   const isSigned = surat.status === "terbit" || surat.status === "terkirim";
   const base = "font-family:Arial;font-size:12pt;color:#000;line-height:1.15;"
@@ -214,13 +214,17 @@ export function generateSuratHTML(surat: Surat): string {
   const formData = (surat.data_form || {}) as Record<string, any>
   const isSignedJubir = Boolean(formData.ttd_jubir) && formData.ttd_jubir !== "false"
   const isSignedZakaria = Boolean(formData.ttd_zakaria) && formData.ttd_zakaria !== "false"
-  const ttdJubirSrc = formData.ttd_jubir_url || "/ttd-digital.jpeg"
-  const ttdZakariaSrc = formData.ttd_zakaria_url || "/ttd-digital.jpeg"
+  // Nama verifikator â€” bisa di-override oleh superadmin via penandatangan_jubir/zakaria
+  const namaVerifikator1: string = formData.verifikator_1_nama || "JUBIR, S.Pd.SD"
+  const namaVerifikator2: string = formData.verifikator_2_nama || "ZAKARIA, A.Ma.Pd"
+  // TTD src â€” null jika belum upload (tidak pakai fallback default agar gambar tidak muncul)
+  const ttdJubirSrc: string | null = formData.ttd_jubir_url || null
+  const ttdZakariaSrc: string | null = formData.ttd_zakaria_url || null
   const ttdCamatSrc = formData.ttd_camat_url || "/ttd-camat.jpeg"
 
   switch (surat.jenis) {
 
-    // ── 1. DISPENSASI NIKAH ────────────────────────────────────────────────────
+    // â”€â”€ 1. DISPENSASI NIKAH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "dispensasi_nikah": {
       const f = surat.data_form || {}
       const strike = (opts: string[], selected: string) => {
@@ -329,7 +333,7 @@ export function generateSuratHTML(surat: Surat): string {
       </div>`
     }
 
-    // ── 2. REKOMENDASI BBM JBKP ────────────────────────────────────────────────
+    // â”€â”€ 2. REKOMENDASI BBM JBKP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "bbm_jbkp": {
       const f = surat.data_form || {}
       return `
@@ -436,7 +440,7 @@ export function generateSuratHTML(surat: Surat): string {
       </div>`
     }
 
-    // ── 3. REKOMENDASI BBM JBT ────────────────────────────────────────────────
+    // â”€â”€ 3. REKOMENDASI BBM JBT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "bbm_jbt": {
       const f = surat.data_form || {}
       return `
@@ -530,7 +534,7 @@ export function generateSuratHTML(surat: Surat): string {
       </div>`
     }
 
-    // ── 4. REKOMENDASI DANA DESA ───────────────────────────────────────────────
+    // â”€â”€ 4. REKOMENDASI DANA DESA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "rekomendasi_dd": return `
       <div class="print-page" style="${base}">
         ${kopSurat()}
@@ -640,16 +644,16 @@ export function generateSuratHTML(surat: Surat): string {
           <tbody>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
-              <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
+              <td style="border:1px solid #000;padding:6px;">${namaVerifikator1}</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedJubir ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedJubir && ttdJubirSrc ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
-              <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
+              <td style="border:1px solid #000;padding:6px;">${namaVerifikator2}</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedZakaria ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedZakaria && ttdZakariaSrc ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -669,7 +673,7 @@ export function generateSuratHTML(surat: Surat): string {
         </table>
       </div>`
 
-    // ── 5. REKOMENDASI ADD ────────────────────────────────────────────────────
+    // â”€â”€ 5. REKOMENDASI ADD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "rekomendasi_add": return `
       <!-- PAGE 1: SURAT PENGANTAR -->
       <div class="print-page" style="${base}">
@@ -750,22 +754,22 @@ export function generateSuratHTML(surat: Surat): string {
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">a.</td>
               <td style="border:1px solid #000;padding:6px;">Surat Permohonan Kepala Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekA === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekA === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">b.</td>
               <td style="border:1px solid #000;padding:6px;">FotoCopy Print Out Buku Rekening Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekB === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekB === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">c.</td>
               <td style="border:1px solid #000;padding:6px;">FotoCopy NPWP Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekC === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekC === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">d.</td>
               <td style="border:1px solid #000;padding:6px;">Laporan Realisasi pelaksanaan kegiatan dan anggaran penggunaan ADD Bulan sebelumnya dengan menunjukkan penggunaan Dana minimal 75% (tujuh puluh lima persen)</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekD === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cekD === "true" ? "âœ“" : ""}</td>
             </tr>
           </tbody>
         </table>
@@ -788,16 +792,16 @@ export function generateSuratHTML(surat: Surat): string {
           <tbody>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
-              <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
+              <td style="border:1px solid #000;padding:6px;">${namaVerifikator1}</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedJubir ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedJubir && ttdJubirSrc ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
-              <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
+              <td style="border:1px solid #000;padding:6px;">${namaVerifikator2}</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedZakaria ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedZakaria && ttdZakariaSrc ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -817,7 +821,7 @@ export function generateSuratHTML(surat: Surat): string {
         </table>
       </div>`
 
-    // ── 6. TUNDA SALUR ADD ───────────────────────────────────────────────────
+    // â”€â”€ 6. TUNDA SALUR ADD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "tunda_salur_add": return `
       <!-- PAGE 1: SURAT PENGANTAR -->
       <div class="print-page" style="${base}">
@@ -897,37 +901,37 @@ export function generateSuratHTML(surat: Surat): string {
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">1.</td>
               <td style="border:1px solid #000;padding:6px;">Surat Permohonan Kepala Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek1 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek1 === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2.</td>
               <td style="border:1px solid #000;padding:6px;">Foto Copy Buku Bank/ Print Rekening Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek2 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek2 === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">3.</td>
               <td style="border:1px solid #000;padding:6px;">Foto Copy NPWP Pemerintah Desa</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek3 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek3 === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">4.</td>
               <td style="border:1px solid #000;padding:6px;">Surat Pernyataan TanggungJawab Mutlak Atas Penggunaan Dana kurang bayar ADD Tahun Anggaran 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek4 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek4 === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">5.</td>
               <td style="border:1px solid #000;padding:6px;">APBDesa Perubahan Anggaran 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek5 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek5 === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">6.</td>
               <td style="border:1px solid #000;padding:6px;">Laporan Realisasi Anggaran Tahun Anggaran 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek6 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek6 === "true" ? "âœ“" : ""}</td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">7.</td>
               <td style="border:1px solid #000;padding:6px;">Laporan Realisasi ADD Tunda Salur Bulan November 2025</td>
-              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek7 === "true" ? "✓" : ""}</td>
+              <td style="border:1px solid #000;padding:6px;text-align:center;font-size:16pt;">${formData.cek7 === "true" ? "âœ“" : ""}</td>
             </tr>
           </tbody>
         </table>
@@ -954,16 +958,16 @@ export function generateSuratHTML(surat: Surat): string {
           <tbody>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
-              <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
+              <td style="border:1px solid #000;padding:6px;">${namaVerifikator1}</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedJubir ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedJubir && ttdJubirSrc ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
-              <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
+              <td style="border:1px solid #000;padding:6px;">${namaVerifikator2}</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedZakaria ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedZakaria && ttdZakariaSrc ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -983,7 +987,7 @@ export function generateSuratHTML(surat: Surat): string {
         </table>
       </div>`
 
-    // ── 7. AHLI WARIS ─────────────────────────────────────────────────────────
+    // â”€â”€ 7. AHLI WARIS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "ahli_waris": {
       const f = surat.data_form || {}
       const pemohonNama = (f.pemohon || surat.pemohon || "").toUpperCase()
@@ -1062,7 +1066,7 @@ export function generateSuratHTML(surat: Surat): string {
       </div>`
     }
 
-    // ── 8. PEMBERHENTIAN PERANGKAT DESA ──────────────────────────────────────
+    // â”€â”€ 8. PEMBERHENTIAN PERANGKAT DESA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     case "pemberhentian_perangkat": {
       const f = surat.data_form || {}
       const jabatan = f.jabatan || "Kasi Pemerintahan"

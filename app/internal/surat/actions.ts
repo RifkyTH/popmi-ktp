@@ -291,27 +291,79 @@ export async function tandaTanganiVerifikasi(
 
   const currentDataForm = (surat.data_form || {}) as Record<string, any>
 
-  // Ambil ttd_url dari profil signer jika ada
-  const cookieStore = await cookies()
-  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
-  let signerTtdUrl = sessionUser?.ttd_url || null
-  if (!signerTtdUrl) {
+  // Cek override penandatangan oleh superadmin
+  const overrideKey = verifikatorKey === "jubir" ? "penandatangan_jubir" : "penandatangan_zakaria"
+  const overrideUser = currentDataForm[overrideKey] as { userId: string; nama: string; ttd_url: string | null } | undefined
+
+  // Ambil ttd_url: prioritaskan dari user yang di-override, lalu fallback ke user default
+  let signerTtdUrl: string | null = null
+
+  if (overrideUser?.userId) {
+    // Ada override — ambil TTD terbaru dari DB untuk user yang dipilih superadmin
+    const { data: u } = await supabase
+      .from("pengguna")
+      .select("ttd_url, nama")
+      .eq("id", overrideUser.userId)
+      .single()
+    signerTtdUrl = u?.ttd_url || null
+  } else if (verifikatorKey === "jubir") {
     const { data: u } = await supabase
       .from("pengguna")
       .select("ttd_url")
-      .ilike("nama", `%${verifikatorKey}%`)
+      .eq("username", "jubir")
       .not("ttd_url", "is", null)
       .maybeSingle()
     signerTtdUrl = u?.ttd_url || null
+    // fallback ke role sekretaris jika tidak ada
+    if (!signerTtdUrl) {
+      const { data: u2 } = await supabase
+        .from("pengguna")
+        .select("ttd_url")
+        .eq("role", "sekretaris")
+        .not("ttd_url", "is", null)
+        .maybeSingle()
+      signerTtdUrl = u2?.ttd_url || null
+    }
+  } else {
+    const { data: u } = await supabase
+      .from("pengguna")
+      .select("ttd_url")
+      .eq("username", "zakaria")
+      .not("ttd_url", "is", null)
+      .maybeSingle()
+    signerTtdUrl = u?.ttd_url || null
+    if (!signerTtdUrl) {
+      const { data: u2 } = await supabase
+        .from("pengguna")
+        .select("ttd_url")
+        .eq("role", "kasi_kesos")
+        .not("ttd_url", "is", null)
+        .maybeSingle()
+      signerTtdUrl = u2?.ttd_url || null
+    }
   }
+
+  // Nama efektif penandatangan (dari override jika ada)
+  const namaEfektif = overrideUser?.nama || namaVerifikator
 
   const updatedDataForm = {
     ...currentDataForm,
     [`ttd_${verifikatorKey}`]: true,
-    [`ttd_${verifikatorKey}_oleh`]: namaVerifikator,
+    [`ttd_${verifikatorKey}_oleh`]: namaEfektif,
     [`ttd_${verifikatorKey}_tanggal`]: new Date().toISOString(),
-    ...(signerTtdUrl ? { [`ttd_${verifikatorKey}_url`]: signerTtdUrl } : {}),
   }
+
+  // PENTING: Jika verifikator sudah mengupload TTD di profilnya, simpan URL-nya.
+  // Jika verifikator BELUM upload TTD, WAJIB hapus field URL TTD agar kosong!
+  if (signerTtdUrl) {
+    updatedDataForm[`ttd_${verifikatorKey}_url`] = signerTtdUrl
+  } else {
+    delete updatedDataForm[`ttd_${verifikatorKey}_url`]
+  }
+
+  // Nama efektif kedua verifikator untuk catatan diverifikasi_oleh
+  const namaJubir = (currentDataForm.penandatangan_jubir as { nama: string } | undefined)?.nama || "Jubir, S.Pd.SD"
+  const namaZakaria = (currentDataForm.penandatangan_zakaria as { nama: string } | undefined)?.nama || "Zakaria, A.Ma.Pd"
 
   // Cek apakah kedua verifikator sudah menandatangani
   const isJubirSigned = verifikatorKey === "jubir" ? true : Boolean(currentDataForm.ttd_jubir && currentDataForm.ttd_jubir !== "false")
@@ -331,7 +383,7 @@ export async function tandaTanganiVerifikasi(
     .update({ 
       data_form: updatedDataForm,
       status: newStatus,
-      diverifikasi_oleh: bothSigned ? "Jubir, S.Pd.SD & Zakaria, A.Ma.Pd" : namaVerifikator
+      diverifikasi_oleh: bothSigned ? `${namaJubir} & ${namaZakaria}` : namaEfektif
     })
     .eq("id", suratId)
 
@@ -341,9 +393,9 @@ export async function tandaTanganiVerifikasi(
   await supabase.from("surat_riwayat").insert({
     surat_id: suratId,
     status: "verifikasi",
-    oleh: namaVerifikator,
+    oleh: namaEfektif,
     tanggal: new Date().toISOString(),
-    catatan: `Berita Acara diverifikasi dan ditandatangani oleh ${namaVerifikator}`,
+    catatan: `Berita Acara diverifikasi dan ditandatangani oleh ${namaEfektif}`,
   })
 
   // Jika keduanya lengkap, otomatis teruskan ke Camat
@@ -353,7 +405,7 @@ export async function tandaTanganiVerifikasi(
       status: "menunggu_ttd",
       oleh: "Sistem (Tim Verifikasi Lengkap)",
       tanggal: new Date().toISOString(),
-      catatan: "Verifikasi Berita Acara lengkap oleh Jubir & Zakaria. Otomatis diteruskan ke Camat untuk TTD.",
+      catatan: `Verifikasi Berita Acara lengkap oleh ${namaJubir} & ${namaZakaria}. Otomatis diteruskan ke Camat untuk TTD.`,
     })
   }
 
@@ -397,6 +449,87 @@ export async function batalkanTandaTanganiVerifikasi(
     oleh: namaUser,
     tanggal: new Date().toISOString(),
     catatan: `Tanda tangan verifikasi ${verifikatorKey === "jubir" ? "Jubir" : "Zakaria"} dibatalkan oleh ${namaUser}`,
+  })
+
+  revalidatePath("/internal/surat")
+  revalidatePath(`/internal/surat/${suratId}`)
+  revalidatePath(`/internal/surat/${suratId}/cetak`)
+  revalidatePath("/internal/beranda")
+}
+
+/**
+ * Ubah penandatangan slot verifikasi (jubir/zakaria) — hanya superadmin
+ * Jika user baru belum upload TTD, ttd_url akan null → slot gambar kosong
+ */
+export async function ubahVerifikator(
+  suratId: string,
+  slot: "jubir" | "zakaria",
+  userId: string // id user baru yang dipilih superadmin
+) {
+  const supabase = await createServiceClient()
+
+  // Verifikasi akses
+  const cookieStore = await cookies()
+  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
+  if (!sessionUser || (sessionUser.role !== "super_admin" && sessionUser.role !== "admin")) {
+    throw new Error("Akses ditolak")
+  }
+
+  // Ambil data user baru yang dipilih
+  const { data: targetUser } = await supabase
+    .from("pengguna")
+    .select("id, nama, jabatan, ttd_url")
+    .eq("id", userId)
+    .single()
+
+  if (!targetUser) throw new Error("Pengguna tidak ditemukan")
+
+  // Ambil data surat sekarang
+  const { data: surat } = await supabase
+    .from("surat")
+    .select("data_form, status, diverifikasi_oleh")
+    .eq("id", suratId)
+    .single()
+
+  if (!surat) throw new Error("Surat tidak ditemukan")
+
+  const currentDataForm = { ...((surat.data_form || {}) as Record<string, any>) }
+
+  // Simpan override penandatangan: nama user baru + ttd_url mereka (bisa null)
+  currentDataForm[`penandatangan_${slot}`] = {
+    userId: targetUser.id,
+    nama: targetUser.nama,
+    jabatan: targetUser.jabatan,
+    ttd_url: targetUser.ttd_url || null,
+  }
+
+  // Simpan juga nama untuk PDF (verifikator_1_nama / verifikator_2_nama)
+  const pdfNamaKey = slot === "jubir" ? "verifikator_1_nama" : "verifikator_2_nama"
+  currentDataForm[pdfNamaKey] = targetUser.nama
+
+  // Reset TTD dan URL TTD lama pada slot ini karena orangnya diganti
+  delete currentDataForm[`ttd_${slot}`]
+  delete currentDataForm[`ttd_${slot}_oleh`]
+  delete currentDataForm[`ttd_${slot}_tanggal`]
+  delete currentDataForm[`ttd_${slot}_url`]
+
+  // Perbarui status jika perlu: jika sebelumnya menunggu_ttd, kembalikan ke verifikasi
+  let newStatus = surat.status
+  if (surat.status === "menunggu_ttd") {
+    newStatus = "verifikasi"
+  }
+
+  await supabase.from("surat").update({
+    data_form: currentDataForm,
+    status: newStatus,
+  }).eq("id", suratId)
+
+  await supabase.from("surat_riwayat").insert({
+    surat_id: suratId,
+    status: newStatus,
+    oleh: sessionUser.nama,
+    tanggal: new Date().toISOString(),
+    catatan: `Penandatangan slot ${slot === "jubir" ? "1" : "2"} diubah menjadi ${targetUser.nama} oleh ${sessionUser.nama}`,
   })
 
   revalidatePath("/internal/surat")

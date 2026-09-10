@@ -1,4 +1,4 @@
-﻿"use server"
+"use server"
 
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
@@ -84,6 +84,9 @@ export async function simpanTtdProfil(userId: string, ttdUrl: string) {
 
   revalidatePath("/internal")
   revalidatePath("/internal/profil")
+  revalidatePath("/internal/surat")
+  revalidatePath("/internal/surat/[id]", "page")
+  revalidatePath("/internal/surat/[id]/cetak", "page")
 }
 
 export async function hapusTtdProfil(userId: string) {
@@ -111,4 +114,7 @@ export async function hapusTtdProfil(userId: string) {
 
   revalidatePath("/internal")
   revalidatePath("/internal/profil")
+  revalidatePath("/internal/surat")
+  revalidatePath("/internal/surat/[id]", "page")
+  revalidatePath("/internal/surat/[id]/cetak", "page")
 }
