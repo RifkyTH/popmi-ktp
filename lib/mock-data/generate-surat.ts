@@ -63,7 +63,8 @@ function ttdCamat(tanggal: string, isSigned: boolean = false, jabatan = "CAMAT T
       <td style="width:65%;"></td>
       <td style="width:35%;vertical-align:top;">
         ${showDate ? `Tajur Biru, ${formatTanggal(tanggal)}<br>` : ""}
-        <strong>${jabatan}</strong>,${isSigned ? `<div style="margin: 4px 0;"><img src="/ttd-camat.jpeg" style="width: 95px; height: auto; mix-blend-mode: multiply;" /></div>` : `<br><br><br><br><br>`}
+        <strong>${jabatan}</strong>,<br>
+        ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
         <strong><u>${nama}</u></strong><br>
         ${pangkat}<br>
         ${nip}
