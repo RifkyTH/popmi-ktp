@@ -234,8 +234,28 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
               <div className="mb-4">
                 <h2 className="font-bold font-serif text-hijau text-lg">Tanda Tangan Tim Verifikasi Kecamatan</h2>
                 <p className="text-xs text-teks/60 mt-0.5">
-                  Berita Acara Verifikasi memerlukan tanda tangan digital dari anggota tim di bawah ini. Tombol TTD akan aktif saat login di akun masing-masing.
+                  Berita Acara Verifikasi ditandatangani oleh kedua anggota tim di bawah ini. Setelah kedua orang menandatangani, surat akan otomatis diteruskan ke Camat.
                 </p>
+
+                {/* Status Ringkasan */}
+                <div className="mt-3">
+                  {isSignedJubir && isSignedZakaria ? (
+                    <div className="flex items-center gap-2 p-2.5 bg-green-50 border border-green-200 rounded-lg text-xs text-green-800 font-medium">
+                      <span className="text-base">✅</span>
+                      <span>Verifikasi lengkap oleh kedua anggota (Jubir & Zakaria). Surat otomatis diteruskan ke Camat untuk ditandatangani.</span>
+                    </div>
+                  ) : (isSignedJubir || isSignedZakaria) ? (
+                    <div className="flex items-center gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 font-medium">
+                      <span className="text-base">⏳</span>
+                      <span>1 dari 2 anggota telah menandatangani ({isSignedJubir ? "Jubir, S.Pd.SD" : "Zakaria, A.Ma.Pd"}). Menunggu tanda tangan {isSignedJubir ? "Zakaria, A.Ma.Pd" : "Jubir, S.Pd.SD"} agar otomatis diteruskan ke Camat.</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 font-medium">
+                      <span className="text-base">📋</span>
+                      <span>Menunggu tanda tangan dari kedua anggota Tim Verifikasi di akun masing-masing.</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -369,14 +389,14 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
           )}
 
         {/* Actions */}
-        {((surat.status === "draf" && (isKasi || user?.role === "super_admin")) || 
-          (surat.status === "verifikasi" && (user?.role === "staf" || user?.role === "super_admin")) || 
+        {((surat.status === "draf" && !hasTimVerifikasi && (isKasi || user?.role === "super_admin")) || 
+          (surat.status === "verifikasi" && !hasTimVerifikasi && (user?.role === "staf" || user?.role === "super_admin")) || 
           (surat.status === "menunggu_ttd" && (user?.role === "camat" || user?.role === "super_admin")) ||
           (surat.status === "terbit" && (user?.role === "staf" || user?.role === "super_admin"))) && (
           <div className="bg-white rounded-xl border border-kuning-muda p-6 mt-5">
             <h2 className="font-bold font-serif text-hijau text-base mb-3">Aksi Tersedia</h2>
             <div className="flex flex-wrap gap-3">
-              {surat.status === "draf" && (isKasi || user?.role === "super_admin") && (
+              {surat.status === "draf" && !hasTimVerifikasi && (isKasi || user?.role === "super_admin") && (
                 <form action={async () => {
                   "use server"
                   const { verifikasiKasi } = await import("../actions")
@@ -387,7 +407,7 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                   </Button>
                 </form>
               )}
-              {surat.status === "verifikasi" && (user?.role === "staf" || user?.role === "super_admin") && (
+              {surat.status === "verifikasi" && !hasTimVerifikasi && (user?.role === "staf" || user?.role === "super_admin") && (
                 <form action={async () => {
                   "use server"
                   const { teruskanKeCamat } = await import("../actions")

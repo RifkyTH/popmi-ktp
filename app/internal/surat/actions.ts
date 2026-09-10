@@ -265,7 +265,7 @@ export async function tandaTanganiVerifikasi(
 
   const { data: surat, error: fetchError } = await supabase
     .from("surat")
-    .select("data_form, judul")
+    .select("data_form, judul, status")
     .eq("id", suratId)
     .single()
 
@@ -280,24 +280,54 @@ export async function tandaTanganiVerifikasi(
     [`ttd_${verifikatorKey}_tanggal`]: new Date().toISOString(),
   }
 
+  // Cek apakah kedua verifikator sudah menandatangani
+  const isJubirSigned = verifikatorKey === "jubir" ? true : Boolean(currentDataForm.ttd_jubir && currentDataForm.ttd_jubir !== "false")
+  const isZakariaSigned = verifikatorKey === "zakaria" ? true : Boolean(currentDataForm.ttd_zakaria && currentDataForm.ttd_zakaria !== "false")
+  const bothSigned = isJubirSigned && isZakariaSigned
+
+  // Jika kedua verifikator sudah TTD, otomatis ubah status ke 'menunggu_ttd' (diteruskan ke Camat)
+  let newStatus = surat.status
+  if (bothSigned) {
+    newStatus = "menunggu_ttd"
+  } else if (surat.status === "draf") {
+    newStatus = "verifikasi"
+  }
+
   const { error: updateError } = await supabase
     .from("surat")
-    .update({ data_form: updatedDataForm })
+    .update({ 
+      data_form: updatedDataForm,
+      status: newStatus,
+      diverifikasi_oleh: bothSigned ? "Jubir, S.Pd.SD & Zakaria, A.Ma.Pd" : namaVerifikator
+    })
     .eq("id", suratId)
 
   if (updateError) throw new Error(updateError.message)
 
+  // Riwayat verifikasi individual
   await supabase.from("surat_riwayat").insert({
     surat_id: suratId,
     status: "verifikasi",
     oleh: namaVerifikator,
     tanggal: new Date().toISOString(),
-    catatan: `Berita Acara ditandatangani secara digital oleh ${namaVerifikator}`,
+    catatan: `Berita Acara diverifikasi dan ditandatangani oleh ${namaVerifikator}`,
   })
+
+  // Jika keduanya lengkap, otomatis teruskan ke Camat
+  if (bothSigned) {
+    await supabase.from("surat_riwayat").insert({
+      surat_id: suratId,
+      status: "menunggu_ttd",
+      oleh: "Sistem (Tim Verifikasi Lengkap)",
+      tanggal: new Date().toISOString(),
+      catatan: "Verifikasi Berita Acara lengkap oleh Jubir & Zakaria. Otomatis diteruskan ke Camat untuk TTD.",
+    })
+  }
 
   revalidatePath("/internal/surat")
   revalidatePath(`/internal/surat/${suratId}`)
   revalidatePath(`/internal/surat/${suratId}/cetak`)
+  revalidatePath("/internal/beranda")
 }
 
 export async function batalkanTandaTanganiVerifikasi(
@@ -306,7 +336,7 @@ export async function batalkanTandaTanganiVerifikasi(
   namaUser: string
 ) {
   const supabase = await createServiceClient()
-  const { data: surat } = await supabase.from("surat").select("data_form").eq("id", suratId).single()
+  const { data: surat } = await supabase.from("surat").select("data_form, status").eq("id", suratId).single()
   if (!surat) throw new Error("Surat tidak ditemukan")
 
   const currentDataForm = { ...((surat.data_form || {}) as Record<string, any>) }
@@ -314,9 +344,30 @@ export async function batalkanTandaTanganiVerifikasi(
   delete currentDataForm[`ttd_${verifikatorKey}_oleh`]
   delete currentDataForm[`ttd_${verifikatorKey}_tanggal`]
 
-  await supabase.from("surat").update({ data_form: currentDataForm }).eq("id", suratId)
+  // Jika status sebelumnya menunggu_ttd, kembalikan ke verifikasi atau draf
+  let newStatus = surat.status
+  if (surat.status === "menunggu_ttd") {
+    const remainingSigned = verifikatorKey === "jubir" 
+      ? Boolean(currentDataForm.ttd_zakaria && currentDataForm.ttd_zakaria !== "false")
+      : Boolean(currentDataForm.ttd_jubir && currentDataForm.ttd_jubir !== "false")
+    newStatus = remainingSigned ? "verifikasi" : "draf"
+  }
+
+  await supabase.from("surat").update({ 
+    data_form: currentDataForm,
+    status: newStatus
+  }).eq("id", suratId)
+
+  await supabase.from("surat_riwayat").insert({
+    surat_id: suratId,
+    status: newStatus,
+    oleh: namaUser,
+    tanggal: new Date().toISOString(),
+    catatan: `Tanda tangan verifikasi ${verifikatorKey === "jubir" ? "Jubir" : "Zakaria"} dibatalkan oleh ${namaUser}`,
+  })
 
   revalidatePath("/internal/surat")
   revalidatePath(`/internal/surat/${suratId}`)
   revalidatePath(`/internal/surat/${suratId}/cetak`)
+  revalidatePath("/internal/beranda")
 }
