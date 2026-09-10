@@ -1,4 +1,4 @@
-﻿import type { Surat } from "./surat"
+import type { Surat } from "./surat"
 
 // ─── Logo (base64 placeholder — diambil dari path publik saat runtime) ─────────
 // e-TEPI menggunakan LOGO_KAB_LINGGA sebagai konstanta base64 atau URL
@@ -56,7 +56,7 @@ function judulSurat(judul: string, nomor: string): string {
 }
 
 // ─── Blok TTD Camat ───────────────────────────────────────────────────────────
-function ttdCamat(tanggal: string, isSigned: boolean = false, jabatan = "CAMAT TEMIANG PESISIR", nama = "HENDRA, S.STP", pangkat = "PEMBINA / IV.a", nip = "NIP. 198507122006021001", showDate: boolean = true): string {
+function ttdCamat(tanggal: string, isSigned: boolean = false, jabatan = "CAMAT TEMIANG PESISIR", nama = "HENDRA, S.STP", pangkat = "PEMBINA / IV.a", nip = "NIP. 198507122006021001", showDate: boolean = true, ttdImgUrl = "/ttd-camat.jpeg"): string {
   return `
   <table style="width:100%;font-family:Arial;font-size:12pt;margin-top:40px;">
     <tr>
@@ -64,7 +64,7 @@ function ttdCamat(tanggal: string, isSigned: boolean = false, jabatan = "CAMAT T
       <td style="width:35%;vertical-align:top;">
         ${showDate ? `Tajur Biru, ${formatTanggal(tanggal)}<br>` : ""}
         <strong>${jabatan}</strong>,<br>
-        ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
+        ${isSigned ? `<img src="${ttdImgUrl}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
         <strong><u>${nama}</u></strong><br>
         ${pangkat}<br>
         ${nip}
@@ -214,6 +214,9 @@ export function generateSuratHTML(surat: Surat): string {
   const formData = (surat.data_form || {}) as Record<string, any>
   const isSignedJubir = Boolean(formData.ttd_jubir) && formData.ttd_jubir !== "false"
   const isSignedZakaria = Boolean(formData.ttd_zakaria) && formData.ttd_zakaria !== "false"
+  const ttdJubirSrc = formData.ttd_jubir_url || "/ttd-digital.jpeg"
+  const ttdZakariaSrc = formData.ttd_zakaria_url || "/ttd-digital.jpeg"
+  const ttdCamatSrc = formData.ttd_camat_url || "/ttd-camat.jpeg"
 
   switch (surat.jenis) {
 
@@ -304,7 +307,7 @@ export function generateSuratHTML(surat: Surat): string {
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:4px 0;">
-                    ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin-bottom:2px;" />` : `<div style="height:70px;"></div>`}
+                    ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin-bottom:2px;" />` : `<div style="height:70px;"></div>`}
                   </td>
                 </tr>
                 <tr>
@@ -429,7 +432,7 @@ export function generateSuratHTML(surat: Surat): string {
           </ol>
         </div>
 
-        ${ttdCamat(tanggal, isSigned)}
+        ${ttdCamat(tanggal, isSigned, "CAMAT TEMIANG PESISIR", "HENDRA, S.STP", "PEMBINA / IV.a", "NIP. 198507122006021001", true, ttdCamatSrc)}
       </div>`
     }
 
@@ -523,7 +526,7 @@ export function generateSuratHTML(surat: Surat): string {
         </ol>
         </div>
 
-        ${ttdCamat(tanggal, isSigned)}
+        ${ttdCamat(tanggal, isSigned, "CAMAT TEMIANG PESISIR", "HENDRA, S.STP", "PEMBINA / IV.a", "NIP. 198507122006021001", true, ttdCamatSrc)}
       </div>`
     }
 
@@ -560,7 +563,7 @@ export function generateSuratHTML(surat: Surat): string {
           Demikian disampaikan untuk menjadi bahan pertimbangan, atas perhatian dan kerjasama diucapkan terima kasih.
         </p>
 
-        ${ttdCamat(tanggal, isSigned, "CAMAT TEMIANG PESISIR", "HENDRA, S.STP", "PEMBINA / IV.a", "NIP. 198507122006021001", false)}
+        ${ttdCamat(tanggal, isSigned, "CAMAT TEMIANG PESISIR", "HENDRA, S.STP", "PEMBINA / IV.a", "NIP. 198507122006021001", false, ttdCamatSrc)}
 
         <div style="margin-top:20px;font-family:Arial;font-size:10pt;">
           Tembusan:<br>
@@ -639,14 +642,14 @@ export function generateSuratHTML(surat: Surat): string {
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
               <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedJubir ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedJubir ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
               <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedZakaria ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedZakaria ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -657,7 +660,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:65%;"></td>
             <td style="width:35%;vertical-align:top;">
               <strong>CAMAT TEMIANG PESISIR,</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP. 198507122006021001
@@ -702,7 +705,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:65%;"></td>
             <td style="width:35%;vertical-align:top;">
               <strong>CAMAT TEMIANG PESISIR,</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP. 198507122006021001
@@ -787,14 +790,14 @@ export function generateSuratHTML(surat: Surat): string {
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
               <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedJubir ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedJubir ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
               <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedZakaria ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedZakaria ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -805,7 +808,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:65%;"></td>
             <td style="width:35%;vertical-align:top;">
               <strong>CAMAT TEMIANG PESISIR,</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP. 198507122006021001
@@ -850,7 +853,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:65%;"></td>
             <td style="width:35%;vertical-align:top;">
               <strong>CAMAT TEMIANG PESISIR,</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP. 198507122006021001
@@ -953,14 +956,14 @@ export function generateSuratHTML(surat: Surat): string {
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
               <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedJubir ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedJubir ? `<img src="${ttdJubirSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
               <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                ${isSignedZakaria ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
+                ${isSignedZakaria ? `<img src="${ttdZakariaSrc}" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -971,7 +974,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:65%;"></td>
             <td style="width:35%;vertical-align:top;">
               <strong>CAMAT TEMIANG PESISIR,</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<div style="height:70px;"></div>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP. 198507122006021001
@@ -1049,7 +1052,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:35%;vertical-align:top;padding-top:40px;">
               Tajur Biru, ${formatTanggal(tanggal)}<br>
               <strong>CAMAT TEMIANG PESISIR</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<br><br><br><br><br>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<br><br><br><br><br>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP 198507122006021001
@@ -1120,7 +1123,7 @@ export function generateSuratHTML(surat: Surat): string {
                 </tr>
               </table>
               <strong>CAMAT TEMIANG PESISIR</strong><br>
-              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<br><br><br><br><br>`}
+              ${isSigned ? `<img src="${ttdCamatSrc}" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<br><br><br><br><br>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP 198507122006021001
@@ -1148,7 +1151,7 @@ export function generateSuratHTML(surat: Surat): string {
         ${kopSurat()}
         <p>Surat ${surat.jenis} untuk ${surat.pemohon}</p>
         <p>${surat.perihal || f.perihal || ""}</p>
-        ${ttdCamat(tanggal, isSigned)}
+        ${ttdCamat(tanggal, isSigned, "CAMAT TEMIANG PESISIR", "HENDRA, S.STP", "PEMBINA / IV.a", "NIP. 198507122006021001", true, ttdCamatSrc)}
       </div>`
     }
   }

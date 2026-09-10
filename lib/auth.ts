@@ -1,7 +1,16 @@
 import { createServiceClient } from "@/lib/supabase/server"
 
 export type UserRole = "staf" | "kasi" | "kasi_pem" | "kasi_ekbang" | "kasi_kesos" | "sekretaris" | "kasi_ekobang" | "kasi_kessos" | "camat" | "admin" | "petugas" | "super_admin"
-export type User = { id: string; nama: string; role: UserRole; jabatan: string; username: string; desa?: string }
+export type User = { 
+  id: string; 
+  nama: string; 
+  role: UserRole; 
+  jabatan: string; 
+  username: string; 
+  desa?: string;
+  foto_url?: string | null;
+  ttd_url?: string | null;
+}
 
 export const AUTH_COOKIE_NAME = "silat_session"
 
@@ -9,7 +18,7 @@ export async function loginFromSupabase(username: string, password: string): Pro
   const supabase = await createServiceClient()
   const { data } = await supabase
     .from("pengguna")
-    .select("id, nama, role, jabatan, username")
+    .select("id, nama, role, jabatan, username, foto_url, ttd_url")
     .eq("username", username)
     .eq("password", password)
     .eq("aktif", true)
@@ -19,7 +28,15 @@ export async function loginFromSupabase(username: string, password: string): Pro
 
 export function createSessionToken(user: User): string {
   // Simpan data lengkap agar layout bisa baca tanpa query DB tambahan
-  return btoa(JSON.stringify({ id: user.id, nama: user.nama, role: user.role, jabatan: user.jabatan, username: user.username }))
+  return btoa(JSON.stringify({ 
+    id: user.id, 
+    nama: user.nama, 
+    role: user.role, 
+    jabatan: user.jabatan, 
+    username: user.username,
+    foto_url: user.foto_url || null,
+    ttd_url: user.ttd_url || null,
+  }))
 }
 
 export function getSessionFromCookie(cookieValue: string | undefined): User | null {

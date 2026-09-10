@@ -185,11 +185,28 @@ export async function hapusSemuaSurat() {
 export async function terbitkanSurat(suratId: string, namaCamat: string) {
   const supabase = await createServiceClient()
   
+  // Ambil TTD Camat jika ada di profil
+  const cookieStore = await cookies()
+  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
+  let camatTtdUrl = sessionUser?.ttd_url || null
+  if (!camatTtdUrl) {
+    const { data: u } = await supabase.from("pengguna").select("ttd_url").eq("role", "camat").not("ttd_url", "is", null).maybeSingle()
+    camatTtdUrl = u?.ttd_url || null
+  }
+
+  // Update data_form jika ada ttd_url
+  const { data: currentSurat } = await supabase.from("surat").select("data_form").eq("id", suratId).single()
+  const currentDataForm = (currentSurat?.data_form || {}) as Record<string, any>
+  if (camatTtdUrl) {
+    currentDataForm.ttd_camat_url = camatTtdUrl
+  }
+
   const { error } = await supabase
     .from("surat")
     .update({ 
       status: "terbit",
-      disetujui_oleh: namaCamat
+      disetujui_oleh: namaCamat,
+      data_form: currentDataForm,
     })
     .eq("id", suratId)
 
@@ -205,6 +222,7 @@ export async function terbitkanSurat(suratId: string, namaCamat: string) {
 
   revalidatePath("/internal/surat")
   revalidatePath(`/internal/surat/${suratId}`)
+  revalidatePath(`/internal/surat/${suratId}/cetak`)
 }
 
 export async function teruskanKeCamat(suratId: string, namaStaf: string) {
@@ -273,11 +291,26 @@ export async function tandaTanganiVerifikasi(
 
   const currentDataForm = (surat.data_form || {}) as Record<string, any>
 
+  // Ambil ttd_url dari profil signer jika ada
+  const cookieStore = await cookies()
+  const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
+  let signerTtdUrl = sessionUser?.ttd_url || null
+  if (!signerTtdUrl) {
+    const { data: u } = await supabase
+      .from("pengguna")
+      .select("ttd_url")
+      .ilike("nama", `%${verifikatorKey}%`)
+      .not("ttd_url", "is", null)
+      .maybeSingle()
+    signerTtdUrl = u?.ttd_url || null
+  }
+
   const updatedDataForm = {
     ...currentDataForm,
     [`ttd_${verifikatorKey}`]: true,
     [`ttd_${verifikatorKey}_oleh`]: namaVerifikator,
     [`ttd_${verifikatorKey}_tanggal`]: new Date().toISOString(),
+    ...(signerTtdUrl ? { [`ttd_${verifikatorKey}_url`]: signerTtdUrl } : {}),
   }
 
   // Cek apakah kedua verifikator sudah menandatangani

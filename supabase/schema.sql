@@ -17,6 +17,8 @@ create table if not exists pengguna (
   role text not null check (role in ('staf', 'kasi', 'kasi_pem', 'kasi_ekbang', 'kasi_kesos', 'sekretaris', 'kasi_ekobang', 'kasi_kessos', 'camat', 'admin', 'petugas', 'super_admin')),
   jabatan text not null,
   desa text,
+  foto_url text,
+  ttd_url text,
   aktif boolean default true,
   created_at timestamptz default now()
 );

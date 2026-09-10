@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Users,
   MessageSquareWarning,
+  User as UserIcon,
 } from "lucide-react"
 
 type NavItem = { href: string; label: string; icon: React.ElementType }
@@ -31,6 +32,7 @@ function getNavItems(role: UserRole): NavGroup[] {
   const rekap: NavItem = { href: "/internal/rekap", label: "Rekap & Statistik", icon: BarChart3 }
   const pengaturan: NavItem = { href: "/internal/pengaturan", label: "Pengaturan", icon: Settings }
   const pengguna: NavItem = { href: "/internal/pengguna", label: "Manajemen User", icon: Users }
+  const profil: NavItem = { href: "/internal/profil", label: "Profil Saya", icon: UserIcon }
 
   switch (role) {
     case "super_admin":
@@ -39,6 +41,7 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
         { group: "Desa & Laporan", items: [aduan, rekap] },
         { group: "Sistem", items: [pengguna, pengaturan] },
+        { group: "Akun", items: [profil] },
       ]
 
     case "admin":
@@ -47,6 +50,7 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
         { group: "Desa & Laporan", items: [aduan, rekap] },
         { group: "Sistem", items: [pengaturan] },
+        { group: "Akun", items: [profil] },
       ]
 
     case "camat":
@@ -54,6 +58,7 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, arsip] },
         { group: "Laporan", items: [rekap] },
+        { group: "Akun", items: [profil] },
       ]
 
     case "sekretaris":
@@ -61,6 +66,7 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
         { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Akun", items: [profil] },
       ]
 
     case "kasi":
@@ -73,22 +79,25 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
         { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Akun", items: [profil] },
       ]
 
     case "staf":
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [buatSurat, daftarSurat] },
+        { group: "Akun", items: [profil] },
       ]
 
     case "petugas":
       return [
         { group: "Utama", items: [beranda] },
         { group: "Pengaduan", items: [aduan] },
+        { group: "Akun", items: [profil] },
       ]
 
     default:
-      return [{ group: "Utama", items: [beranda] }]
+      return [{ group: "Utama", items: [beranda] }, { group: "Akun", items: [profil] }]
   }
 }
 
@@ -129,15 +138,24 @@ export function Sidebar({ user }: { user: User | null }) {
 
       {/* User Info */}
       {user && (
-        <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-kuning flex items-center justify-center text-teks text-xs font-bold shrink-0">
-            {user.nama.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
+        <Link
+          href="/internal/profil"
+          className="px-4 py-3 border-b border-white/10 flex items-center gap-2.5 hover:bg-white/5 transition-colors group"
+          title="Lihat Profil Saya"
+        >
+          <div className="w-8 h-8 rounded-full bg-kuning flex items-center justify-center text-teks text-xs font-bold shrink-0 overflow-hidden border border-white/20">
+            {user.foto_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.foto_url} alt={user.nama} className="w-full h-full object-cover" />
+            ) : (
+              <span>{user.nama.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}</span>
+            )}
           </div>
           <div className="min-w-0">
-            <p className="text-white text-xs font-semibold truncate leading-tight">{user.nama}</p>
+            <p className="text-white text-xs font-semibold truncate leading-tight group-hover:text-kuning transition-colors">{user.nama}</p>
             <p className="text-white/50 text-[10px] mt-0.5">{ROLE_LABELS[role]}</p>
           </div>
-        </div>
+        </Link>
       )}
 
       {/* Navigation */}
