@@ -81,37 +81,90 @@ export function StatsCounter({ initialCounts }: { initialCounts: StatsCounts }) 
   }, [])
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm transition-all hover:shadow-md">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Laporan Diterima</span>
-          <MessageSquare className="w-4 h-4 text-kuning" />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            Statistik Terhubung Langsung (Real-Time Live Sync)
+          </span>
         </div>
-        <p className="text-3xl font-serif font-bold text-hijau animate-in fade-in">{counts.total}</p>
+        <span className="text-[11px] text-slate-400 hidden sm:inline">
+          Kecamatan Temiang Pesisir
+        </span>
       </div>
 
-      <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm transition-all hover:shadow-md">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Menunggu Verifikasi</span>
-          <Clock className="w-4 h-4 text-orange-500" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {/* Total Laporan */}
+        <div className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all hover:border-[#2F4A3C]/40 group relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[#2F4A3C]" />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Total Laporan
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-[#2F4A3C]/10 flex items-center justify-center text-[#2F4A3C] group-hover:scale-105 transition-transform">
+              <MessageSquare className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-[#2F4A3C] tracking-tight">
+            {counts.total}
+          </p>
+          <span className="text-[11px] text-slate-400 mt-1 block">Aduan teregistrasi</span>
         </div>
-        <p className="text-3xl font-serif font-bold text-orange-600 animate-in fade-in">{counts.menunggu}</p>
-      </div>
 
-      <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm transition-all hover:shadow-md">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Sedang Diproses</span>
-          <Clock className="w-4 h-4 text-blue-500" />
+        {/* Menunggu Verifikasi */}
+        <div className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all hover:border-amber-400/50 group relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-amber-500" />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Menunggu
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-amber-600 tracking-tight">
+            {counts.menunggu}
+          </p>
+          <span className="text-[11px] text-amber-600/70 mt-1 block">Validasi & telaah awal</span>
         </div>
-        <p className="text-3xl font-serif font-bold text-blue-600 animate-in fade-in">{counts.proses}</p>
-      </div>
 
-      <div className="bg-white rounded-xl border border-kuning-muda p-5 shadow-sm transition-all hover:shadow-md">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-teks/50">Laporan Selesai</span>
-          <CheckCircle className="w-4 h-4 text-green-500" />
+        {/* Sedang Diproses */}
+        <div className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all hover:border-blue-400/50 group relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-blue-600" />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Diproses
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-blue-700 tracking-tight">
+            {counts.proses}
+          </p>
+          <span className="text-[11px] text-blue-600/70 mt-1 block">Penanganan di lapangan</span>
         </div>
-        <p className="text-3xl font-serif font-bold text-green-600 animate-in fade-in">{counts.selesai}</p>
+
+        {/* Laporan Selesai */}
+        <div className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all hover:border-emerald-400/50 group relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-emerald-600" />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Tuntas / Selesai
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
+              <CheckCircle className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-serif font-bold text-emerald-700 tracking-tight">
+            {counts.selesai}
+          </p>
+          <span className="text-[11px] text-emerald-600/70 mt-1 block">Tindak lanjut rampung</span>
+        </div>
       </div>
     </div>
   )

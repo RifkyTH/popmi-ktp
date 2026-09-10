@@ -182,30 +182,33 @@ export async function hapusSemuaSurat() {
   revalidatePath('/internal/surat')
 }
 
-export async function terbitkanSurat(suratId: string, namaCamat: string) {
+export async function terbitkanSurat(suratId: string, namaCamat?: string) {
   const supabase = await createServiceClient()
   
-  // Ambil TTD Camat jika ada di profil
+  // Ambil data Camat definitif dari tabel pengguna
+  const { data: camatUser } = await supabase
+    .from("pengguna")
+    .select("id, nama, jabatan, ttd_url")
+    .eq("role", "camat")
+    .maybeSingle()
+
+  const officialCamatNama = camatUser?.nama || "HENDRA, S.STP"
+  const camatTtdUrl = camatUser?.ttd_url || "/ttd-camat.jpeg"
+
+  // Update data_form jika ada ttd_url resmi Camat
+  const { data: currentSurat } = await supabase.from("surat").select("data_form, tanggal_terbit").eq("id", suratId).single()
+  const currentDataForm = (currentSurat?.data_form || {}) as Record<string, any>
+  currentDataForm.ttd_camat_url = camatTtdUrl
+
   const cookieStore = await cookies()
   const sessionUser = getSessionFromCookie(cookieStore.get("silat_session")?.value)
-  let camatTtdUrl = sessionUser?.ttd_url || null
-  if (!camatTtdUrl) {
-    const { data: u } = await supabase.from("pengguna").select("ttd_url").eq("role", "camat").not("ttd_url", "is", null).maybeSingle()
-    camatTtdUrl = u?.ttd_url || null
-  }
-
-  // Update data_form jika ada ttd_url
-  const { data: currentSurat } = await supabase.from("surat").select("data_form").eq("id", suratId).single()
-  const currentDataForm = (currentSurat?.data_form || {}) as Record<string, any>
-  if (camatTtdUrl) {
-    currentDataForm.ttd_camat_url = camatTtdUrl
-  }
 
   const { error } = await supabase
     .from("surat")
     .update({ 
       status: "terbit",
-      disetujui_oleh: namaCamat,
+      disetujui_oleh: officialCamatNama,
+      tanggal_terbit: currentSurat?.tanggal_terbit || new Date().toISOString().split("T")[0],
       data_form: currentDataForm,
     })
     .eq("id", suratId)
@@ -215,9 +218,11 @@ export async function terbitkanSurat(suratId: string, namaCamat: string) {
   await supabase.from("surat_riwayat").insert({
     surat_id: suratId,
     status: "terbit",
-    oleh: namaCamat,
+    oleh: officialCamatNama,
     tanggal: new Date().toISOString(),
-    catatan: "Ditandatangani dan diterbitkan oleh Camat",
+    catatan: sessionUser?.role === "super_admin" && sessionUser.nama !== officialCamatNama
+      ? `Ditandatangani dan diterbitkan atas nama Camat (${officialCamatNama}) oleh Super Admin`
+      : "Ditandatangani dan diterbitkan oleh Camat",
   })
 
   revalidatePath("/internal/surat")
@@ -362,8 +367,12 @@ export async function tandaTanganiVerifikasi(
   }
 
   // Nama efektif kedua verifikator untuk catatan diverifikasi_oleh
-  const namaJubir = (currentDataForm.penandatangan_jubir as { nama: string } | undefined)?.nama || "Jubir, S.Pd.SD"
-  const namaZakaria = (currentDataForm.penandatangan_zakaria as { nama: string } | undefined)?.nama || "Zakaria, A.Ma.Pd"
+  const namaJubir = (currentDataForm.penandatangan_jubir as { nama: string } | undefined)?.nama 
+    || currentDataForm.verifikator_1_nama 
+    || (verifikatorKey === "jubir" ? namaEfektif : "JUBIR, S.Pd.SD")
+  const namaZakaria = (currentDataForm.penandatangan_zakaria as { nama: string } | undefined)?.nama 
+    || currentDataForm.verifikator_2_nama 
+    || (verifikatorKey === "zakaria" ? namaEfektif : "ZAKARIA, A.Ma.Pd")
 
   // Cek apakah kedua verifikator sudah menandatangani
   const isJubirSigned = verifikatorKey === "jubir" ? true : Boolean(currentDataForm.ttd_jubir && currentDataForm.ttd_jubir !== "false")

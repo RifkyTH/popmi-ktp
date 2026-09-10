@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { UserDialog } from "./user-dialog"
 import { toggleAktifPengguna, hapusPengguna } from "./actions"
@@ -14,7 +14,16 @@ import {
   Trash2,
   Search,
   Users,
+  Building2,
+  Shield,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  XCircle,
+  UserCheck
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 type Pengguna = {
   id: string
@@ -43,36 +52,101 @@ const ROLE_LABELS: Record<UserRole, string> = {
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
-  super_admin: "bg-purple-100 text-purple-800",
-  admin: "bg-blue-100 text-blue-800",
-  camat: "bg-green-100 text-green-800",
-  sekretaris: "bg-indigo-100 text-indigo-800",
-  kasi_pem: "bg-teal-100 text-teal-800",
-  kasi_ekbang: "bg-orange-100 text-orange-800",
-  kasi_kesos: "bg-pink-100 text-pink-800",
-  kasi: "bg-teal-100 text-teal-800",
-  kasi_ekobang: "bg-orange-100 text-orange-800",
-  kasi_kessos: "bg-pink-100 text-pink-800",
-  staf: "bg-gray-100 text-gray-700",
-  petugas: "bg-yellow-100 text-yellow-800",
+  super_admin: "bg-purple-50 text-purple-700 border-purple-200/80",
+  admin: "bg-blue-50 text-blue-700 border-blue-200/80",
+  camat: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+  sekretaris: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
+  kasi_pem: "bg-teal-50 text-teal-700 border-teal-200/80",
+  kasi_ekbang: "bg-amber-50 text-amber-700 border-amber-200/80",
+  kasi_kesos: "bg-pink-50 text-pink-700 border-pink-200/80",
+  kasi: "bg-teal-50 text-teal-700 border-teal-200/80",
+  kasi_ekobang: "bg-amber-50 text-amber-700 border-amber-200/80",
+  kasi_kessos: "bg-pink-50 text-pink-700 border-pink-200/80",
+  staf: "bg-gray-100 text-gray-700 border-gray-200/80",
+  petugas: "bg-orange-50 text-orange-700 border-orange-200/80",
 }
 
 export function PenggunaClient({ penggunaList }: { penggunaList: Pengguna[] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [search, setSearch] = useState("")
+  const [roleFilter, setRoleFilter] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [activeTab, setActiveTab] = useState<string>("semua")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   const [dialog, setDialog] = useState<{ open: boolean; mode: "tambah" | "edit"; pengguna?: Pengguna }>({
     open: false,
     mode: "tambah",
   })
   const [confirmDelete, setConfirmDelete] = useState<Pengguna | null>(null)
 
-  const filtered = penggunaList.filter(
-    (p) =>
-      p.nama.toLowerCase().includes(search.toLowerCase()) ||
-      p.username.toLowerCase().includes(search.toLowerCase()) ||
-      p.jabatan.toLowerCase().includes(search.toLowerCase())
-  )
+  // KPI Counts
+  const counts = useMemo(() => {
+    return {
+      total: penggunaList.length,
+      aktif: penggunaList.filter((p) => p.aktif).length,
+      nonaktif: penggunaList.filter((p) => !p.aktif).length,
+      roles: new Set(penggunaList.map((p) => p.role)).size,
+    }
+  }, [penggunaList])
+
+  // Filtering
+  const filtered = useMemo(() => {
+    return penggunaList.filter((p) => {
+      // Tab Category
+      if (activeTab === "pimpinan" && p.role !== "camat" && p.role !== "sekretaris") return false
+      if (
+        activeTab === "kasi" &&
+        !["kasi_pem", "kasi_ekbang", "kasi_kesos", "kasi", "kasi_ekobang", "kasi_kessos"].includes(p.role)
+      )
+        return false
+      if (activeTab === "pelaksana" && p.role !== "staf" && p.role !== "petugas") return false
+      if (activeTab === "admin" && p.role !== "super_admin" && p.role !== "admin") return false
+
+      // Search
+      const q = search.toLowerCase().trim()
+      if (q) {
+        const matchNama = p.nama.toLowerCase().includes(q)
+        const matchUser = p.username.toLowerCase().includes(q)
+        const matchJab = p.jabatan.toLowerCase().includes(q)
+        const matchDesa = p.desa ? p.desa.toLowerCase().includes(q) : false
+        if (!matchNama && !matchUser && !matchJab && !matchDesa) return false
+      }
+
+      // Role Filter
+      if (roleFilter && p.role !== roleFilter) return false
+
+      // Status Filter
+      if (statusFilter === "aktif" && !p.aktif) return false
+      if (statusFilter === "nonaktif" && p.aktif) return false
+
+      return true
+    })
+  }, [penggunaList, activeTab, search, roleFilter, statusFilter])
+
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1
+  const paginatedPengguna = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return filtered.slice(start, start + itemsPerPage)
+  }, [filtered, currentPage])
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    setCurrentPage(1)
+  }
+
+  const handleResetFilters = () => {
+    setActiveTab("semua")
+    setSearch("")
+    setRoleFilter("")
+    setStatusFilter("")
+    setCurrentPage(1)
+  }
+
+  const isFiltered = search || roleFilter || statusFilter || activeTab !== "semua"
 
   function handleSuccess() {
     startTransition(() => router.refresh())
@@ -93,148 +167,398 @@ export function PenggunaClient({ penggunaList }: { penggunaList: Pengguna[] }) {
     })
   }
 
+
   return (
-    <>
-      {/* Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: "Total Pengguna", value: penggunaList.length, color: "text-hijau" },
-          { label: "Aktif", value: penggunaList.filter((p) => p.aktif).length, color: "text-green-600" },
-          { label: "Nonaktif", value: penggunaList.filter((p) => !p.aktif).length, color: "text-red-500" },
-          { label: "Role", value: new Set(penggunaList.map((p) => p.role)).size, color: "text-blue-600" },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-xl border border-kuning-muda p-4 shadow-sm">
-            <p className="text-xs text-teks/50 font-medium">{stat.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
+    <div className="space-y-6 pb-12">
+      {/* Header Section */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1 text-xs font-semibold text-teks/50">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Otoritas & Akses Pengguna
+            </span>
+            <span>•</span>
+            <span>Kecamatan Temiang Pesisir</span>
           </div>
-        ))}
+          <h1 className="text-2xl lg:text-3xl font-bold font-serif text-hijau tracking-tight">
+            Manajemen Pengguna & Otoritas Sistem
+          </h1>
+          <p className="text-xs sm:text-sm text-teks/60 mt-0.5">
+            Kelola hak akses aparatur, verifikator teknis, administrator, dan operator desa
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <Button
+            onClick={() => setDialog({ open: true, mode: "tambah" })}
+            className="bg-hijau hover:bg-hijau/90 text-white shadow-sm text-xs font-semibold cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4 mr-1.5" />
+            Tambah Pengguna Baru
+          </Button>
+        </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="bg-white rounded-xl border border-kuning-muda p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
-        <div className="relative flex-1 min-w-0 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-teks/40" />
+      {/* 4 Summary KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-teks/50">Total Aparatur</span>
+            <div className="w-8 h-8 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold font-serif text-hijau">{counts.total}</p>
+          <p className="text-xs text-teks/50 mt-1">seluruh akun terdaftar</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-teks/50">Akun Aktif</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold font-serif text-emerald-700">{counts.aktif}</p>
+          <p className="text-xs text-teks/50 mt-1">memiliki hak akses aktif</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-teks/50">Akun Nonaktif</span>
+            <div className="w-8 h-8 rounded-xl bg-red-50 text-red-700 flex items-center justify-center">
+              <XCircle className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold font-serif text-red-600">{counts.nonaktif}</p>
+          <p className="text-xs text-teks/50 mt-1">akses dibekukan sementara</p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-teks/50">Variasi Role</span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+              <Shield className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold font-serif text-blue-700">{counts.roles}</p>
+          <p className="text-xs text-teks/50 mt-1">level otorisasi berbeda</p>
+        </div>
+      </div>
+
+      {/* Tabs Filter Bar */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 p-3 shadow-sm flex flex-wrap items-center gap-1.5">
+        <button
+          onClick={() => handleTabChange("semua")}
+          className={cn(
+            "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer",
+            activeTab === "semua"
+              ? "bg-hijau text-white shadow-xs"
+              : "text-teks/70 hover:bg-gray-100 hover:text-teks"
+          )}
+        >
+          Semua Pengguna ({counts.total})
+        </button>
+        <button
+          onClick={() => handleTabChange("pimpinan")}
+          className={cn(
+            "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer",
+            activeTab === "pimpinan"
+              ? "bg-emerald-700 text-white shadow-xs"
+              : "text-teks/70 hover:bg-emerald-50 hover:text-emerald-800"
+          )}
+        >
+          Pimpinan & Camat ({penggunaList.filter((p) => p.role === "camat" || p.role === "sekretaris").length})
+        </button>
+        <button
+          onClick={() => handleTabChange("kasi")}
+          className={cn(
+            "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer",
+            activeTab === "kasi"
+              ? "bg-blue-600 text-white shadow-xs"
+              : "text-teks/70 hover:bg-blue-50 hover:text-blue-700"
+          )}
+        >
+          Verifikator & Kasi (
+          {
+            penggunaList.filter((p) =>
+              ["kasi_pem", "kasi_ekbang", "kasi_kesos", "kasi", "kasi_ekobang", "kasi_kessos"].includes(p.role)
+            ).length
+          }
+          )
+        </button>
+        <button
+          onClick={() => handleTabChange("pelaksana")}
+          className={cn(
+            "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer",
+            activeTab === "pelaksana"
+              ? "bg-amber-600 text-white shadow-xs"
+              : "text-teks/70 hover:bg-amber-50 hover:text-amber-700"
+          )}
+        >
+          Pelaksana & Staf ({penggunaList.filter((p) => p.role === "staf" || p.role === "petugas").length})
+        </button>
+        <button
+          onClick={() => handleTabChange("admin")}
+          className={cn(
+            "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer",
+            activeTab === "admin"
+              ? "bg-purple-700 text-white shadow-xs"
+              : "text-teks/70 hover:bg-purple-50 hover:text-purple-700"
+          )}
+        >
+          Administrator ({penggunaList.filter((p) => p.role === "super_admin" || p.role === "admin").length})
+        </button>
+      </div>
+
+      {/* Toolbar Search & Selects */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-sm flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-teks/40" />
           <input
             type="text"
-            placeholder="Cari nama, username, jabatan..."
+            placeholder="Cari nama, username, jabatan, wilayah desa..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="w-full text-xs sm:text-sm pl-9 pr-4 py-2 bg-gray-50/70 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-hijau/20 focus:border-hijau transition-all"
           />
         </div>
-        <Button
-          onClick={() => setDialog({ open: true, mode: "tambah" })}
-          className="gap-2 shrink-0"
-        >
-          <UserPlus className="w-4 h-4" />
-          Tambah Pengguna
-        </Button>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="text-xs sm:text-sm bg-gray-50/70 border border-gray-200 rounded-xl px-3 py-2 text-teks focus:outline-none focus:ring-2 focus:ring-hijau/20 focus:border-hijau max-w-[200px] cursor-pointer"
+          >
+            <option value="">Semua Otoritas (Role)</option>
+            {Object.entries(ROLE_LABELS).map(([k, label]) => (
+              <option key={k} value={k}>
+                {label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value)
+              setCurrentPage(1)
+            }}
+            className="text-xs sm:text-sm bg-gray-50/70 border border-gray-200 rounded-xl px-3 py-2 text-teks focus:outline-none focus:ring-2 focus:ring-hijau/20 focus:border-hijau cursor-pointer"
+          >
+            <option value="">Semua Status</option>
+            <option value="aktif">Hanya Aktif</option>
+            <option value="nonaktif">Hanya Nonaktif</option>
+          </select>
+
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetFilters}
+              className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1" />
+              Reset Filter
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Tabel */}
-      <div className="bg-white rounded-xl border border-kuning-muda shadow-sm overflow-hidden">
-        {filtered.length === 0 ? (
-          <div className="py-16 text-center text-teks/40 space-y-2">
-            <Users className="w-10 h-10 mx-auto text-teks/20" />
-            <p className="font-semibold text-sm">
-              {search ? "Tidak ada pengguna yang cocok" : "Belum ada pengguna"}
+      {/* Tabel Pengguna */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold font-serif text-lg text-hijau tracking-tight">
+              Daftar Aparatur & Pengguna Sistem
+            </h2>
+            <p className="text-xs text-teks/50 mt-0.5">
+              Menampilkan {filtered.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filtered.length)} dari {filtered.length} pengguna
             </p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  {["Pengguna", "Username", "Role", "Jabatan / Desa", "Status", "Aksi"].map((h) => (
-                    <th
-                      key={h}
-                      className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-teks/50"
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50/70 text-left text-[11px] uppercase tracking-wider text-teks/50 border-b border-gray-100">
+              <tr>
+                <th className="px-6 py-3.5 font-bold">Aparatur / Nama</th>
+                <th className="px-6 py-3.5 font-bold">Username Akun</th>
+                <th className="px-6 py-3.5 font-bold">Otoritas (Role)</th>
+                <th className="px-6 py-3.5 font-bold">Jabatan & Wilayah</th>
+                <th className="px-6 py-3.5 font-bold">Status Akun</th>
+                <th className="px-6 py-3.5 font-bold text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {paginatedPengguna.map((p) => (
+                <tr key={p.id} className={cn("hover:bg-emerald-50/20 transition-colors", !p.aktif && "opacity-60 bg-gray-50/40")}>
+                  {/* Nama + Avatar */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-hijau/10 text-hijau border border-hijau/20 flex items-center justify-center text-xs font-bold shrink-0">
+                        {p.nama.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <span className="font-semibold text-teks block">{p.nama}</span>
+                        <span className="text-[10px] text-teks/40">ID: {p.id.substring(0, 8)}...</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Username */}
+                  <td className="px-6 py-4">
+                    <code className="text-xs bg-gray-100 text-teks/80 px-2 py-0.5 rounded-md font-mono border border-gray-200/60">
+                      @{p.username}
+                    </code>
+                  </td>
+
+                  {/* Role */}
+                  <td className="px-6 py-4">
+                    <span className={cn("text-[11px] px-2.5 py-0.5 rounded-full font-bold border", ROLE_COLORS[p.role as UserRole] ?? "bg-gray-100 text-gray-700 border-gray-200")}>
+                      {ROLE_LABELS[p.role as UserRole] ?? p.role}
+                    </span>
+                  </td>
+
+                  {/* Jabatan + Desa */}
+                  <td className="px-6 py-4 text-xs">
+                    <p className="font-medium text-teks">{p.jabatan}</p>
+                    {p.desa ? (
+                      <p className="text-[11px] text-teks/50 flex items-center gap-1 mt-0.5">
+                        <Building2 className="w-3 h-3 text-teks/40" />
+                        Desa {p.desa}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-teks/40 mt-0.5">Kecamatan Temiang Pesisir</p>
+                    )}
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-6 py-4">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border",
+                        p.aktif
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+                          : "bg-red-50 text-red-600 border-red-200/80"
+                      )}
                     >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map((p) => (
-                  <tr key={p.id} className={`transition-colors hover:bg-gray-50/60 ${!p.aktif ? "opacity-60" : ""}`}>
-                    {/* Nama + Avatar */}
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-hijau/10 flex items-center justify-center text-hijau text-xs font-bold shrink-0">
-                          {p.nama.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
-                        </div>
-                        <span className="font-semibold text-teks">{p.nama}</span>
-                      </div>
-                    </td>
-                    {/* Username */}
-                    <td className="px-4 py-3.5">
-                      <code className="text-xs bg-gray-100 text-teks/70 px-1.5 py-0.5 rounded font-mono">
-                        {p.username}
-                      </code>
-                    </td>
-                    {/* Role */}
-                    <td className="px-4 py-3.5">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${ROLE_COLORS[p.role as UserRole] ?? "bg-gray-100 text-gray-700"}`}>
-                        {ROLE_LABELS[p.role as UserRole] ?? p.role}
-                      </span>
-                    </td>
-                    {/* Jabatan + Desa */}
-                    <td className="px-4 py-3.5">
-                      <p className="text-teks/80">{p.jabatan}</p>
-                      {p.desa && <p className="text-xs text-teks/40 mt-0.5">Desa {p.desa}</p>}
-                    </td>
-                    {/* Status */}
-                    <td className="px-4 py-3.5">
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                          p.aktif
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-600"
-                        }`}
+                      <span className={cn("w-1.5 h-1.5 rounded-full", p.aktif ? "bg-emerald-500 animate-pulse" : "bg-red-400")} />
+                      {p.aktif ? "Aktif" : "Nonaktif"}
+                    </span>
+                  </td>
+
+                  {/* Aksi */}
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => setDialog({ open: true, mode: "edit", pengguna: p })}
+                        title="Edit Data & Role"
+                        className="p-1.5 rounded-lg border border-gray-200 text-teks/60 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${p.aktif ? "bg-green-500" : "bg-red-400"}`} />
-                        {p.aktif ? "Aktif" : "Nonaktif"}
-                      </span>
-                    </td>
-                    {/* Aksi */}
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => setDialog({ open: true, mode: "edit", pengguna: p })}
-                          title="Edit"
-                          className="p-1.5 rounded-lg text-teks/40 hover:text-hijau hover:bg-hijau/10 transition-colors"
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleToggleAktif(p)}
+                        disabled={isPending}
+                        title={p.aktif ? "Nonaktifkan Akses" : "Aktifkan Akses"}
+                        className={cn(
+                          "p-1.5 rounded-lg border border-gray-200 transition-colors cursor-pointer",
+                          p.aktif
+                            ? "text-teks/60 hover:text-amber-600 hover:bg-amber-50"
+                            : "text-teks/60 hover:text-emerald-600 hover:bg-emerald-50"
+                        )}
+                      >
+                        {p.aktif ? <ShieldOff className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(p)}
+                        title="Hapus Akun"
+                        className="p-1.5 rounded-lg border border-gray-200 text-teks/60 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {paginatedPengguna.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-teks/40">
+                      <Users className="w-10 h-10 mb-2 opacity-30 text-teks" />
+                      <p className="text-sm font-semibold text-teks/70">Tidak ada pengguna ditemukan</p>
+                      <p className="text-xs text-teks/40 mt-1 max-w-sm">
+                        {isFiltered
+                          ? "Coba ubah kata kunci pencarian atau reset filter untuk melihat akun pengguna lainnya."
+                          : "Belum ada akun pengguna yang terdaftar."}
+                      </p>
+                      {isFiltered && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleResetFilters}
+                          className="mt-3 text-xs cursor-pointer"
                         >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleAktif(p)}
-                          disabled={isPending}
-                          title={p.aktif ? "Nonaktifkan" : "Aktifkan"}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            p.aktif
-                              ? "text-teks/40 hover:text-orange-600 hover:bg-orange-50"
-                              : "text-teks/40 hover:text-green-600 hover:bg-green-50"
-                          }`}
-                        >
-                          {p.aktif ? <ShieldOff className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(p)}
-                          title="Hapus"
-                          className="p-1.5 rounded-lg text-teks/40 hover:text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          <RotateCcw className="w-3 h-3 mr-1.5" />
+                          Reset Filter
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Controls */}
+        {filtered.length > 0 && (
+          <div className="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-teks/50">
+              Menampilkan {Math.min((currentPage - 1) * itemsPerPage + 1, filtered.length)} sampai{" "}
+              {Math.min(currentPage * itemsPerPage, filtered.length)} dari {filtered.length} total pengguna
+            </p>
+
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="text-xs h-8 px-2.5 disabled:opacity-40 cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5 mr-1" />
+                Sebelumnya
+              </Button>
+
+              <span className="text-xs font-semibold px-2.5 text-teks/70">
+                Halaman {currentPage} dari {totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage >= totalPages}
+                className="text-xs h-8 px-2.5 disabled:opacity-40 cursor-pointer"
+              >
+                Selanjutnya
+                <ChevronRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
+
 
       {/* Dialog Tambah/Edit */}
       {dialog.open && (
@@ -274,6 +598,6 @@ export function PenggunaClient({ penggunaList }: { penggunaList: Pengguna[] }) {
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

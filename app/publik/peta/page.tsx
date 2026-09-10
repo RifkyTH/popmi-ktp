@@ -107,115 +107,140 @@ export default async function PetaPengaduanPage() {
   const recentReports = data.slice(0, 5)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <PageHeader
-        title="Peta Permasalahan Kecamatan"
-        subtitle="Visualisasi sebaran laporan warga di wilayah Temiang Pesisir"
-      />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-slate-200/80">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D9A400]/40 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D9A400]" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#2F4A3C]">
+              Sistem Pemetaan Geospasial
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#2F4A3C]">
+            Peta Sebaran Permasalahan Wilayah
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-xl leading-relaxed">
+            Visualisasi titik lokasi permasalahan masyarakat di seluruh pulau dan pesisir Kecamatan Temiang Pesisir.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-[#2F4A3C] bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs">
+            {totalPins} Titik Laporan
+          </span>
+          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl shadow-2xs">
+            {pinReports.filter((p) => p.isGps).length} GPS Akurat
+          </span>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Peta Interaktif */}
+        {/* Peta Interaktif (3 Cols) */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-white rounded-2xl border border-kuning-muda overflow-hidden shadow-sm">
+          <div className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs">
             {/* Toolbar */}
-            <div className="bg-krem px-4 py-3 border-b border-kuning-muda flex items-center justify-between text-xs">
-              <span className="font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5" /> Peta Interaktif Temiang Pesisir
+            <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-100 flex items-center justify-between text-xs">
+              <span className="font-bold uppercase tracking-wider text-[#2F4A3C] flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[#D9A400]" /> Peta Geografis Temiang Pesisir
               </span>
-              <div className="flex items-center gap-2">
-                <span className="bg-kuning-muda font-semibold px-2 py-0.5 rounded text-teks/80">
-                  {totalPins} Laporan
-                </span>
-                <span className="text-green-700 font-semibold bg-green-100 px-2 py-0.5 rounded">
-                  {pinReports.filter((p) => p.isGps).length} GPS
-                </span>
-              </div>
+              <span className="text-[11px] text-slate-400">
+                Kabupaten Lingga, Kepulauan Riau
+              </span>
             </div>
 
-            {/* Map */}
-            <div className="h-[420px] w-full">
+            {/* Map Canvas */}
+            <div className="h-[460px] w-full">
               <PetaMapWrapper pinReports={pinReports} desaMarkers={desaMarkers} recentReports={recentReports} />
             </div>
           </div>
 
-          {/* Legenda */}
-          <div className="bg-white rounded-xl border border-kuning-muda p-4 space-y-3 text-xs">
+          {/* Legenda Kategori */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-4 space-y-2.5 text-xs shadow-2xs">
             <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center">
               {Object.entries(KATEGORI_LABEL).map(([key, label]) => (
                 <div key={key} className="flex items-center gap-1.5">
-                  <span className={`w-2.5 h-2.5 rounded-full ${KATEGORI_DOT[key]}`} />
-                  <span>{label}</span>
+                  <span className={`w-2.5 h-2.5 rounded-full ${KATEGORI_DOT[key]} ring-2 ring-white shadow-xs`} />
+                  <span className="text-slate-600 font-medium">{label}</span>
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-1 justify-center text-[10px] text-teks/50 border-t border-gray-100 pt-2">
+            <div className="flex flex-wrap gap-x-6 gap-y-1 justify-center text-[10px] text-slate-400 border-t border-slate-100 pt-2">
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow" />
-                <span>Pin solid — lokasi GPS akurat dari HP</span>
+                <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-600 ring-2 ring-white shadow-xs" />
+                <span>Pin Solid: Lokasi GPS terdeteksi otomatis dari perangkat</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full border-2 border-gray-400 bg-gray-100" />
-                <span>Pin transparan — estimasi dari desa pilihan</span>
+                <span className="inline-block w-2.5 h-2.5 rounded-full border border-slate-400 bg-slate-100" />
+                <span>Pin Estimasi: Koordinat estimasi sentra desa</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Side Panel */}
+        {/* Side Panel (1 Col) */}
         <div className="space-y-4">
-          <Card>
-            <CardContent className="p-5 space-y-4">
-              <h3 className="font-serif font-bold text-hijau text-sm">Sebaran per Desa</h3>
-              <div className="space-y-2 text-xs">
-                {desaMarkers.map((d) => (
-                  <div key={d.name} className="flex justify-between items-center pb-1.5 border-b border-gray-50 last:border-0">
-                    <span className={d.count > 0 ? "text-teks/80" : "text-teks/40 italic"}>
+          {/* Desa Summary */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 space-y-4 shadow-xs">
+            <h2 className="font-serif font-bold text-[#2F4A3C] text-sm pb-2 border-b border-slate-100">
+              Sebaran per Wilayah Desa
+            </h2>
+            <div className="space-y-2.5 text-xs">
+              {desaMarkers.map((d) => (
+                <div key={d.name} className="flex justify-between items-center pb-2 border-b border-slate-50 last:border-0">
+                  <div>
+                    <span className="font-semibold text-slate-700 block">
                       Desa {d.name}
                     </span>
-                    <span className={`font-bold px-2 py-0.5 rounded ${d.count > 0 ? "text-teks bg-krem" : "text-teks/30 bg-gray-50"}`}>
-                      {d.count} aduan
+                    <span className="text-[10px] text-slate-400">
+                      {d.name === "Tajur Biru" ? "Ibu Kota Kecamatan" : "Wilayah Desa"}
                     </span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <span className="font-mono font-bold px-2 py-0.5 rounded-md bg-slate-100 text-[#2F4A3C]">
+                    {d.count} aduan
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <Card>
-            <CardContent className="p-5 space-y-4">
-              <h3 className="font-serif font-bold text-hijau text-sm">Laporan Terbaru</h3>
-              <div className="space-y-3">
-                {recentReports.length === 0 ? (
-                  <p className="text-xs text-teks/50 italic">Belum ada laporan</p>
-                ) : (
-                  recentReports.map((p) => (
-                    <div key={p.id} className="text-xs space-y-1">
-                      <div className="flex justify-between font-semibold">
-                        <span className="text-hijau">{p.tiket}</span>
-                        <span className="text-teks/50">
-                          {p.tanggal_masuk
-                            ? new Date(p.tanggal_masuk).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                              })
-                            : "-"}
-                        </span>
-                      </div>
-                      <p className="font-medium text-teks line-clamp-1">{p.judul}</p>
-                      <p className="text-[10px] text-teks/50">
-                        Desa {p.desa || "-"}
-                        {p.kategori && (
-                          <span className="ml-1.5 text-teks/30">· {KATEGORI_LABEL[p.kategori] ?? p.kategori}</span>
-                        )}
-                      </p>
+          {/* Recent Reports Mini Card */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-5 space-y-4 shadow-xs">
+            <h2 className="font-serif font-bold text-[#2F4A3C] text-sm pb-2 border-b border-slate-100">
+              Aduan Terbaru di Peta
+            </h2>
+            <div className="space-y-3">
+              {recentReports.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">Belum ada data laporan</p>
+              ) : (
+                recentReports.map((p) => (
+                  <div key={p.id} className="text-xs space-y-1 pb-2 border-b border-slate-50 last:border-0">
+                    <div className="flex justify-between items-center font-semibold">
+                      <span className="font-mono text-[#2F4A3C] text-[11px]">{p.tiket}</span>
+                      <span className="text-slate-400 text-[10px]">
+                        {p.tanggal_masuk
+                          ? new Date(p.tanggal_masuk).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                            })
+                          : "-"}
+                      </span>
                     </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                    <p className="font-medium text-slate-700 line-clamp-1">{p.judul}</p>
+                    <p className="text-[10px] text-slate-400">
+                      Desa {p.desa || "-"}
+                      {p.kategori && (
+                        <span className="ml-1 text-slate-400">· {KATEGORI_LABEL[p.kategori] ?? p.kategori}</span>
+                      )}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
 }
+

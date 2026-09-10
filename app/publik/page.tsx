@@ -1,7 +1,21 @@
 import Link from "next/link"
 import { INFORMASI_DATA } from "@/lib/mock-data/informasi"
-import { Card, CardContent } from "@/components/ui/card"
-import { MessageSquare, Eye, ArrowRight } from "lucide-react"
+import {
+  MessageSquare,
+  Eye,
+  ArrowRight,
+  MapPin,
+  Layers,
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
+  Send,
+  FileCheck2,
+  Search,
+  Building2,
+  Navigation,
+} from "lucide-react"
 import { createServiceClient } from "@/lib/supabase/server"
 import { StatsCounter } from "./stats-counter"
 
@@ -40,93 +54,377 @@ export default async function PublikHomePage() {
   }
 
   return (
-    <div className="space-y-12 pb-12">
-      {/* Hero */}
-      <section className="bg-gradient-to-b from-white to-kuning-muda/30 py-16 px-4 border-b border-kuning-muda/50">
+    <div className="space-y-12 pb-16">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/40 pt-12 pb-16 px-4 border-b border-slate-200/80">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[320px] bg-[#2F4A3C]/5 blur-3xl -z-10 rounded-full pointer-events-none" />
+
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="h-0.5 w-6 bg-kuning rounded-full" />
-            <span className="text-xs font-bold uppercase tracking-widest text-teks/60">Layanan Posko Pengaduan & Informasi</span>
-            <div className="h-0.5 w-6 bg-kuning rounded-full" />
+          {/* Official badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D9A400]/40 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#D9A400] animate-pulse" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-[#2F4A3C]">
+              Portal Resmi Layanan Aspirasi & Informasi Publik
+            </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-serif font-bold text-hijau leading-tight">
-            Satu Sistem, Surat Tertib,<br />Aduan Terpantau
+
+          {/* Main Title */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#2F4A3C] leading-tight tracking-tight">
+            Satu Sistem, Surat Tertib, <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-[#2F4A3C] via-[#2F4A3C] to-[#10B981] bg-clip-text text-transparent">
+              Aduan Terpantau
+            </span>
           </h1>
-          <p className="text-sm sm:text-base text-teks/70 max-w-xl mx-auto leading-relaxed">
-            Laporkan permasalahan infrastruktur, pelayanan publik, sosial, lingkungan, atau keamanan di wilayah Kecamatan Temiang Pesisir. Dapatkan kepastian tindak lanjut secara real-time.
+
+          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Platform pengaduan dan keterbukaan informasi digital Kecamatan Temiang Pesisir, Kabupaten Lingga.
+            Laporkan masalah fasilitas, lingkungan, dan pelayanan di desa Anda secara terverifikasi dan transparan.
           </p>
+
+          {/* Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link href="/publik/pengaduan/buat" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-hijau hover:bg-hijau/95 text-white font-bold px-8 py-3.5 rounded-xl border border-kuning/30 shadow-md flex items-center justify-center gap-2 uppercase text-xs tracking-wider">
-                <MessageSquare className="w-4 h-4 text-kuning" /> Buat Pengaduan Sekarang
+              <button className="w-full sm:w-auto bg-[#2F4A3C] hover:bg-[#23382D] text-white font-bold px-7 py-3.5 rounded-xl border border-[#D9A400]/40 shadow-md flex items-center justify-center gap-2.5 text-xs uppercase tracking-wider transition-all hover:shadow-lg hover:-translate-y-0.5">
+                <MessageSquare className="w-4 h-4 text-[#D9A400]" /> Buat Pengaduan Warga
               </button>
             </Link>
             <Link href="/publik/pengaduan/cek" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-white hover:bg-krem text-teks border border-kuning font-bold px-8 py-3.5 rounded-xl shadow-sm flex items-center justify-center gap-2 uppercase text-xs tracking-wider">
-                <Eye className="w-4 h-4 text-hijau" /> Cek Status Laporan
+              <button className="w-full sm:w-auto bg-white hover:bg-slate-50 text-[#2F4A3C] border border-slate-300 font-bold px-7 py-3.5 rounded-xl shadow-xs flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all hover:border-[#2F4A3C]/40 hover:-translate-y-0.5">
+                <Eye className="w-4 h-4 text-[#2F4A3C]" /> Lacak Tiket Laporan
               </button>
             </Link>
+          </div>
+
+          {/* Quick Ticket Lookup Mini Box */}
+          <div className="pt-4 max-w-xl mx-auto">
+            <form action="/publik/pengaduan/cek" method="GET" className="bg-white p-1.5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-2">
+              <div className="pl-3.5 text-slate-400">
+                <Search className="w-4 h-4" />
+              </div>
+              <input
+                type="text"
+                name="q"
+                placeholder="Punya nomor tiket? Ketik di sini (contoh: TP-2026-00121)..."
+                className="w-full text-xs sm:text-sm bg-transparent border-0 focus:outline-none text-slate-800 placeholder:text-slate-400"
+              />
+              <button
+                type="submit"
+                className="bg-[#2F4A3C] hover:bg-[#23382D] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shrink-0 transition-colors"
+              >
+                Cek Progres
+              </button>
+            </form>
           </div>
         </div>
       </section>
 
-      {/* Stats Counter */}
+      {/* Stats Counter Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <StatsCounter initialCounts={initialCounts} />
       </section>
 
-      {/* Alur Proses */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="text-center space-y-2 mb-8">
-          <h2 className="text-2xl font-serif font-bold text-hijau">Bagaimana POPMI KTP Bekerja?</h2>
-          <p className="text-sm text-teks/60">4 langkah mudah penyelesaian aduan Anda</p>
+      {/* 4 Fitur Utama / Quick Access Hub */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-2 border-b border-slate-200/80 gap-2">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#D9A400]">
+              Layanan Digital Warga
+            </span>
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#2F4A3C]">
+              Akses Cepat &amp; Fasilitas Publik
+            </h2>
+          </div>
+          <span className="text-xs text-slate-500">
+            Terhubung langsung dengan operator di Kantor Camat
+          </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 relative">
-          {[
-            { num: "01", title: "Kirim Aduan", desc: "Isi form laporan secara lengkap dengan lokasi & foto pendukung." },
-            { num: "02", title: "Terima Tiket", desc: "Dapatkan nomor tiket unik untuk melacak progress aduan Anda." },
-            { num: "03", title: "Verifikasi & Proses", desc: "Petugas memvalidasi laporan dan mendistribusikan ke unit teknis." },
-            { num: "04", title: "Pemberitahuan Selesai", desc: "Dapatkan info rincian penyelesaian masalah secara terbuka." },
-          ].map((step, idx) => (
-            <div key={idx} className="bg-white p-5 rounded-xl border border-kuning-muda relative shadow-sm">
-              <span className="text-3xl font-serif font-bold text-kuning/40 block mb-2">{step.num}</span>
-              <h3 className="font-bold text-sm text-teks mb-1">{step.title}</h3>
-              <p className="text-xs text-teks/60 leading-relaxed">{step.desc}</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1 */}
+          <Link
+            href="/publik/pengaduan/buat"
+            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Send className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
+                  Lapor Permasalahan
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Laporkan keluhan jalan, sampah, bansos, atau dokumen dengan bukti foto dan koordinat GPS.
+                </p>
+              </div>
             </div>
-          ))}
+            <div className="pt-4 flex items-center text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition-transform">
+              Buka Formulir Aduan <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </div>
+          </Link>
+
+          {/* Card 2 */}
+          <Link
+            href="/publik/pengaduan/cek"
+            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <FileCheck2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
+                  Pantau Tiket Real-Time
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Ketahui sejauh mana laporan Anda ditindaklanjuti lengkap dengan riwayat dan catatan petugas.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 flex items-center text-xs font-bold text-blue-700 group-hover:translate-x-1 transition-transform">
+              Cek Status Sekarang <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </div>
+          </Link>
+
+          {/* Card 3 */}
+          <Link
+            href="/publik/peta"
+            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
+                  Peta Sebaran Laporan
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Visualisasi titik aduan masyarakat secara geografis di seluruh pulau dan pesisir kecamatan.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 flex items-center text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
+              Eksplorasi Peta Interaktif <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </div>
+          </Link>
+
+          {/* Card 4 */}
+          <Link
+            href="/publik/transparansi"
+            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#2F4A3C] flex items-center justify-center group-hover:scale-105 transition-transform">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
+                  Transparansi &amp; Statistik
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Buka data kinerja penanganan keluhan warga per desa dan kategori masalah secara akuntabel.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 flex items-center text-xs font-bold text-[#2F4A3C] group-hover:translate-x-1 transition-transform">
+              Lihat Statistik Lengkap <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* Berita Terbaru */}
+      {/* Alur Proses 4 Langkah */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-serif font-bold text-hijau">Berita & Informasi Terbaru</h2>
-          <Link href="/publik/informasi" className="text-xs font-bold text-kuning hover:underline flex items-center gap-1">
+        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-sm relative overflow-hidden">
+          <div className="max-w-2xl mx-auto text-center space-y-2 mb-10">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#D9A400]">
+              Mekanisme Standar Pelayanan
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#2F4A3C]">
+              Bagaimana Aduan Anda Diproses?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              4 tahap terstruktur dari penerimaan hingga penyelesaian tuntas oleh pihak Kecamatan Temiang Pesisir
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+            {[
+              {
+                step: "01",
+                icon: Send,
+                title: "Kirim Laporan",
+                desc: "Isi identitas diri, deskripsi keluhan, lokasi fisik, serta lampirkan foto dan koordinat GPS.",
+              },
+              {
+                step: "02",
+                icon: ShieldCheck,
+                title: "Terima Kode Tiket",
+                desc: "Sistem menerbitkan nomor tiket unik (contoh: TP-2026-00121) untuk memantau progres kapan saja.",
+              },
+              {
+                step: "03",
+                icon: Clock,
+                title: "Validasi & Tindak Lanjut",
+                desc: "Petugas kecamatan memeriksa laporan dan mendisposisikan ke unit teknis atau aparat desa terkait.",
+              },
+              {
+                step: "04",
+                icon: CheckCircle2,
+                title: "Pemberitahuan Tuntas",
+                desc: "Aduan diselesaikan disertai penjelasan resmi dan dokumentasi tindak lanjut yang dapat dilihat publik.",
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="relative bg-slate-50/70 rounded-2xl p-5 border border-slate-200/70 hover:bg-white hover:border-[#2F4A3C]/30 transition-all group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-[#2F4A3C]/10 text-[#2F4A3C]">
+                    TAHAP {item.step}
+                  </span>
+                  <item.icon className="w-5 h-5 text-[#D9A400]" />
+                </div>
+                <h3 className="font-serif font-bold text-base text-[#2F4A3C] mb-1.5">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Wilayah 3 Desa Pelayanan */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-br from-[#1F3328] to-[#2F4A3C] rounded-3xl p-6 sm:p-10 text-white shadow-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#D9A400]/10 blur-3xl rounded-full pointer-events-none" />
+
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-8 border-b border-white/10">
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[#D9A400]">
+                Cakupan Wilayah Administrasi
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">
+                3 Desa di Kecamatan Temiang Pesisir
+              </h2>
+              <p className="text-xs sm:text-sm text-white/70 max-w-xl leading-relaxed">
+                Pelayanan aduan dan dokumen menjangkau seluruh kepulauan dan pesisir di Kabupaten Lingga.
+              </p>
+            </div>
+            <Link href="/publik/peta">
+              <button className="bg-[#D9A400] hover:bg-[#b88a00] text-[#1F3328] font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-colors shrink-0">
+                <Navigation className="w-4 h-4" /> Buka Peta Geografis
+              </button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+            {/* Desa Tajur Biru */}
+            <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-5 border border-white/15 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-[#D9A400] text-[#1F3328] px-2 py-0.5 rounded">
+                  Ibu Kota Kecamatan
+                </span>
+                <Building2 className="w-4 h-4 text-[#D9A400]" />
+              </div>
+              <h3 className="text-lg font-serif font-bold text-white">Desa Tajur Biru</h3>
+              <p className="text-xs text-white/70 leading-relaxed">
+                Pusat kantor kecamatan, posko pengaduan utama, dan pusat administrasi pemerintahan terpadu.
+              </p>
+            </div>
+
+            {/* Desa Temiang */}
+            <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-5 border border-white/15 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-2 py-0.5 rounded">
+                  Wilayah Pesisir
+                </span>
+                <MapPin className="w-4 h-4 text-white/70" />
+              </div>
+              <h3 className="text-lg font-serif font-bold text-white">Desa Temiang</h3>
+              <p className="text-xs text-white/70 leading-relaxed">
+                Kawasan permukiman pesisir dan sentra nelayan dengan pos koordinasi pelayanan desa.
+              </p>
+            </div>
+
+            {/* Desa Pulau Batang */}
+            <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-5 border border-white/15 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-2 py-0.5 rounded">
+                  Wilayah Kepulauan
+                </span>
+                <MapPin className="w-4 h-4 text-white/70" />
+              </div>
+              <h3 className="text-lg font-serif font-bold text-white">Desa Pulau Batang</h3>
+              <p className="text-xs text-white/70 leading-relaxed">
+                Wilayah kepulauan dengan dukungan pelaporan berbasis GPS dan pendataan warga berkala.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Berita & Pengumuman Terbaru */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-6 pb-2 border-b border-slate-200/80">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#D9A400]">
+              Kanal Publikasi
+            </span>
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#2F4A3C]">
+              Berita &amp; Informasi Resmi
+            </h2>
+          </div>
+          <Link
+            href="/publik/informasi"
+            className="text-xs font-bold text-[#2F4A3C] hover:text-[#D9A400] flex items-center gap-1 transition-colors"
+          >
             Lihat Semua Informasi <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {latestNews.map((info) => (
-            <Card key={info.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-kuning-muda text-teks/80 px-2 py-0.5 rounded border border-kuning/20">
+            <div
+              key={info.id}
+              className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group hover:border-[#2F4A3C]/30"
+            >
+              <div className="p-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2F4A3C]/10 text-[#2F4A3C] px-2.5 py-0.5 rounded-full">
                     {info.kategori}
                   </span>
-                  <h3 className="font-bold text-base text-teks font-serif line-clamp-2 leading-snug">{info.judul}</h3>
-                  <p className="text-xs text-teks/60 line-clamp-3 leading-relaxed">{info.ringkasan}</p>
+                  <span className="text-[11px] text-slate-400">
+                    {info.tanggal}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-50 text-[10px] text-teks/50">
-                  <span>{info.tanggal}</span>
-                  <Link href={`/publik/informasi/${info.slug}`} className="font-bold text-hijau hover:underline">
-                    Baca Selengkapnya
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+                <h3 className="font-serif font-bold text-lg text-[#2F4A3C] group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug">
+                  {info.judul}
+                </h3>
+                <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">
+                  {info.ringkasan}
+                </p>
+              </div>
+
+              <div className="px-6 py-4 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-400 font-medium">Humas Kecamatan</span>
+                <Link
+                  href={`/publik/informasi/${info.slug}`}
+                  className="font-bold text-[#2F4A3C] group-hover:text-emerald-700 flex items-center gap-1"
+                >
+                  Baca Selengkapnya <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       </section>
     </div>
   )
 }
+

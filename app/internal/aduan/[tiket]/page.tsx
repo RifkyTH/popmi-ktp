@@ -11,6 +11,8 @@ import { getSessionFromCookie } from "@/lib/auth"
 import { cookies } from "next/headers"
 import { DeleteDetailAduanButton } from "../delete-detail-button"
 
+export const revalidate = 0
+
 export default async function DetailAduanInternalPage({
   params,
 }: {
@@ -34,75 +36,121 @@ export default async function DetailAduanInternalPage({
 
   if (!report) notFound()
 
-  return (
-    <div className="space-y-6">
-      <PageHeader title={`Aduan: ${report.tiket}`} subtitle="Verifikasi dan tindak lanjuti laporan warga">
-        <Link href="/internal/aduan">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
-          </Button>
-        </Link>
-        <DeleteDetailAduanButton id={report.id} tiket={report.tiket} />
-      </PageHeader>
+  // Format WhatsApp Link jika kontak berformat nomor telepon
+  const cleanPhone = report.kontak ? report.kontak.replace(/\D/g, "") : ""
+  const waNumber = cleanPhone.startsWith("0") ? "62" + cleanPhone.slice(1) : cleanPhone
+  const waUrl = cleanPhone.length >= 10 ? `https://wa.me/${waNumber}?text=Halo%20Bpk%2FIbu%20${encodeURIComponent(report.nama)}%2C%20terkait%20laporan%20aduan%20Anda%20dengan%20nomor%20tiket%20${report.tiket}%20di%20Kecamatan%20Temiang%20Pesisir.` : null
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-5">
-          {/* Detail Laporan */}
-          <div className="bg-white rounded-xl border border-kuning-muda p-6 space-y-4 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-gray-100">
-              <span className="font-mono font-bold text-hijau">{report.tiket}</span>
-              <span className={`text-xs px-2.5 py-1 rounded-full font-bold uppercase ${
-                report.status === "selesai" ? "bg-green-100 text-green-800" :
-                report.status === "proses" ? "bg-blue-100 text-blue-800" :
-                "bg-orange-100 text-orange-800"
-              }`}>
-                {STATUS_PENGADUAN_LABELS[report.status as StatusPengaduan]}
+  return (
+    <div className="space-y-6 max-w-6xl pb-12">
+      {/* Header GovTech */}
+      <div className="border-b border-gray-200 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Layanan Pengaduan (LAPOR-TP) · Lembar Kerja Petugas
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#2F4A3C] tracking-tight">
+              Aduan: <span className="font-mono text-emerald-800">{report.tiket}</span>
+            </h1>
+            <p className="text-sm text-gray-600 mt-1 max-w-2xl">
+              Verifikasi kelayakan informasi laporan masyarakat, lakukan koordinasi lapangan, dan berikan tindak lanjut resmi.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+            <Link href="/internal/aduan">
+              <Button variant="outline" size="sm" className="text-xs font-semibold rounded-xl border-gray-300">
+                <ArrowLeft className="w-4 h-4 mr-1.5" /> Kembali ke Daftar
+              </Button>
+            </Link>
+            <DeleteDetailAduanButton id={report.id} tiket={report.tiket} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Kolom Kiri: Detail Laporan & Pelapor (7 cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Kartu Rincian Laporan */}
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 sm:p-7 space-y-5 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+                  {KATEGORI_LABELS[report.kategori as KategoriPengaduan] || report.kategori}
+                </span>
+                <span className="text-xs text-gray-400">·</span>
+                <span className="text-xs text-gray-500">
+                  Masuk: {new Date(report.tanggal_masuk).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                </span>
+              </div>
+
+              <span
+                className={`text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider ${
+                  report.status === "selesai"
+                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                    : report.status === "proses"
+                    ? "bg-blue-50 text-blue-800 border border-blue-200"
+                    : report.status === "ditolak"
+                    ? "bg-rose-50 text-rose-800 border border-rose-200"
+                    : "bg-amber-50 text-amber-800 border border-amber-200"
+                }`}
+              >
+                {STATUS_PENGADUAN_LABELS[report.status as StatusPengaduan] || report.status}
               </span>
             </div>
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-1">Kategori</h3>
-                <p className="text-sm font-semibold text-teks">{KATEGORI_LABELS[report.kategori as KategoriPengaduan]}</p>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
+                  Judul Pokok Aduan
+                </span>
+                <h2 className="text-lg font-bold text-gray-900 leading-snug">
+                  {report.judul}
+                </h2>
               </div>
 
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-1">Judul Laporan</h3>
-                <p className="text-base font-semibold text-teks">{report.judul}</p>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-1">Rincian Laporan</h3>
-                <p className="text-sm text-teks/80 leading-relaxed whitespace-pre-wrap">{report.deskripsi}</p>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
+                  Uraian Lengkap Laporan Warga
+                </span>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                  {report.deskripsi}
+                </div>
               </div>
 
               {report.lokasi && (
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-1">Detail Lokasi</h3>
-                  <p className="text-sm text-teks/80 flex items-center gap-1">
-                    <MapPin className="w-4 h-4 text-hijau shrink-0" /> {report.lokasi}
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-1">
+                    Detail Lokasi Kejadian
+                  </span>
+                  <p className="text-xs text-gray-800 flex items-center gap-1.5 font-medium">
+                    <MapPin className="w-4 h-4 text-emerald-600 shrink-0" /> {report.lokasi}
                   </p>
                 </div>
               )}
 
-              {/* Foto Bukti */}
+              {/* Bukti Foto */}
               {report.foto_url && (
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-2 flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5" /> Foto Bukti Fisik
-                  </h3>
+                <div className="pt-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-2 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-emerald-700" /> Bukti Lampiran Foto
+                  </span>
                   <a href={report.foto_url} target="_blank" rel="noopener noreferrer" className="block group">
-                    <div className="relative rounded-xl overflow-hidden border border-kuning-muda shadow-sm">
+                    <div className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-sm max-w-lg bg-slate-50">
                       <Image
                         src={report.foto_url}
                         alt="Foto bukti pengaduan"
                         width={800}
                         height={450}
-                        className="w-full max-h-80 object-cover group-hover:scale-[1.01] transition-transform duration-200"
+                        className="w-full max-h-72 object-cover group-hover:scale-[1.02] transition-transform duration-200"
                         unoptimized
                       />
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/30 text-white text-[10px] text-center py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Klik untuk lihat ukuran penuh
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-xs text-white text-[11px] text-center py-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                        Klik untuk membuka foto ukuran penuh di tab baru
                       </div>
                     </div>
                   </a>
@@ -111,38 +159,74 @@ export default async function DetailAduanInternalPage({
             </div>
           </div>
 
-          {/* Info Pelapor */}
-          <div className="bg-white rounded-xl border border-kuning-muda p-6 shadow-sm">
-            <h3 className="font-serif font-bold text-hijau mb-4">Informasi Pelapor</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="block text-xs font-bold uppercase text-teks/50 mb-1">Nama</span>
-                <span className="font-medium flex items-center gap-1"><User className="w-3.5 h-3.5" /> {report.nama}</span>
+          {/* Kartu Informasi Pelapor */}
+          <div className="bg-white rounded-2xl border border-gray-200/80 p-6 shadow-sm space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-[#2F4A3C]">
+              Identitas Pelapor Warga
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60">
+                <span className="text-gray-400 block text-[11px] mb-1">Nama Pelapor</span>
+                <span className="font-bold text-gray-900 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-emerald-700" /> {report.nama}
+                </span>
               </div>
-              <div>
-                <span className="block text-xs font-bold uppercase text-teks/50 mb-1">Kontak</span>
-                <span className="font-medium flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {report.kontak}</span>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60">
+                <span className="text-gray-400 block text-[11px] mb-1">Domisili Desa</span>
+                <span className="font-bold text-gray-900">
+                  Desa {report.desa}
+                </span>
               </div>
-              <div>
-                <span className="block text-xs font-bold uppercase text-teks/50 mb-1">Desa Asal</span>
-                <span className="font-medium">{report.desa}</span>
-              </div>
-              <div>
-                <span className="block text-xs font-bold uppercase text-teks/50 mb-1">Tanggal Lapor</span>
-                <span className="font-medium">{new Date(report.tanggal_masuk).toLocaleDateString("id-ID")}</span>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                  <span className="text-gray-400 block text-[11px] mb-1">Kontak WhatsApp/HP</span>
+                  <span className="font-mono font-bold text-gray-900 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-emerald-700" /> {report.kontak || "-"}
+                  </span>
+                </div>
+                {waUrl && (
+                  <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center justify-center gap-1 text-[11px] font-bold px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                  >
+                    Hubungi via WA
+                  </a>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Action Panel */}
-        <div className="space-y-5">
+        {/* Kolom Kanan: Formulir Update & Status Timeline (5 cols) */}
+        <div className="lg:col-span-5 space-y-6">
           <UpdateAduanForm 
             tiket={report.tiket} 
             currentStatus={report.status} 
             currentRespon={report.respon_petugas}
             userName={userName}
           />
+
+          {/* Tanggapan Petugas Saat Ini */}
+          {report.respon_petugas && (
+            <div className="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm space-y-2 text-xs">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
+                Tanggapan Aktif di Publik
+              </span>
+              <p className="text-gray-700 leading-relaxed italic mt-1">
+                &ldquo;{report.respon_petugas}&rdquo;
+              </p>
+              {report.tanggal_selesai && (
+                <span className="text-[11px] text-gray-400 block">
+                  Diselesaikan: {new Date(report.tanggal_selesai).toLocaleDateString("id-ID")}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,16 +1,26 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { DESA_LIST } from "@/lib/mock-data/desa"
-import { PageHeader } from "@/components/ui/page-header"
-import { Button } from "@/components/ui/button"
-import { generateTiketPengaduan } from "@/lib/nomor-surat"
-import { CheckCircle2, Copy, FileText, ClipboardCheck, ImageIcon, X, Loader2, Navigation2, MapPin, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import { DESA_LIST } from "@/lib/mock-data/desa"
+import { generateTiketPengaduan } from "@/lib/nomor-surat"
+import {
+  CheckCircle2,
+  Copy,
+  FileText,
+  ClipboardCheck,
+  ImageIcon,
+  X,
+  Loader2,
+  Navigation2,
+  MapPin,
+  CheckCircle,
+  Send,
+} from "lucide-react"
 import { simpanPengaduan } from "../actions"
 import { compressImage } from "@/lib/utils/compress-image"
 import { createClient } from "@/lib/supabase/client"
-import Image from "next/image"
 
 export default function BuatPengaduanPage() {
   const [nama, setNama] = useState("")
@@ -189,302 +199,413 @@ export default function BuatPengaduanPage() {
 
   if (ticket) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="flex justify-center">
-          <CheckCircle2 className="w-16 h-16 text-green-600" />
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-serif font-bold text-hijau">Laporan Berhasil Terkirim</h1>
-          <p className="text-sm text-teks/70">
-            Terima kasih atas laporan Anda. Laporan Anda telah tersimpan dengan nomor tiket berikut:
-          </p>
-        </div>
+      <div className="max-w-xl mx-auto px-4 py-12 space-y-6">
+        {/* Receipt Container */}
+        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-md relative overflow-hidden text-center space-y-6">
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#2F4A3C] via-[#D9A400] to-[#10B981]" />
 
-        <div className="bg-white border-2 border-kuning rounded-2xl p-6 flex flex-col items-center justify-center space-y-3 shadow-md max-w-sm mx-auto">
-          <span className="text-xs uppercase tracking-widest font-bold text-teks/50">Nomor Tiket Anda</span>
-          <span className="text-3xl font-mono font-bold text-hijau tracking-wider">{ticket}</span>
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1.5 text-xs text-kuning font-bold hover:underline"
-          >
-            {copied ? (
-              <>
-                <ClipboardCheck className="w-3.5 h-3.5" /> Disalin ke clipboard
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" /> Salin Tiket
-              </>
-            )}
-          </button>
-        </div>
+          {/* Success Icon */}
+          <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
+            <CheckCircle2 className="w-9 h-9" />
+          </div>
 
-        <p className="text-xs text-teks/50 max-w-sm mx-auto">
-          Simpan baik-baik nomor tiket ini. Anda dapat menggunakannya untuk memantau proses tindak lanjut dari petugas kami pada halaman pantau aduan.
-        </p>
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#D9A400]">
+              Tanda Bukti Registrasi Aduan
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#2F4A3C]">
+              Laporan Berhasil Diterima
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+              Terima kasih atas partisipasi Anda. Laporan telah masuk ke sistem antrean pelayanan Kecamatan Temiang Pesisir.
+            </p>
+          </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
-          <Link href={`/publik/pengaduan/${ticket}`}>
-            <Button>
-              Pantau Detail Laporan
-            </Button>
-          </Link>
-          <Link href="/publik">
-            <Button variant="outline">
-              Kembali ke Beranda
-            </Button>
-          </Link>
+          {/* Ticket Card */}
+          <div className="bg-slate-50/80 border-2 border-dashed border-[#D9A400]/60 rounded-2xl p-5 max-w-sm mx-auto space-y-2">
+            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">
+              Nomor Tiket Resmi Anda
+            </span>
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#2F4A3C] tracking-wider">
+              {ticket}
+            </div>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2F4A3C] hover:text-[#D9A400] bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs transition-colors"
+            >
+              {copied ? (
+                <>
+                  <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-700">Berhasil Disalin</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Salin Nomor Tiket</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Guidelines */}
+          <div className="text-left bg-emerald-50/60 rounded-xl p-4 border border-emerald-100 text-xs text-emerald-900 space-y-1.5">
+            <div className="font-bold flex items-center gap-1.5 text-emerald-800">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+              Langkah Selanjutnya:
+            </div>
+            <p className="text-slate-600 text-[11px] leading-relaxed">
+              1. Simpan nomor tiket ini untuk pengecekan berkala.<br />
+              2. Petugas kecamatan akan menelaah laporan Anda dalam 1×24 jam kerja.<br />
+              3. Status penanganan dan foto tindak lanjut dapat dilihat langsung pada menu Lacak Aduan.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+            <Link href={`/publik/pengaduan/${ticket}`} className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto bg-[#2F4A3C] hover:bg-[#23382D] text-white font-bold px-6 py-3 rounded-xl border border-[#D9A400]/40 shadow-sm text-xs uppercase tracking-wider transition-all">
+                Pantau Detail Laporan Ini
+              </button>
+            </Link>
+            <Link href="/publik" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold px-6 py-3 rounded-xl shadow-2xs text-xs uppercase tracking-wider transition-all">
+                Kembali ke Beranda
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <PageHeader
-        title="Buat Pengaduan Masyarakat"
-        subtitle="Laporkan permasalahan di sekitar Anda agar segera ditindaklanjuti"
-      />
+    <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-2 max-w-xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D9A400]/40 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D9A400]" />
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#2F4A3C]">
+            Layanan Posko Pengaduan Online
+          </span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#2F4A3C]">
+          Sampaikan Pengaduan Masyarakat
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+          Laporkan kendala fasilitas umum, layanan kependudukan, bansos, atau kebersihan di wilayah Temiang Pesisir.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-kuning-muda p-6 sm:p-8 space-y-6 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Nama */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Bagian 1: Identitas Pelapor */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[#2F4A3C] text-white text-xs font-bold flex items-center justify-center">
+                1
+              </span>
+              <h2 className="font-serif font-bold text-[#2F4A3C] text-base">
+                Identitas Pelapor
+              </h2>
+            </div>
+            <span className="text-[11px] text-slate-400">Kerahasiaan data terjamin</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Nama */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Nama Lengkap Sesuai KTP <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={nama}
+                onChange={(e) => setNama(e.target.value)}
+                placeholder="Contoh: Muhammad Yusuf"
+                className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white"
+              />
+            </div>
+
+            {/* Nomor HP */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Nomor WhatsApp / HP Aktif <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                required
+                value={kontak}
+                onChange={(e) => setKontak(e.target.value)}
+                placeholder="Contoh: 0812xxxxxxxx"
+                className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">
+                Digunakan untuk konfirmasi &amp; notifikasi perkembangan laporan
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bagian 2: Lokasi & Kategori Permasalahan */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[#2F4A3C] text-white text-xs font-bold flex items-center justify-center">
+                2
+              </span>
+              <h2 className="font-serif font-bold text-[#2F4A3C] text-base">
+                Wilayah &amp; Kategori
+              </h2>
+            </div>
+            <span className="text-[11px] text-slate-400">Kecamatan Temiang Pesisir</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Desa */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Pilih Wilayah Desa <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={desa}
+                onChange={(e) => setDesa(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white"
+              >
+                <option value="">-- Pilih Salah Satu Desa --</option>
+                {DESA_LIST.map((d) => (
+                  <option key={d} value={d}>
+                    Desa {d} {d === "Tajur Biru" ? "(Ibu Kota Kecamatan)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Kategori */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Kategori Permasalahan <span className="text-red-500">*</span>
+              </label>
+              <select
+                required
+                value={kategori}
+                onChange={(e) => setKategori(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white"
+              >
+                <option value="">-- Pilih Kategori --</option>
+                <option value="infrastruktur">Infrastruktur (Jalan, Jembatan, Pelabuhan, Lampu)</option>
+                <option value="lingkungan">Lingkungan (Sampah, Kebersihan Pantai, Drainase)</option>
+                <option value="pelayanan">Pelayanan Publik (KTP, KK, Administrasi Surat)</option>
+                <option value="sosial">Bantuan Sosial (PKH, BLT, Perlindungan Warga)</option>
+                <option value="keamanan">Ketertiban &amp; Keamanan Pesisir</option>
+                <option value="lainnya">Lainnya</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Patokan Lokasi Fisik */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-              Nama Lengkap
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              Patokan Lokasi Fisik / Landmark
+            </label>
+            <input
+              type="text"
+              value={lokasi}
+              onChange={(e) => setLokasi(e.target.value)}
+              placeholder="Contoh: Samping Mushola Al-Ikhlas RT 02 / Dekat Pelabuhan Tajur Biru"
+              className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white"
+            />
+          </div>
+
+          {/* GPS Geolocation Module */}
+          <div className="pt-1">
+            <div className="rounded-xl border border-slate-200/80 p-3.5 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Navigation2 className="w-3.5 h-3.5 text-[#2F4A3C]" />
+                  Akurasi Koordinat GPS
+                </span>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Gunakan GPS perangkat untuk menyematkan titik presisi laporan di peta kecamatan.
+                </p>
+              </div>
+
+              <div className="shrink-0">
+                {gpsLat && gpsLng ? (
+                  <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="text-xs font-mono font-semibold text-emerald-800">
+                      {gpsLat.toFixed(5)}, {gpsLng.toFixed(5)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleHapusGPS}
+                      className="text-emerald-700 hover:text-red-600 p-0.5"
+                      title="Hapus koordinat"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleAmbilGPS}
+                    disabled={gpsLoading}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2F4A3C] bg-white border border-slate-300 hover:border-[#2F4A3C] px-3 py-2 rounded-lg shadow-2xs transition-all disabled:opacity-60"
+                  >
+                    {gpsLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D9A400]" />
+                    ) : (
+                      <MapPin className="w-3.5 h-3.5 text-[#D9A400]" />
+                    )}
+                    {gpsLoading ? "Mendeteksi Posisi..." : "Ambil Lokasi GPS Saya"}
+                  </button>
+                )}
+              </div>
+            </div>
+            {gpsError && (
+              <p className="mt-1.5 text-xs text-red-600 font-medium">{gpsError}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Bagian 3: Detail Aduan & Lampiran Foto */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[#2F4A3C] text-white text-xs font-bold flex items-center justify-center">
+                3
+              </span>
+              <h2 className="font-serif font-bold text-[#2F4A3C] text-base">
+                Rincian Laporan &amp; Bukti
+              </h2>
+            </div>
+            <span className="text-[11px] text-slate-400">Deskripsi akurat membantu percepatan</span>
+          </div>
+
+          {/* Judul Singkat */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              Judul Pokok Pengaduan <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               required
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
-              placeholder="Masukkan nama Anda"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
+              value={judul}
+              onChange={(e) => setJudul(e.target.value)}
+              placeholder="Contoh: Lampu Penerangan Jalan Rusak di Dusun II"
+              className="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white font-medium"
             />
           </div>
 
-          {/* Nomor HP */}
+          {/* Deskripsi */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-              Nomor WhatsApp / HP
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              Uraian Lengkap Kejadian / Kondisi <span className="text-red-500">*</span>
             </label>
-            <input
-              type="tel"
+            <textarea
               required
-              value={kontak}
-              onChange={(e) => setKontak(e.target.value)}
-              placeholder="Contoh: 0812xxxxxxxx"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
+              rows={5}
+              value={deskripsi}
+              onChange={(e) => setDeskripsi(e.target.value)}
+              placeholder="Jelaskan kronologi, kondisi kerusakan, dampak terhadap warga, serta harapan tindak lanjut..."
+              className="w-full border border-slate-200 rounded-xl p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F4A3C]/20 focus:border-[#2F4A3C] transition-all bg-slate-50/50 focus:bg-white resize-none leading-relaxed"
             />
           </div>
 
-          {/* Desa */}
+          {/* Lampiran Foto */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-              Lokasi Desa
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              Lampirkan Foto Bukti Fisik (Opsional)
             </label>
-            <select
-              required
-              value={desa}
-              onChange={(e) => setDesa(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
-            >
-              <option value="">Pilih Desa...</option>
-              {DESA_LIST.map((d) => (
-                <option key={d} value={d}>Desa {d}</option>
-              ))}
-            </select>
-          </div>
 
-          {/* Kategori */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-              Kategori Permasalahan
-            </label>
-            <select
-              required
-              value={kategori}
-              onChange={(e) => setKategori(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
-            >
-              <option value="">Pilih Kategori...</option>
-              <option value="infrastruktur">Infrastruktur (Jalan, Jembatan, Lampu)</option>
-              <option value="lingkungan">Lingkungan (Sampah, Sungai, Pantai)</option>
-              <option value="pelayanan">Pelayanan Publik (KTP, Dokumen)</option>
-              <option value="sosial">Bantuan Sosial (PKH, BLT)</option>
-              <option value="keamanan">Keamanan &amp; Ketertiban</option>
-              <option value="lainnya">Lainnya</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Judul */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-            Judul Singkat Laporan
-          </label>
-          <input
-            type="text"
-            required
-            value={judul}
-            onChange={(e) => setJudul(e.target.value)}
-            placeholder="Tuliskan inti masalah secara singkat"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
-          />
-        </div>
-
-        {/* Deskripsi */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-            Rincian Deskripsi Pengaduan
-          </label>
-          <textarea
-            required
-            rows={5}
-            value={deskripsi}
-            onChange={(e) => setDeskripsi(e.target.value)}
-            placeholder="Tuliskan secara lengkap detail kejadian, kondisi, dan keluhan Anda"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning resize-none"
-          />
-        </div>
-
-        {/* Detail Lokasi + GPS */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-            Lokasi Fisik / Landmark (Opsional)
-          </label>
-          <input
-            type="text"
-            value={lokasi}
-            onChange={(e) => setLokasi(e.target.value)}
-            placeholder="Contoh: Depan SD Negeri 01, Sebelah mushola..."
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning"
-          />
-
-          {/* GPS Section */}
-          <div className="mt-2">
-            {gpsLat && gpsLng ? (
-              /* GPS berhasil */
-              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2 text-xs text-green-700">
-                  <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span className="font-semibold">Lokasi GPS terdeteksi</span>
-                  <span className="text-green-600/70 font-mono">
-                    {gpsLat.toFixed(6)}, {gpsLng.toFixed(6)}
-                  </span>
-                </div>
+            {fotoPreview ? (
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                <Image
+                  src={fotoPreview}
+                  alt="Preview foto bukti"
+                  width={800}
+                  height={400}
+                  className="w-full max-h-72 object-cover"
+                  unoptimized
+                />
                 <button
                   type="button"
-                  onClick={handleHapusGPS}
-                  className="text-green-600 hover:text-red-600 ml-2"
-                  title="Hapus lokasi GPS"
+                  onClick={handleHapusFoto}
+                  className="absolute top-3 right-3 bg-white/95 hover:bg-white rounded-full p-2 shadow-md text-red-600 transition-colors"
+                  title="Ganti atau hapus foto"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
+                <div className="px-4 py-2.5 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
+                  <div className="flex items-center gap-2 truncate">
+                    <ImageIcon className="w-4 h-4 text-[#2F4A3C]" />
+                    <span className="truncate max-w-xs font-medium">{fotoFile?.name}</span>
+                  </div>
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    {fotoFile ? `${(fotoFile.size / 1024).toFixed(0)} KB (Auto-compressed)` : ""}
+                  </span>
+                </div>
               </div>
             ) : (
-              /* Tombol ambil GPS */
-              <button
-                type="button"
-                onClick={handleAmbilGPS}
-                disabled={gpsLoading}
-                className="flex items-center gap-2 text-xs font-semibold text-hijau hover:text-hijau/80 border border-hijau/30 bg-hijau/5 hover:bg-hijau/10 rounded-lg px-3 py-2 transition-colors disabled:opacity-60"
-              >
-                {gpsLoading ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Navigation2 className="w-3.5 h-3.5" />
-                )}
-                {gpsLoading ? "Mendeteksi lokasi GPS..." : "Gunakan Lokasi GPS dari HP"}
-              </button>
+              <label className="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-slate-300 hover:border-[#D9A400] rounded-2xl p-6 sm:p-8 cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition-all text-center group">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#D9A400] group-hover:scale-105 transition-all shadow-2xs">
+                  <ImageIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-700 group-hover:text-[#2F4A3C]">
+                    Klik untuk memilih foto bukti
+                  </span>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Format JPG, PNG, WEBP — sistem otomatis mengompresi gambar untuk menghemat kuota
+                  </p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFotoChange}
+                />
+              </label>
             )}
-            {gpsError && (
-              <p className="mt-1 text-xs text-red-600">{gpsError}</p>
+
+            {uploadError && (
+              <p className="mt-1.5 text-xs text-red-600 font-medium">{uploadError}</p>
             )}
-            <p className="mt-1 text-[10px] text-teks/40">
-              Koordinat GPS membuat posisi laporan lebih akurat di peta
-            </p>
           </div>
-        </div>
-
-        {/* Foto */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-teks/60 mb-1.5">
-            Lampirkan Foto Bukti Fisik (Opsional)
-          </label>
-
-          {fotoPreview ? (
-            /* Preview foto yang dipilih */
-            <div className="relative rounded-xl overflow-hidden border border-kuning-muda bg-krem">
-              <Image
-                src={fotoPreview}
-                alt="Preview foto bukti"
-                width={800}
-                height={400}
-                className="w-full max-h-64 object-cover"
-                unoptimized
-              />
-              <button
-                type="button"
-                onClick={handleHapusFoto}
-                className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-1.5 shadow text-red-600 transition-colors"
-                title="Hapus foto"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <div className="px-3 py-2 flex items-center gap-2 text-xs text-teks/60 bg-white border-t border-kuning-muda">
-                <ImageIcon className="w-3.5 h-3.5 text-hijau" />
-                <span className="truncate max-w-xs">{fotoFile?.name}</span>
-                <span className="ml-auto text-teks/40 shrink-0">
-                  {fotoFile ? `${(fotoFile.size / 1024).toFixed(0)} KB` : ""}
-                </span>
-              </div>
-              <div className="px-3 pb-2 text-[10px] text-teks/40">
-                Foto akan dikompresi otomatis sebelum diunggah
-              </div>
-            </div>
-          ) : (
-            /* Input file */
-            <label className="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-kuning rounded-xl px-4 py-8 cursor-pointer bg-krem/30 hover:bg-krem/60 transition-colors">
-              <ImageIcon className="w-8 h-8 text-kuning/60" />
-              <span className="text-sm font-semibold text-teks/60">Klik untuk pilih foto</span>
-              <span className="text-xs text-teks/40">JPG, PNG, WEBP — maks. 10MB (dikompresi otomatis)</span>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFotoChange}
-              />
-            </label>
-          )}
-
-          {uploadError && (
-            <p className="mt-1.5 text-xs text-red-600 font-medium">{uploadError}</p>
-          )}
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-xs sm:text-sm text-red-700">
             {error}
           </div>
         )}
 
+        {/* Tombol Submit */}
         <div className="pt-2">
-          <Button
+          <button
             type="submit"
             disabled={submitting || uploading}
-            className="w-full py-3.5 text-xs font-bold tracking-wider uppercase"
+            className="w-full bg-[#2F4A3C] hover:bg-[#23382D] text-white font-bold py-4 rounded-xl border border-[#D9A400]/40 shadow-md text-xs uppercase tracking-wider transition-all hover:shadow-lg disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {submitting || uploading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {uploading ? "Mengunggah Foto..." : "Mengirim Laporan..."}
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-[#D9A400]" />
+                {uploading ? "Mengompresi & Mengunggah Foto..." : "Menerbitkan Tiket Laporan..."}
               </span>
             ) : (
-              "Kirim Pengaduan Sekarang"
+              <>
+                <Send className="w-4 h-4 text-[#D9A400]" />
+                Kirim Pengaduan ke Kantor Camat
+              </>
             )}
-          </Button>
+          </button>
+          <p className="text-center text-[11px] text-slate-400 mt-2.5">
+            Laporan Anda akan tercatat resmi dalam sistem pengawasan publik Kecamatan Temiang Pesisir
+          </p>
         </div>
       </form>
     </div>

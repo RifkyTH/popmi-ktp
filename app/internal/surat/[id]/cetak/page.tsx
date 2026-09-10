@@ -73,7 +73,7 @@ export default async function CetakSuratPage({ params }: { params: Promise<{ id:
     status: suratData.status,
     dibuatOleh: suratData.dibuat_oleh,
     diverifikasiOleh: suratData.diverifikasi_oleh ?? undefined,
-    disetujuiOleh: suratData.disetujui_oleh ?? undefined,
+    disetujuiOleh: camatUser?.nama || suratData.disetujui_oleh || "HENDRA, S.STP",
     perihal: suratData.perihal,
     data_form: effectiveDataForm,
     riwayat: (riwayatData || []).map((r) => ({

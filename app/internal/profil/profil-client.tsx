@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useRef } from "react"
 import { PageHeader } from "@/components/ui/page-header"
@@ -153,41 +153,70 @@ export function ProfilClient({ user }: { user: User }) {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      <PageHeader
-        title="Profil Pengguna"
-        subtitle="Kelola informasi identitas, foto profil, dan spesimen tanda tangan digital Anda"
-      />
+    <div className="space-y-6 max-w-6xl pb-10">
+      {/* Header GovTech */}
+      <div className="border-b border-gray-200 pb-5">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/70">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Portal Identitas Aparatur · Kecamatan Temiang Pesisir
+          </span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#2F4A3C] tracking-tight">
+          Profil & Spesimen Tanda Tangan
+        </h1>
+        <p className="text-sm text-gray-600 mt-1 max-w-3xl">
+          Kelola data aparatur pemerintahan, foto identitas resmi kedinasan, dan spesimen tanda tangan elektronik untuk pengesahan berkas serta surat rekomendasi.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Kolom Kiri: Kartu Foto & Identitas */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="border-kuning-muda shadow-sm">
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="text-base text-hijau">Foto Profil</CardTitle>
-              <CardDescription className="text-xs">Foto akan tampil di menu dan dokumen</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center pt-2">
-              {/* Avatar bulat */}
-              <div className="relative group">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-hijau flex items-center justify-center text-white text-3xl font-bold">
-                  {fotoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={fotoUrl} alt={user.nama} className="w-full h-full object-cover" />
-                  ) : (
-                    <span>{inisial}</span>
-                  )}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Kolom Kiri: Kartu Identitas Aparatur (4 cols) */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+            {/* Banner Atas Kartu */}
+            <div className="bg-gradient-to-r from-[#2F4A3C] via-[#3d5e4d] to-[#2F4A3C] p-5 text-white">
+              {/* Header Baris Identitas & Verifikasi (Tidak Menimpa) */}
+              <div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-white/10">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-extrabold tracking-widest text-[#D9A400] uppercase truncate">
+                    Aparatur Sipil Negara
+                  </p>
+                  <h2 className="text-xs font-semibold text-white/90 tracking-wide uppercase truncate">
+                    Pemerintah Kab. Lingga
+                  </h2>
                 </div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-white/15 backdrop-blur-sm text-white border border-white/25 shrink-0">
+                  <ShieldCheck className="w-3 h-3 text-[#D9A400]" /> Terverifikasi
+                </span>
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => fotoInputRef.current?.click()}
-                  disabled={uploadingFoto}
-                  className="absolute bottom-0 right-0 p-2 bg-kuning hover:bg-kuning/90 text-teks rounded-full shadow-lg border-2 border-white transition-transform active:scale-95 cursor-pointer disabled:opacity-50"
-                  title="Ganti Foto"
-                >
-                  {uploadingFoto ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                </button>
+              {/* Avatar Bulat dengan Ring */}
+              <div className="mt-5 mb-2 flex justify-center">
+                <div className="relative group">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-xl bg-[#2F4A3C] flex items-center justify-center text-white text-3xl font-bold ring-4 ring-emerald-400/30 transition-transform duration-200 group-hover:scale-[1.02]">
+                    {fotoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={fotoUrl} alt={user.nama} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="font-serif tracking-tight">{inisial}</span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => fotoInputRef.current?.click()}
+                    disabled={uploadingFoto}
+                    className="absolute bottom-0 right-0 p-2.5 bg-[#D9A400] hover:bg-[#c49300] text-gray-900 rounded-full shadow-lg border-2 border-white transition-transform active:scale-90 cursor-pointer disabled:opacity-50"
+                    title="Ganti Foto Profil"
+                  >
+                    {uploadingFoto ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-gray-900" />
+                    ) : (
+                      <Camera className="w-4 h-4 text-gray-900" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <input
@@ -197,119 +226,174 @@ export function ProfilClient({ user }: { user: User }) {
                 onChange={handleFotoChange}
                 className="hidden"
               />
+            </div>
 
-              <div className="mt-4 text-center">
-                <h3 className="font-bold text-base text-teks">{user.nama}</h3>
-                <p className="text-xs text-teks/60 mt-0.5">@{user.username}</p>
-                <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-hijau/10 text-hijau capitalize">
-                    {user.role.replace("_", " ")}
-                  </span>
-                  <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                    {user.jabatan}
-                  </span>
-                </div>
+            {/* Nama & Role */}
+            <div className="p-5 text-center border-b border-gray-100">
+              <h3 className="font-bold text-base text-gray-900 tracking-tight">{user.nama}</h3>
+              <p className="text-xs font-mono text-gray-500 mt-0.5">@{user.username}</p>
+
+              <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#2F4A3C]/10 text-[#2F4A3C] capitalize">
+                  {user.role.replace("_", " ")}
+                </span>
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  {user.jabatan}
+                </span>
               </div>
+            </div>
 
-              {/* Tombol Aksi Foto */}
-              <div className="mt-5 w-full flex flex-col gap-2">
+            {/* Aksi Foto */}
+            <div className="p-4 bg-slate-50/70 border-b border-gray-100 space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fotoInputRef.current?.click()}
+                disabled={uploadingFoto}
+                className="w-full text-xs font-medium border-gray-300 hover:border-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 bg-white"
+              >
+                {uploadingFoto ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Mengunggah Foto...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-3.5 h-3.5 mr-1.5" /> Ganti Foto Profil
+                  </>
+                )}
+              </Button>
+
+              {fotoUrl && (
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  onClick={() => fotoInputRef.current?.click()}
+                  onClick={handleHapusFoto}
                   disabled={uploadingFoto}
-                  className="w-full text-xs"
+                  className="w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
-                  {uploadingFoto ? (
-                    <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Mengunggah...</>
-                  ) : (
-                    <><Camera className="w-3.5 h-3.5 mr-1.5" /> Ganti Foto Profil</>
-                  )}
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus Foto Profil
                 </Button>
+              )}
 
-                {fotoUrl && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleHapusFoto}
-                    disabled={uploadingFoto}
-                    className="w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus Foto
-                  </Button>
-                )}
-              </div>
-
-              {/* Feedback Notif Foto */}
               {pesanFoto && (
-                <div className={`mt-3 w-full p-2.5 rounded-lg text-xs flex items-center gap-2 ${
-                  pesanFoto.tipe === "sukses" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
-                }`}>
-                  {pesanFoto.tipe === "sukses" ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                <div
+                  className={`mt-2 p-2.5 rounded-xl text-xs flex items-center gap-2 ${
+                    pesanFoto.tipe === "sukses"
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-rose-50 text-rose-800 border border-rose-200"
+                  }`}
+                >
+                  {pesanFoto.tipe === "sukses" ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  )}
                   <span>{pesanFoto.teks}</span>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Rincian Atribut Kedinasan */}
+            <div className="p-5 space-y-3.5 text-xs">
+              <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                <span className="text-gray-500 font-medium">Instansi / Satuan</span>
+                <span className="font-semibold text-gray-800 text-right">Kecamatan Temiang Pesisir</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                <span className="text-gray-500 font-medium">Penugasan Wilayah</span>
+                <span className="font-semibold text-gray-800">
+                  {user.desa ? `Desa ${user.desa}` : "Kantor Camat Induk"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-gray-100">
+                <span className="text-gray-500 font-medium">Hak Akses Sistem</span>
+                <span className="font-semibold font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                  {user.role}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span className="text-gray-500 font-medium">ID Aparatur</span>
+                <span className="font-mono text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                  {user.id.slice(0, 8)}...
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Kolom Kanan: Tanda Tangan Digital & Spesimen */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="border-kuning-muda shadow-sm">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base text-hijau flex items-center gap-2">
-                    <PenTool className="w-4 h-4" /> Tanda Tangan Digital
-                  </CardTitle>
-                  <CardDescription className="text-xs mt-1">
-                    Spesimen tanda tangan digital yang digunakan saat menandatangani dokumen dan berita acara
-                  </CardDescription>
+        {/* Kolom Kanan: Spesimen TTD & Keamanan (8 cols) */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Kartu Utama TTD */}
+          <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6 sm:p-7 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-gray-100">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-[#2F4A3C]">
+                    <PenTool className="w-4 h-4" />
+                  </div>
+                  <h2 className="text-lg font-bold text-[#2F4A3C]">
+                    Spesimen Tanda Tangan Digital (TTD-E)
+                  </h2>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Spesimen tanda tangan resmi yang terintegrasi langsung pada pengesahan surat & verifikasi berkas.
+                </p>
+              </div>
+
+              <div>
                 {ttdUrl ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-800">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Terdaftar
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    Spesimen Terdaftar Sah
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
-                    Belum Ada TTD
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                    Belum Ada Tanda Tangan
                   </span>
                 )}
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Preview Area TTD */}
+            </div>
+
+            {/* Kanvas Pratinjau Spesimen */}
+            <div className="relative rounded-2xl border-2 border-dashed border-emerald-300/80 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:14px_14px] bg-slate-50/70 p-6 sm:p-8 flex flex-col items-center justify-center overflow-hidden">
+              <div className="w-full flex justify-between items-center mb-4 text-[10px] font-mono uppercase tracking-widest text-gray-400">
+                <span>KEABSAHAN RESMI</span>
+                <span>KECAMATAN TEMIANG PESISIR</span>
+              </div>
+
               {ttdUrl ? (
-                <div className="border-2 border-dashed border-green-300 rounded-xl p-6 bg-gradient-to-b from-green-50/30 to-white flex flex-col items-center justify-center">
-                  <p className="text-[11px] font-bold text-teks/50 uppercase tracking-widest mb-3">
-                    Pratinjau Tanda Tangan Digital Anda
-                  </p>
-                  
-                  {/* Kotak TTD dengan latar transparan/kertas */}
-                  <div className="relative p-4 bg-white border border-gray-200 rounded-lg shadow-inner max-w-sm w-full flex items-center justify-center min-h-[120px]">
+                <div className="w-full max-w-sm flex flex-col items-center">
+                  {/* Kotak Putih TTD */}
+                  <div className="w-full bg-white border border-gray-200 rounded-xl shadow-md p-4 min-h-[140px] flex items-center justify-center relative group">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={ttdUrl}
-                      alt="Tanda Tangan Digital"
-                      className="max-h-24 max-w-full object-contain mix-blend-multiply"
+                      alt="Spesimen Tanda Tangan Digital"
+                      className="max-h-28 max-w-full object-contain mix-blend-multiply transition-transform duration-200 group-hover:scale-105"
                     />
                   </div>
 
-                  <div className="mt-3 text-center">
-                    <p className="text-xs font-bold text-teks">{user.nama}</p>
-                    <p className="text-[11px] text-teks/60">{user.jabatan}</p>
+                  {/* Format Nama Kedinasan Bawah TTD */}
+                  <div className="mt-3.5 text-center">
+                    <div className="w-44 h-0.5 bg-gray-800 mx-auto mb-1.5" />
+                    <p className="text-xs font-bold text-gray-900 tracking-wide">{user.nama}</p>
+                    <p className="text-[11px] font-medium text-gray-600">{user.jabatan}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">Kecamatan Temiang Pesisir</p>
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 bg-gray-50/50 flex flex-col items-center justify-center text-center">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
-                    <PenTool className="w-6 h-6" />
+                <div className="py-6 flex flex-col items-center text-center max-w-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-400 mb-3">
+                    <PenTool className="w-7 h-7 text-gray-300" />
                   </div>
-                  <h4 className="font-semibold text-sm text-teks">Belum Ada Tanda Tangan</h4>
-                  <p className="text-xs text-teks/60 max-w-xs mt-1">
-                    Unggah tanda tangan digital Anda untuk dapat menandatangani dokumen secara otomatis.
+                  <h4 className="font-semibold text-sm text-gray-800">
+                    Spesimen Tanda Tangan Belum Diunggah
+                  </h4>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                    Dokumen rekomendasi dan surat dispensasi memerlukan spesimen tanda tangan Anda untuk proses pengesahan otomatis.
                   </p>
                 </div>
               )}
@@ -322,59 +406,108 @@ export function ProfilClient({ user }: { user: User }) {
                 onChange={handleTtdChange}
                 className="hidden"
               />
+            </div>
 
-              {/* Petunjuk format */}
-              <div className="bg-blue-50/60 border border-blue-100 rounded-lg p-3 text-xs text-blue-900 space-y-1">
-                <p className="font-semibold flex items-center gap-1.5">
-                  <UserCheck className="w-3.5 h-3.5" /> Panduan Unggah Tanda Tangan:
-                </p>
-                <ul className="list-disc list-inside space-y-0.5 text-[11px] text-blue-800/80 pl-1">
-                  <li>Disarankan format <strong>PNG dengan latar belakang transparan</strong> untuk hasil cetak dokumen yang rapi.</li>
-                  <li>Jika menggunakan foto/scan, pastikan tanda tangan dibuat di atas <strong>kertas putih polos bersih</strong>.</li>
-                </ul>
-              </div>
+            {/* Panduan Unggah */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-xs text-slate-700 space-y-2">
+              <p className="font-bold text-[#2F4A3C] flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-[#D9A400]" />
+                Ketentuan & Panduan Unggah Spesimen:
+              </p>
+              <ul className="space-y-1.5 text-[11px] text-slate-600 pl-6 list-disc">
+                <li>
+                  Gunakan format <strong>PNG dengan latar belakang transparan</strong> untuk hasil cetak dokumen e-TEPI yang paling tajam dan presisi.
+                </li>
+                <li>
+                  Jika mengambil foto dari kertas, pastikan tanda tangan menggunakan <strong>tinta hitam pekat</strong> di atas <strong>kertas putih bersih tanpa lipatan</strong>.
+                </li>
+                <li>
+                  Spesimen ini akan disinkronkan secara realtime ke seluruh draf surat dan dokumen resmi yang membutuhkan paraf atau tanda tangan Anda.
+                </li>
+              </ul>
+            </div>
 
-              {/* Tombol Unggah / Ganti */}
-              <div className="pt-2 flex items-center gap-3">
+            {/* Tombol Aksi TTD */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                onClick={() => ttdInputRef.current?.click()}
+                disabled={uploadingTtd}
+                className="bg-[#2F4A3C] hover:bg-[#23382d] text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm"
+              >
+                {uploadingTtd ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Mengunggah Spesimen...
+                  </>
+                ) : ttdUrl ? (
+                  <>
+                    <UploadCloud className="w-4 h-4 mr-2" /> Ganti Spesimen Tanda Tangan
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud className="w-4 h-4 mr-2" /> Unggah Spesimen Tanda Tangan
+                  </>
+                )}
+              </Button>
+
+              {ttdUrl && (
                 <Button
                   type="button"
-                  onClick={() => ttdInputRef.current?.click()}
+                  variant="outline"
+                  onClick={handleHapusTtd}
                   disabled={uploadingTtd}
-                  className="bg-hijau hover:bg-hijau/90 text-white text-xs font-medium"
+                  className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl"
                 >
-                  {uploadingTtd ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Mengunggah...</>
-                  ) : ttdUrl ? (
-                    <><UploadCloud className="w-4 h-4 mr-2" /> Ganti Tanda Tangan</>
-                  ) : (
-                    <><UploadCloud className="w-4 h-4 mr-2" /> Unggah Tanda Tangan Digital</>
-                  )}
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus Spesimen
                 </Button>
-
-                {ttdUrl && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleHapusTtd}
-                    disabled={uploadingTtd}
-                    className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                  >
-                    <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Hapus TTD
-                  </Button>
-                )}
-              </div>
-
-              {/* Feedback Notif TTD */}
-              {pesanTtd && (
-                <div className={`mt-3 p-3 rounded-lg text-xs flex items-center gap-2 ${
-                  pesanTtd.tipe === "sukses" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
-                }`}>
-                  {pesanTtd.tipe === "sukses" ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-                  <span>{pesanTtd.teks}</span>
-                </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Pesan Feedback TTD */}
+            {pesanTtd && (
+              <div
+                className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                  pesanTtd.tipe === "sukses"
+                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                    : "bg-rose-50 text-rose-800 border border-rose-200"
+                }`}
+              >
+                {pesanTtd.tipe === "sukses" ? (
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                )}
+                <span>{pesanTtd.teks}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Kartu Informasi Keamanan & Enkripsi */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-sm flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-700 shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">Enkripsi & Keamanan Sesi</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                  Autentikasi dilindungi token sesi HttpOnly dengan enkripsi standar pemerintah daerah.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-sm flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-700 shrink-0">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">Hak Akses Jabatan</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                  Tanda tangan Anda hanya dapat dibubuhkan pada surat yang sesuai dengan tupoksi wewenang.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

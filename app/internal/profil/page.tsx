@@ -1,8 +1,10 @@
-﻿import { cookies } from "next/headers"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { getSessionFromCookie, AUTH_COOKIE_NAME, User } from "@/lib/auth"
 import { createServiceClient } from "@/lib/supabase/server"
 import { ProfilClient } from "./profil-client"
+
+export const revalidate = 0
 
 export default async function ProfilPage() {
   const cookieStore = await cookies()
