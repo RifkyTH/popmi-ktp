@@ -23,6 +23,13 @@ export function PrintLayout({ suratId, html, title = "Cetak Dokumen" }: PrintLay
     const doc = iframe.contentWindow?.document
     if (!doc) return
 
+    // Gunakan absolute URL agar gambar (logo, TTD) bisa diakses dari dalam iframe
+    const origin = typeof window !== "undefined" ? window.location.origin : ""
+
+    // Ganti path relatif /xxx.jpeg/.png dengan absolute URL
+    const resolvedHtml = html
+      .replace(/src="\/([^"]+)"/g, `src="${origin}/$1"`)
+
     doc.open()
     doc.write(`<!DOCTYPE html>
 <html>
@@ -50,7 +57,7 @@ export function PrintLayout({ suratId, html, title = "Cetak Dokumen" }: PrintLay
     }
   </style>
 </head>
-<body>${html}</body>
+<body>${resolvedHtml}</body>
 </html>`)
     doc.close()
   }, [html, title])

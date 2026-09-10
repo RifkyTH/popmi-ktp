@@ -165,6 +165,40 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                 </div>
               )}
             </dl>
+
+            {/* Preview TTD Camat — tampil setelah surat diterbitkan */}
+            {(surat.status === "terbit" || surat.status === "terkirim") && (
+              <div className="mt-5 pt-5 border-t border-kuning-muda">
+                <p className="text-xs font-bold uppercase tracking-wider text-teks/50 mb-3">
+                  Tanda Tangan Digital Camat
+                </p>
+                <div className="flex items-end gap-6">
+                  <div className="text-center">
+                    <div className="relative inline-block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/ttd-camat.jpeg"
+                        alt="TTD Camat"
+                        className="w-28 h-auto mix-blend-multiply"
+                      />
+                    </div>
+                    <p className="text-xs font-bold underline mt-1">HENDRA, S.STP</p>
+                    <p className="text-[10px] text-teks/60">CAMAT TEMIANG PESISIR</p>
+                    <p className="text-[10px] text-teks/60">PEMBINA / IV.a</p>
+                    <p className="text-[10px] text-teks/60">NIP. 198507122006021001</p>
+                  </div>
+                  <div className="mb-1 text-xs text-green-700 flex items-center gap-1.5 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <span className="text-base">✅</span>
+                    <span>
+                      Ditandatangani oleh <strong>{surat.disetujuiOleh || "Camat"}</strong>
+                      {surat.tanggalTerbit && (
+                        <> pada {new Date(surat.tanggalTerbit).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Data Isian Form */}
