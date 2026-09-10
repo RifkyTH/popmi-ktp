@@ -1,4 +1,4 @@
-import type { Surat } from "./surat"
+﻿import type { Surat } from "./surat"
 
 // ─── Logo (base64 placeholder — diambil dari path publik saat runtime) ─────────
 // e-TEPI menggunakan LOGO_KAB_LINGGA sebagai konstanta base64 atau URL
@@ -211,7 +211,9 @@ export function generateSuratHTML(surat: Surat): string {
   const base = "font-family:Arial;font-size:12pt;color:#000;line-height:1.15;"
   const tanggal = surat.tanggalTerbit || new Date().toISOString().split("T")[0]
   const desa = surat.desa || "Pulau Batang"
-  const formData = (surat.data_form || {}) as Record<string, string>
+  const formData = (surat.data_form || {}) as Record<string, any>
+  const isSignedJubir = Boolean(formData.ttd_jubir) && formData.ttd_jubir !== "false"
+  const isSignedZakaria = Boolean(formData.ttd_zakaria) && formData.ttd_zakaria !== "false"
 
   switch (surat.jenis) {
 
@@ -637,14 +639,14 @@ export function generateSuratHTML(surat: Surat): string {
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
               <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                <img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />
+                ${isSignedJubir ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
               <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                <img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />
+                ${isSignedZakaria ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -785,14 +787,14 @@ export function generateSuratHTML(surat: Surat): string {
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
               <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                <img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />
+                ${isSignedJubir ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
               <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                <img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />
+                ${isSignedZakaria ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>
@@ -951,14 +953,14 @@ export function generateSuratHTML(surat: Surat): string {
               <td style="border:1px solid #000;padding:6px;text-align:center;">1</td>
               <td style="border:1px solid #000;padding:6px;">JUBIR, S.Pd.SD</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                <img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />
+                ${isSignedJubir ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
             <tr>
               <td style="border:1px solid #000;padding:6px;text-align:center;">2</td>
               <td style="border:1px solid #000;padding:6px;">ZAKARIA, A.Ma.Pd</td>
               <td style="border:1px solid #000;padding:6px;height:60px;text-align:center;vertical-align:middle;">
-                <img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />
+                ${isSignedZakaria ? `<img src="/ttd-digital.jpeg" style="width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;" />` : ``}
               </td>
             </tr>
           </tbody>

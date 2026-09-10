@@ -64,6 +64,13 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
     dataForm: suratData.data_form || {},
   }
 
+  const hasTimVerifikasi = ["rekomendasi_dd", "rekomendasi_add", "tunda_salur_add"].includes(surat.jenis)
+  const isJubirUser = Boolean(user?.username?.toLowerCase().includes("jubir") || user?.nama?.toLowerCase().includes("jubir"))
+  const isZakariaUser = Boolean(user?.username?.toLowerCase().includes("zakaria") || user?.nama?.toLowerCase().includes("zakaria"))
+  const isAdminOrSuper = user?.role === "super_admin" || user?.role === "admin"
+  const isSignedJubir = Boolean(surat.dataForm?.ttd_jubir) && surat.dataForm?.ttd_jubir !== "false"
+  const isSignedZakaria = Boolean(surat.dataForm?.ttd_zakaria) && surat.dataForm?.ttd_zakaria !== "false"
+
   const currentIndex = STATUS_ORDER.indexOf(surat.status)
   const timelineSteps = STATUS_ORDER.map((status, i) => {
     const riwayatItem = riwayat.find((r) => r.status === status)
@@ -218,6 +225,146 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
                   </div>
                 ))}
               </dl>
+            </div>
+          )}
+
+          {/* Tanda Tangan Tim Verifikasi Kecamatan */}
+          {hasTimVerifikasi && (
+            <div className="bg-white rounded-xl border border-kuning-muda p-6 mt-5">
+              <div className="mb-4">
+                <h2 className="font-bold font-serif text-hijau text-lg">Tanda Tangan Tim Verifikasi Kecamatan</h2>
+                <p className="text-xs text-teks/60 mt-0.5">
+                  Berita Acara Verifikasi memerlukan tanda tangan digital dari anggota tim di bawah ini. Tombol TTD akan aktif saat login di akun masing-masing.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 1. JUBIR */}
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/60 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-teks/50">Anggota Tim 1</span>
+                      {isSignedJubir ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                          ✓ Sudah TTD
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          Belum TTD
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-bold text-sm text-teks">JUBIR, S.Pd.SD</p>
+                    <p className="text-xs text-teks/60">Tim Verifikasi Kecamatan</p>
+
+                    {isSignedJubir && (
+                      <div className="mt-3 flex items-center gap-3 p-2.5 bg-white rounded-lg border border-gray-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/ttd-digital.jpeg" alt="TTD Jubir" className="w-12 h-12 mix-blend-multiply object-contain" />
+                        <div className="text-xs text-teks/70">
+                          <p className="font-semibold text-green-700">Tanda Tangan Digital Terpasang</p>
+                          <p className="text-[11px] text-teks/50">
+                            {surat.dataForm?.ttd_jubir_tanggal ? new Date(surat.dataForm.ttd_jubir_tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Terverifikasi"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
+                    {!isSignedJubir ? (
+                      (isJubirUser || isAdminOrSuper) ? (
+                        <form action={async () => {
+                          "use server"
+                          const { tandaTanganiVerifikasi } = await import("../actions")
+                          await tandaTanganiVerifikasi(surat.id, "jubir", user?.nama || "JUBIR, S.Pd.SD")
+                        }} className="w-full">
+                          <Button type="submit" size="sm" className="w-full bg-hijau hover:bg-hijau/90 text-white font-medium">
+                            <FileCheck className="w-4 h-4 mr-1.5" /> Tanda Tangani (Jubir, S.Pd.SD)
+                          </Button>
+                        </form>
+                      ) : (
+                        <p className="text-xs text-teks/40 italic">Login sebagai akun Jubir untuk menandatangani</p>
+                      )
+                    ) : (
+                      (isJubirUser || isAdminOrSuper) && (
+                        <form action={async () => {
+                          "use server"
+                          const { batalkanTandaTanganiVerifikasi } = await import("../actions")
+                          await batalkanTandaTanganiVerifikasi(surat.id, "jubir", user?.nama || "Jubir")
+                        }} className="w-full flex justify-end">
+                          <button type="submit" className="text-xs text-red-600 hover:underline">
+                            Batalkan TTD
+                          </button>
+                        </form>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. ZAKARIA */}
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/60 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-teks/50">Anggota Tim 2</span>
+                      {isSignedZakaria ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                          ✓ Sudah TTD
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          Belum TTD
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-bold text-sm text-teks">ZAKARIA, A.Ma.Pd</p>
+                    <p className="text-xs text-teks/60">Tim Verifikasi Kecamatan</p>
+
+                    {isSignedZakaria && (
+                      <div className="mt-3 flex items-center gap-3 p-2.5 bg-white rounded-lg border border-gray-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/ttd-digital.jpeg" alt="TTD Zakaria" className="w-12 h-12 mix-blend-multiply object-contain" />
+                        <div className="text-xs text-teks/70">
+                          <p className="font-semibold text-green-700">Tanda Tangan Digital Terpasang</p>
+                          <p className="text-[11px] text-teks/50">
+                            {surat.dataForm?.ttd_zakaria_tanggal ? new Date(surat.dataForm.ttd_zakaria_tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Terverifikasi"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
+                    {!isSignedZakaria ? (
+                      (isZakariaUser || isAdminOrSuper) ? (
+                        <form action={async () => {
+                          "use server"
+                          const { tandaTanganiVerifikasi } = await import("../actions")
+                          await tandaTanganiVerifikasi(surat.id, "zakaria", user?.nama || "ZAKARIA, A.Ma.Pd")
+                        }} className="w-full">
+                          <Button type="submit" size="sm" className="w-full bg-hijau hover:bg-hijau/90 text-white font-medium">
+                            <FileCheck className="w-4 h-4 mr-1.5" /> Tanda Tangani (Zakaria, A.Ma.Pd)
+                          </Button>
+                        </form>
+                      ) : (
+                        <p className="text-xs text-teks/40 italic">Login sebagai akun Zakaria untuk menandatangani</p>
+                      )
+                    ) : (
+                      (isZakariaUser || isAdminOrSuper) && (
+                        <form action={async () => {
+                          "use server"
+                          const { batalkanTandaTanganiVerifikasi } = await import("../actions")
+                          await batalkanTandaTanganiVerifikasi(surat.id, "zakaria", user?.nama || "Zakaria")
+                        }} className="w-full flex justify-end">
+                          <button type="submit" className="text-xs text-red-600 hover:underline">
+                            Batalkan TTD
+                          </button>
+                        </form>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

@@ -255,3 +255,68 @@ export async function arsipkanSurat(suratId: string, namaStaf: string) {
   revalidatePath(`/internal/surat/${suratId}`)
   revalidatePath("/internal/arsip")
 }
+
+export async function tandaTanganiVerifikasi(
+  suratId: string,
+  verifikatorKey: "jubir" | "zakaria",
+  namaVerifikator: string
+) {
+  const supabase = await createServiceClient()
+
+  const { data: surat, error: fetchError } = await supabase
+    .from("surat")
+    .select("data_form, judul")
+    .eq("id", suratId)
+    .single()
+
+  if (fetchError || !surat) throw new Error("Surat tidak ditemukan")
+
+  const currentDataForm = (surat.data_form || {}) as Record<string, any>
+
+  const updatedDataForm = {
+    ...currentDataForm,
+    [`ttd_${verifikatorKey}`]: true,
+    [`ttd_${verifikatorKey}_oleh`]: namaVerifikator,
+    [`ttd_${verifikatorKey}_tanggal`]: new Date().toISOString(),
+  }
+
+  const { error: updateError } = await supabase
+    .from("surat")
+    .update({ data_form: updatedDataForm })
+    .eq("id", suratId)
+
+  if (updateError) throw new Error(updateError.message)
+
+  await supabase.from("surat_riwayat").insert({
+    surat_id: suratId,
+    status: "verifikasi",
+    oleh: namaVerifikator,
+    tanggal: new Date().toISOString(),
+    catatan: `Berita Acara ditandatangani secara digital oleh ${namaVerifikator}`,
+  })
+
+  revalidatePath("/internal/surat")
+  revalidatePath(`/internal/surat/${suratId}`)
+  revalidatePath(`/internal/surat/${suratId}/cetak`)
+}
+
+export async function batalkanTandaTanganiVerifikasi(
+  suratId: string,
+  verifikatorKey: "jubir" | "zakaria",
+  namaUser: string
+) {
+  const supabase = await createServiceClient()
+  const { data: surat } = await supabase.from("surat").select("data_form").eq("id", suratId).single()
+  if (!surat) throw new Error("Surat tidak ditemukan")
+
+  const currentDataForm = { ...((surat.data_form || {}) as Record<string, any>) }
+  delete currentDataForm[`ttd_${verifikatorKey}`]
+  delete currentDataForm[`ttd_${verifikatorKey}_oleh`]
+  delete currentDataForm[`ttd_${verifikatorKey}_tanggal`]
+
+  await supabase.from("surat").update({ data_form: currentDataForm }).eq("id", suratId)
+
+  revalidatePath("/internal/surat")
+  revalidatePath(`/internal/surat/${suratId}`)
+  revalidatePath(`/internal/surat/${suratId}/cetak`)
+}
