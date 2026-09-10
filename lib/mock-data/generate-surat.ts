@@ -300,7 +300,7 @@ export function generateSuratHTML(surat: Surat): string {
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:4px 0;">
-                    ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:120px;height:auto;mix-blend-mode:multiply;display:block;margin-bottom:2px;" />` : `<div style="height:70px;"></div>`}
+                    ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin-bottom:2px;" />` : `<div style="height:70px;"></div>`}
                   </td>
                 </tr>
                 <tr>
