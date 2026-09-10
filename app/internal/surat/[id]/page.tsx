@@ -26,7 +26,7 @@ export default async function DetailSuratPage({ params }: { params: Promise<{ id
   const cookieStore = await cookies()
   const sessionValue = cookieStore.get(AUTH_COOKIE_NAME)?.value
   const user = getSessionFromCookie(sessionValue)
-  const isKasi = user?.role === "kasi"
+  const isKasi = ["kasi", "kasi_pem", "kasi_ekbang", "kasi_kesos", "kasi_ekobang", "kasi_kessos", "sekretaris"].includes(user?.role || "")
 
   const supabase = await createServiceClient()
 

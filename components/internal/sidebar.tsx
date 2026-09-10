@@ -56,7 +56,19 @@ function getNavItems(role: UserRole): NavGroup[] {
         { group: "Laporan", items: [rekap] },
       ]
 
+    case "sekretaris":
+      return [
+        { group: "Utama", items: [beranda] },
+        { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
+        { group: "Desa & Laporan", items: [aduan, rekap] },
+      ]
+
     case "kasi":
+    case "kasi_pem":
+    case "kasi_ekbang":
+    case "kasi_kesos":
+    case "kasi_ekobang":
+    case "kasi_kessos":
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
@@ -85,9 +97,12 @@ const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Admin",
   camat: "Camat",
   sekretaris: "Sekretaris",
-  kasi: "Kasi Pemerintahan",
-  kasi_ekobang: "Kasi Ekobang",
-  kasi_kessos: "Kasi Kessos",
+  kasi_pem: "Kasi Pem",
+  kasi_ekbang: "Kasi Ekbang",
+  kasi_kesos: "Kasi Kesos",
+  kasi: "Kasi Pem",
+  kasi_ekobang: "Kasi Ekbang",
+  kasi_kessos: "Kasi Kesos",
   staf: "Staf",
   petugas: "Petugas",
 }

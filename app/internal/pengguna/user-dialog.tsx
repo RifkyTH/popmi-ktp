@@ -11,9 +11,9 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "admin", label: "Admin" },
   { value: "camat", label: "Camat" },
   { value: "sekretaris", label: "Sekretaris" },
-  { value: "kasi", label: "Kepala Seksi Pemerintahan dan Ketertiban Umum" },
-  { value: "kasi_ekobang", label: "Kepala Seksi Ekonomi dan Pembangunan" },
-  { value: "kasi_kessos", label: "Kepala Seksi Kesejahteraan Sosial dan Pelayanan Umum" },
+  { value: "kasi_pem", label: "Kepala Seksi Pemerintahan dan Ketertiban Umum (Kasi Pem)" },
+  { value: "kasi_ekbang", label: "Kepala Seksi Ekonomi dan Pembangunan (Kasi Ekbang)" },
+  { value: "kasi_kesos", label: "Kepala Seksi Kesejahteraan Sosial dan Pelayanan Umum (Kasi Kesos)" },
   { value: "staf", label: "Staf Administrasi" },
   { value: "petugas", label: "Petugas Pengaduan" },
 ]
@@ -38,7 +38,8 @@ export function UserDialog({ mode, pengguna, onClose, onSuccess }: UserDialogPro
   const [nama, setNama] = useState(pengguna?.nama ?? "")
   const [username, setUsername] = useState(pengguna?.username ?? "")
   const [password, setPassword] = useState("")
-  const [role, setRole] = useState<UserRole>(pengguna?.role ?? "staf")
+  const initialRole = pengguna?.role === "kasi" ? "kasi_pem" : (pengguna?.role === "kasi_ekobang" ? "kasi_ekbang" : (pengguna?.role === "kasi_kessos" ? "kasi_kesos" : (pengguna?.role ?? "staf")))
+  const [role, setRole] = useState<UserRole>(initialRole)
   const [jabatan, setJabatan] = useState(pengguna?.jabatan ?? "")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)

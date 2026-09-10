@@ -14,7 +14,7 @@ create table if not exists pengguna (
   nama text not null,
   username text unique not null,
   password text not null,
-  role text not null check (role in ('staf', 'kasi', 'camat', 'admin', 'petugas', 'super_admin')),
+  role text not null check (role in ('staf', 'kasi', 'kasi_pem', 'kasi_ekbang', 'kasi_kesos', 'sekretaris', 'kasi_ekobang', 'kasi_kessos', 'camat', 'admin', 'petugas', 'super_admin')),
   jabatan text not null,
   desa text,
   aktif boolean default true,
