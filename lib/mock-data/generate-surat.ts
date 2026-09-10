@@ -299,8 +299,8 @@ export function generateSuratHTML(surat: Surat): string {
                   <td colspan="2" style="font-weight:bold; vertical-align:top; padding-bottom:2px;">CAMAT TEMIANG PESISIR,</td>
                 </tr>
                 <tr>
-                  <td colspan="2" style="height:${isSigned ? `10px` : `70px`};">
-                    ${isSigned ? `<div style="position:absolute;margin:-5px 0 0 -5px;"><img src="/ttd-camat.jpeg" style="width:130px;height:auto;mix-blend-mode:multiply;" /></div>` : ``}
+                  <td colspan="2" style="padding:4px 0;">
+                    ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:120px;height:auto;mix-blend-mode:multiply;display:block;margin-bottom:2px;" />` : `<div style="height:70px;"></div>`}
                   </td>
                 </tr>
                 <tr>
