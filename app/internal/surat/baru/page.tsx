@@ -293,28 +293,48 @@ export default function BuatSuratPage() {
                               </>
                             ) : (
                               <>
-                                <div className="border border-gray-200 rounded-lg px-2.5 py-2.5 text-sm bg-gray-50 text-gray-700 font-mono font-medium">
+                                {/* template: prefix otomatis */}
+                                <div className="border border-gray-200 rounded-lg px-2.5 py-2.5 text-sm bg-gray-50 text-gray-700 font-mono font-medium whitespace-nowrap">
                                   {NOMOR_FORMAT[jenis] || "451.1/CMT-TP"}/
                                 </div>
+                                {/* dropdown bulan (romawi) */}
+                                <select
+                                  value={formData.nomorBulan || ROMAN_MONTHS[new Date().getMonth()]}
+                                  onChange={(e) => handleFieldChange("nomorBulan", e.target.value)}
+                                  className="w-[68px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
+                                >
+                                  {ROMAN_MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                                <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">/</div>
+                                {/* dropdown tahun */}
+                                <select
+                                  value={formData.nomorTahun || new Date().getFullYear().toString()}
+                                  onChange={(e) => handleFieldChange("nomorTahun", e.target.value)}
+                                  className="w-[84px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
+                                >
+                                  {['2024','2025','2026','2027','2028','2029','2030'].map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                                <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">/</div>
+                                {/* manual urut */}
                                 <input
                                   type="text"
                                   value={formData.nomorUrut || ""}
                                   onChange={(e) => handleFieldChange("nomorUrut", e.target.value.replace(/\D/g, '').slice(0, 4))}
                                   className="w-[72px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono text-center"
-                                  placeholder="039"
+                                  placeholder="001"
                                 />
-                                <div className="border border-gray-200 rounded-lg px-2 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono">
-                                  /
-                                </div>
                               </>
                             )}
-                            <select
-                              value={formData.nomorTahun || new Date().getFullYear().toString()}
-                              onChange={(e) => handleFieldChange("nomorTahun", e.target.value)}
-                              className="w-[84px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
-                            >
-                              {['2024','2025','2026','2027','2028','2029','2030'].map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
+                            {/* Untuk BBM: tahun di akhir */}
+                            {(jenis === "bbm_jbkp" || jenis === "bbm_jbt") && (
+                              <select
+                                value={formData.nomorTahun || new Date().getFullYear().toString()}
+                                onChange={(e) => handleFieldChange("nomorTahun", e.target.value)}
+                                className="w-[84px] border border-gray-200 rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-kuning font-mono bg-white text-center appearance-none cursor-pointer"
+                              >
+                                {['2024','2025','2026','2027','2028','2029','2030'].map(y => <option key={y} value={y}>{y}</option>)}
+                              </select>
+                            )}
                           </div>
                         ) : field.type === "select" ? (
                           <select

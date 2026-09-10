@@ -70,9 +70,10 @@ export function generateNomorSurat(jenis: JenisSurat, urut: number | string, cus
   } else if (jenis === "bbm_jbt") {
     return `${urutStr} / TEMIANG PESISIR / 21 / 21.04 / RT-MIKRO / JBT / ${month} / ${year}`;
   } else {
-    // Default format
+    // Format: template/template/bulan/tahun/urut
+    // Contoh: 451.1/CMT-TP/III/2026/001
     const prefix = NOMOR_FORMAT[jenis] || "XXX";
-    return `${prefix}/${urutStr}/${year}`;
+    return `${prefix}/${month}/${year}/${urutStr}`;
   }
 }
 
