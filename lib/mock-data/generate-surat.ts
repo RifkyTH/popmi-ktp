@@ -1038,7 +1038,7 @@ export function generateSuratHTML(surat: Surat): string {
             <td style="width:35%;vertical-align:top;padding-top:40px;">
               Tajur Biru, ${formatTanggal(tanggal)}<br>
               <strong>CAMAT TEMIANG PESISIR</strong><br>
-              ${isSigned ? `<div style="position: absolute; margin: -5px 0 0 -15px;"><img src="/ttd-camat.jpeg" style="width: 170px; height: auto; mix-blend-mode: multiply;" /></div><br><br><br><br><br>` : `<br><br><br><br><br>`}
+              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<br><br><br><br><br>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP 198507122006021001
@@ -1109,7 +1109,7 @@ export function generateSuratHTML(surat: Surat): string {
                 </tr>
               </table>
               <strong>CAMAT TEMIANG PESISIR</strong><br>
-              ${isSigned ? `<div style="position:absolute;margin:-5px 0 0 -10px;"><img src="/ttd-camat.jpeg" style="width:170px;height:auto;mix-blend-mode:multiply;" /></div><br><br><br><br><br>` : `<br><br><br><br><br>`}
+              ${isSigned ? `<img src="/ttd-camat.jpeg" style="width:75px;height:auto;mix-blend-mode:multiply;display:block;margin:4px 0;" />` : `<br><br><br><br><br>`}
               <strong><u>HENDRA, S.STP</u></strong><br>
               PEMBINA / IV.a<br>
               NIP 198507122006021001
