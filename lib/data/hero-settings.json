@@ -1,11 +1,11 @@
 {
   "enabled": true,
   "type": "video",
-  "url": "https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-waves-lapping-the-sand-41544-large.mp4",
-  "title": "Ombak Pesisir Pantai Temiang (Video Loop)",
-  "overlayOpacity": 0.4,
-  "overlayTheme": "forest",
-  "blurAmount": "md",
-  "updatedAt": "2026-09-11T03:02:00.655Z",
-  "updatedBy": "Rifky Taufik Hidayat, S.Kom"
+  "url": "/videos/hero-oceans.mp4",
+  "title": "Lautan & Ombak Pesisir Kepulauan (Video Loop HD)",
+  "overlayOpacity": 0.45,
+  "overlayTheme": "light",
+  "blurAmount": "none",
+  "updatedAt": "2026-09-11T03:15:00.000Z",
+  "updatedBy": "Super Administrator"
 }

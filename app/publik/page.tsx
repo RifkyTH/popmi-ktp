@@ -65,11 +65,11 @@ export default async function PublikHomePage() {
   return (
     <div className="space-y-12 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-14 pb-18 px-4 border-b border-slate-200/80">
+      <section className="relative isolate overflow-hidden pt-14 pb-18 px-4 border-b border-slate-200/80">
         {/* Animated Background (Uploaded and managed by Superadmin) */}
         <HeroAnimatedBackground settings={heroSettings} />
 
-        <div className="max-w-4xl mx-auto text-center space-y-6">
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
           {/* Official badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D9A400]/40 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#D9A400] animate-pulse" />
@@ -168,95 +168,123 @@ export default async function PublikHomePage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Card 1: Lapor Permasalahan */}
           <Link
             href="/publik/pengaduan/buat"
-            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+            className="group bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between overflow-hidden"
           >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Send className="w-5 h-5" />
+            <div>
+              <div className="h-40 w-full overflow-hidden relative bg-slate-100">
+                <img
+                  src="/images/quick-access/quick-lapor.jpg"
+                  alt="Ilustrasi Lapor Permasalahan Warga"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-emerald-700 shadow-xs flex items-center justify-center border border-white/60">
+                  <Send className="w-4 h-4" />
+                </div>
               </div>
-              <div>
+              <div className="p-5 space-y-2">
                 <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
                   Lapor Permasalahan
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   Laporkan keluhan jalan, sampah, bansos, atau dokumen dengan bukti foto dan koordinat GPS.
                 </p>
               </div>
             </div>
-            <div className="pt-4 flex items-center text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition-transform">
+            <div className="p-5 pt-0 flex items-center text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition-transform">
               Buka Formulir Aduan <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </div>
           </Link>
 
-          {/* Card 2 */}
+          {/* Card 2: Pantau Tiket Real-Time */}
           <Link
             href="/publik/pengaduan/cek"
-            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+            className="group bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between overflow-hidden"
           >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <FileCheck2 className="w-5 h-5" />
+            <div>
+              <div className="h-40 w-full overflow-hidden relative bg-slate-100">
+                <img
+                  src="/images/quick-access/quick-lacak.jpg"
+                  alt="Ilustrasi Pantau Tiket Laporan"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-blue-700 shadow-xs flex items-center justify-center border border-white/60">
+                  <FileCheck2 className="w-4 h-4" />
+                </div>
               </div>
-              <div>
+              <div className="p-5 space-y-2">
                 <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
                   Pantau Tiket Real-Time
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   Ketahui sejauh mana laporan Anda ditindaklanjuti lengkap dengan riwayat dan catatan petugas.
                 </p>
               </div>
             </div>
-            <div className="pt-4 flex items-center text-xs font-bold text-blue-700 group-hover:translate-x-1 transition-transform">
+            <div className="p-5 pt-0 flex items-center text-xs font-bold text-blue-700 group-hover:translate-x-1 transition-transform">
               Cek Status Sekarang <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </div>
           </Link>
 
-          {/* Card 3 */}
+          {/* Card 3: Peta Sebaran Laporan */}
           <Link
             href="/publik/peta"
-            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+            className="group bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between overflow-hidden"
           >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Layers className="w-5 h-5" />
+            <div>
+              <div className="h-40 w-full overflow-hidden relative bg-slate-100">
+                <img
+                  src="/images/quick-access/quick-peta.jpg"
+                  alt="Ilustrasi Peta Sebaran Laporan"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-amber-700 shadow-xs flex items-center justify-center border border-white/60">
+                  <Layers className="w-4 h-4" />
+                </div>
               </div>
-              <div>
+              <div className="p-5 space-y-2">
                 <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
                   Peta Sebaran Laporan
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   Visualisasi titik aduan masyarakat secara geografis di seluruh pulau dan pesisir kecamatan.
                 </p>
               </div>
             </div>
-            <div className="pt-4 flex items-center text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
+            <div className="p-5 pt-0 flex items-center text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
               Eksplorasi Peta Interaktif <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </div>
           </Link>
 
-          {/* Card 4 */}
+          {/* Card 4: Transparansi & Statistik */}
           <Link
             href="/publik/transparansi"
-            className="group bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between"
+            className="group bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-lg hover:border-[#2F4A3C]/40 transition-all flex flex-col justify-between overflow-hidden"
           >
-            <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#2F4A3C] flex items-center justify-center group-hover:scale-105 transition-transform">
-                <BarChart3 className="w-5 h-5" />
+            <div>
+              <div className="h-40 w-full overflow-hidden relative bg-slate-100">
+                <img
+                  src="/images/quick-access/quick-transparansi.jpg"
+                  alt="Ilustrasi Transparansi dan Statistik Data"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-[#2F4A3C] shadow-xs flex items-center justify-center border border-white/60">
+                  <BarChart3 className="w-4 h-4" />
+                </div>
               </div>
-              <div>
+              <div className="p-5 space-y-2">
                 <h3 className="font-serif font-bold text-base text-[#2F4A3C] group-hover:text-[#23382D]">
                   Transparansi &amp; Statistik
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   Buka data kinerja penanganan keluhan warga per desa dan kategori masalah secara akuntabel.
                 </p>
               </div>
             </div>
-            <div className="pt-4 flex items-center text-xs font-bold text-[#2F4A3C] group-hover:translate-x-1 transition-transform">
+            <div className="p-5 pt-0 flex items-center text-xs font-bold text-[#2F4A3C] group-hover:translate-x-1 transition-transform">
               Lihat Statistik Lengkap <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </div>
           </Link>
