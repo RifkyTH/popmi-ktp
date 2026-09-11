@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { INFORMASI_DATA } from "@/lib/mock-data/informasi"
 import {
   MessageSquare,
   Eye,
@@ -15,15 +14,22 @@ import {
   Search,
   Building2,
   Navigation,
+  Sparkles,
 } from "lucide-react"
 import { createServiceClient } from "@/lib/supabase/server"
+import { getInformasiList } from "@/lib/actions/informasi"
 import { StatsCounter } from "./stats-counter"
+import { HeroSlideShow } from "@/components/publik/hero-slideshow"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export default async function PublikHomePage() {
-  const latestNews = INFORMASI_DATA.slice(0, 3)
+  const allNews = await getInformasiList({ publishedOnly: true })
+  const headlineSlides = allNews.filter((n) => n.is_headline).length > 0
+    ? allNews.filter((n) => n.is_headline)
+    : allNews.slice(0, 4)
+  const latestNews = allNews.slice(0, 3)
 
   const supabase = await createServiceClient()
 
@@ -117,6 +123,25 @@ export default async function PublikHomePage() {
             </form>
           </div>
         </div>
+      </section>
+
+      {/* Hero Featured Slide Show Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-3.5 pb-2 border-b border-slate-200/80">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#D9A400] animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[#2F4A3C]">
+              Dokumentasi Kegiatan &amp; Sorotan Berita Kecamatan
+            </span>
+          </div>
+          <Link
+            href="/publik/informasi"
+            className="text-xs font-bold text-[#2F4A3C] hover:text-[#D9A400] flex items-center gap-1 transition-colors"
+          >
+            Lihat Semua Informasi <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <HeroSlideShow items={headlineSlides} />
       </section>
 
       {/* Stats Counter Section */}
@@ -394,28 +419,47 @@ export default async function PublikHomePage() {
               key={info.id}
               className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group hover:border-[#2F4A3C]/30"
             >
-              <div className="p-6 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2F4A3C]/10 text-[#2F4A3C] px-2.5 py-0.5 rounded-full">
-                    {info.kategori}
-                  </span>
-                  <span className="text-[11px] text-slate-400">
+              {info.gambar && (
+                <div className="h-44 w-full overflow-hidden bg-slate-100 relative">
+                  <img
+                    src={info.gambar}
+                    alt={info.judul}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-md border border-white/20">
+                      {info.kategori}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="p-6 space-y-2.5 flex-1 flex flex-col">
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
                     {info.tanggal}
                   </span>
+                  {!info.gambar && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2F4A3C]/10 text-[#2F4A3C] px-2 py-0.5 rounded">
+                      {info.kategori}
+                    </span>
+                  )}
                 </div>
-                <h3 className="font-serif font-bold text-lg text-[#2F4A3C] group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug">
+
+                <h3 className="font-serif font-bold text-base sm:text-lg text-[#2F4A3C] group-hover:text-emerald-800 transition-colors line-clamp-2 leading-snug">
                   {info.judul}
                 </h3>
-                <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">
+                <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed mt-1">
                   {info.ringkasan}
                 </p>
               </div>
 
-              <div className="px-6 py-4 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-medium">Humas Kecamatan</span>
+              <div className="px-6 py-3.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs mt-auto">
+                <span className="text-slate-400 font-medium truncate max-w-[130px]">{info.penulis}</span>
                 <Link
                   href={`/publik/informasi/${info.slug}`}
-                  className="font-bold text-[#2F4A3C] group-hover:text-emerald-700 flex items-center gap-1"
+                  className="font-bold text-[#2F4A3C] group-hover:text-emerald-700 flex items-center gap-1 shrink-0"
                 >
                   Baca Selengkapnya <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </Link>

@@ -17,6 +17,7 @@ import {
   Users,
   MessageSquareWarning,
   User as UserIcon,
+  Newspaper,
 } from "lucide-react"
 
 type NavItem = { href: string; label: string; icon: React.ElementType }
@@ -29,6 +30,7 @@ function getNavItems(role: UserRole): NavGroup[] {
   const arsip: NavItem = { href: "/internal/arsip", label: "Arsip Surat", icon: Archive }
   const pengajuanDesa: NavItem = { href: "/internal/pengajuan-desa", label: "Pengajuan Desa", icon: Building2 }
   const aduan: NavItem = { href: "/internal/aduan", label: "Aduan Masyarakat", icon: MessageSquareWarning }
+  const informasi: NavItem = { href: "/internal/informasi", label: "Publikasi & Berita", icon: Newspaper }
   const rekap: NavItem = { href: "/internal/rekap", label: "Rekap & Statistik", icon: BarChart3 }
   const pengaturan: NavItem = { href: "/internal/pengaturan", label: "Pengaturan", icon: Settings }
   const pengguna: NavItem = { href: "/internal/pengguna", label: "Manajemen User", icon: Users }
@@ -39,7 +41,7 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
-        { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Pelayanan & Publikasi", items: [informasi, aduan, rekap] },
         { group: "Sistem", items: [pengguna, pengaturan] },
         { group: "Akun", items: [profil] },
       ]
@@ -48,7 +50,7 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
-        { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Pelayanan & Publikasi", items: [informasi, aduan, rekap] },
         { group: "Sistem", items: [pengaturan] },
         { group: "Akun", items: [profil] },
       ]
@@ -57,7 +59,7 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, arsip] },
-        { group: "Laporan", items: [rekap] },
+        { group: "Laporan & Publikasi", items: [informasi, rekap] },
         { group: "Akun", items: [profil] },
       ]
 
@@ -65,7 +67,7 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
-        { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Pelayanan & Publikasi", items: [informasi, aduan, rekap] },
         { group: "Akun", items: [profil] },
       ]
 
@@ -78,7 +80,7 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [daftarSurat, buatSurat, arsip] },
-        { group: "Desa & Laporan", items: [aduan, rekap] },
+        { group: "Pelayanan & Publikasi", items: [informasi, aduan, rekap] },
         { group: "Akun", items: [profil] },
       ]
 
@@ -86,13 +88,14 @@ function getNavItems(role: UserRole): NavGroup[] {
       return [
         { group: "Utama", items: [beranda] },
         { group: "Surat & Rekomendasi", items: [buatSurat, daftarSurat] },
+        { group: "Publikasi Informasi", items: [informasi] },
         { group: "Akun", items: [profil] },
       ]
 
     case "petugas":
       return [
         { group: "Utama", items: [beranda] },
-        { group: "Pengaduan", items: [aduan] },
+        { group: "Pengaduan & Berita", items: [aduan, informasi] },
         { group: "Akun", items: [profil] },
       ]
 
