@@ -45,7 +45,7 @@ export function HeroAnimatedBackground({
           poster={defaultPoster}
           onError={() => setVideoFailed(true)}
           className={cn(
-            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000",
+            "absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000",
             blurClass
           )}
         >

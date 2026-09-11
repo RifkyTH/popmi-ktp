@@ -68,11 +68,11 @@ export default async function PublikHomePage() {
   return (
     <div className="space-y-12 pb-16">
       {/* Hero Section */}
-      <section className="relative isolate overflow-hidden pt-14 pb-18 px-4 border-b border-slate-200/80">
+      <section className="relative isolate overflow-hidden pt-10 pb-14 sm:pt-14 sm:pb-18 px-4 border-b border-slate-200/80">
         {/* Animated Background (Uploaded and managed by Superadmin) */}
         <HeroAnimatedBackground settings={heroSettings} />
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
           {/* Official badge */}
           <div
             className={cn(
@@ -94,7 +94,7 @@ export default async function PublikHomePage() {
           {/* Main Title */}
           <h1
             className={cn(
-              "text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight transition-colors",
+              "text-3xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight transition-colors",
               isWhite
                 ? "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.85)]"
                 : "text-[#2F4A3C]"
@@ -520,11 +520,11 @@ export default async function PublikHomePage() {
               className="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group hover:border-[#2F4A3C]/30"
             >
               {info.gambar && (
-                <div className="h-44 w-full overflow-hidden bg-slate-100 relative">
+                <div className="aspect-[16/10] w-full overflow-hidden bg-slate-100 relative">
                   <img
                     src={info.gambar}
                     alt={info.judul}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-3 left-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-md border border-white/20">

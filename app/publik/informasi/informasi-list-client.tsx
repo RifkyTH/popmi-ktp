@@ -155,11 +155,11 @@ export function InformasiListClient({
             >
               {/* Photo Cover */}
               {item.gambar ? (
-                <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
+                <div className="aspect-[16/10] w-full overflow-hidden bg-slate-100 relative">
                   <img
                     src={item.gambar}
                     alt={item.judul}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-3 left-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-md border border-white/20">
@@ -168,7 +168,7 @@ export function InformasiListClient({
                   </div>
                 </div>
               ) : (
-                <div className="h-28 w-full bg-gradient-to-r from-slate-100 to-slate-200 flex items-center justify-center text-slate-300 relative">
+                <div className="aspect-[16/10] w-full bg-gradient-to-r from-slate-100 to-slate-200 flex items-center justify-center text-slate-300 relative">
                   <ImageIcon className="w-8 h-8 opacity-40" />
                   <div className="absolute top-3 left-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-[#2F4A3C]/10 text-[#2F4A3C] px-2.5 py-1 rounded-md border border-[#2F4A3C]/20">
