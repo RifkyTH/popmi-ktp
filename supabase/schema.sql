@@ -114,8 +114,12 @@ create table if not exists informasi (
   penulis text not null default 'Admin Kecamatan',
   gambar text,
   published boolean default true,
+  is_headline boolean default false,
   created_at timestamptz default now()
 );
+
+-- Migrasi jika tabel informasi sudah ada sebelumnya di database:
+-- alter table informasi add column if not exists is_headline boolean default false;
 
 -- ============================================================
 -- ROW LEVEL SECURITY
