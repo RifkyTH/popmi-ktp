@@ -22,6 +22,26 @@ export async function generateMetadata({
   }
 }
 
+function renderArticleContent(content: string): string {
+  if (!content) return ""
+  // If content contains HTML tags, return as is
+  if (/<[a-z][\s\S]*>/i.test(content)) {
+    return content
+  }
+
+  // Convert legacy linebreaks and markdown asterisks to HTML paragraphs
+  return content
+    .split(/\n\s*\n/)
+    .map((p) => {
+      let formatted = p.trim()
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      formatted = formatted.replace(/\*(.*?)\*/g, "<em>$1</em>")
+      formatted = formatted.replace(/\n/g, "<br/>")
+      return `<p>${formatted}</p>`
+    })
+    .join("")
+}
+
 export default async function DetailInformasiPage({
   params,
 }: {
@@ -96,10 +116,11 @@ export default async function DetailInformasiPage({
           </div>
         )}
 
-        {/* Body Content */}
-        <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap font-sans space-y-4">
-          {info.isi}
-        </div>
+        {/* Body Content with Rich Document Typography & Justify Support */}
+        <div
+          className="text-sm sm:text-base text-slate-800 leading-relaxed font-sans prose-article space-y-4"
+          dangerouslySetInnerHTML={{ __html: renderArticleContent(info.isi) }}
+        />
 
         {/* Footer Signature */}
         <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-400">

@@ -40,6 +40,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { WordEditor } from "@/components/ui/word-editor"
 
 export function InformasiClient({
   initialData,
@@ -600,7 +601,7 @@ export function InformasiClient({
       {/* Modal Dialog Form (Tambah / Edit) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 my-8 overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 my-6 overflow-hidden flex flex-col max-h-[92vh]">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
               <div className="flex items-center gap-2">
@@ -787,18 +788,22 @@ export function InformasiClient({
                 />
               </div>
 
-              {/* Isi Lengkap */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700 flex items-center gap-1">
-                  Isi Informasi Lengkap <span className="text-rose-500">*</span>
-                </label>
-                <textarea
-                  rows={6}
-                  required
-                  placeholder="Tuliskan isi pengumuman/berita lengkap. Mendukung pemisahan baris dan format markdown..."
+              {/* Isi Lengkap - Word Rich Text Editor */}
+              <div className="space-y-2">
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1">
+                  <label className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <span>Isi Naskah Berita / Informasi</span>
+                    <span className="text-rose-500">*</span>
+                  </label>
+                  <span className="text-[11px] text-slate-400">
+                    Mendukung perataan teks (kiri, tengah, kanan, justify), gaya font, warna, stabilo &amp; tabel
+                  </span>
+                </div>
+                <WordEditor
                   value={formIsi}
-                  onChange={(e) => setFormIsi(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2F4A3C] text-xs text-slate-800 leading-relaxed font-mono"
+                  onChange={setFormIsi}
+                  placeholder="Tuliskan isi naskah berita atau pengumuman di sini. Gunakan tools di atas untuk rata kiri-kanan, warna teks, tebal, dsb..."
+                  minHeight="320px"
                 />
               </div>
 

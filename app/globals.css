@@ -43,4 +43,109 @@ body {
     border-radius: inherit;
     z-index: 10;
   }
+
+  /* Document Typography for Word Editor & Public Article View */
+  .prose-word,
+  .prose-article {
+    line-height: 1.75;
+  }
+  .prose-word p,
+  .prose-article p {
+    margin-bottom: 0.85em;
+  }
+  .prose-word h1,
+  .prose-article h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+    line-height: 1.3;
+  }
+  .prose-word h2,
+  .prose-article h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2F4A3C;
+    margin-top: 1.15em;
+    margin-bottom: 0.45em;
+    line-height: 1.35;
+  }
+  .prose-word h3,
+  .prose-article h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 1em;
+    margin-bottom: 0.4em;
+  }
+  .prose-word ul,
+  .prose-article ul {
+    list-style-type: disc;
+    padding-left: 1.6em;
+    margin-bottom: 0.85em;
+  }
+  .prose-word ol,
+  .prose-article ol {
+    list-style-type: decimal;
+    padding-left: 1.6em;
+    margin-bottom: 0.85em;
+  }
+  .prose-word li,
+  .prose-article li {
+    margin-bottom: 0.25em;
+  }
+  .prose-word blockquote,
+  .prose-article blockquote {
+    border-left: 4px solid #D9A400;
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+    font-style: italic;
+    color: #475569;
+    margin: 1.2em 0;
+  }
+  .prose-word table,
+  .prose-article table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.2em 0;
+    font-size: 0.875rem;
+  }
+  .prose-word th,
+  .prose-word td,
+  .prose-article th,
+  .prose-article td {
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 0.75rem;
+  }
+  .prose-word th,
+  .prose-article th {
+    background-color: #f1f5f9;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: left;
+  }
+  .prose-word hr,
+  .prose-article hr {
+    border: none;
+    border-top: 2px dashed #cbd5e1;
+    margin: 1.5em 0;
+  }
+  .prose-word a,
+  .prose-article a {
+    color: #047857;
+    text-decoration: underline;
+    font-weight: 600;
+  }
+  .prose-word a:hover,
+  .prose-article a:hover {
+    color: #065f46;
+  }
+  .prose-word[contenteditable]:empty:before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+    display: block;
+  }
 }
