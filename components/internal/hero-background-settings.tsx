@@ -4,7 +4,9 @@ import { useState, useTransition, useRef } from "react"
 import {
   HeroBackgroundSettings,
   HeroBackgroundType,
+  HeroTextColor,
   HERO_PRESETS,
+  isHeroTextWhite,
 } from "@/lib/data/hero-types"
 import {
   updateHeroSettings,
@@ -25,6 +27,7 @@ import {
   Film,
   Layers,
   Eye,
+  Type,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +42,7 @@ export function HeroBackgroundSettingsManager({
   const [enabled, setEnabled] = useState(initialSettings.enabled)
   const [opacity, setOpacity] = useState(initialSettings.overlayOpacity)
   const [theme, setTheme] = useState(initialSettings.overlayTheme)
+  const [textColor, setTextColor] = useState<HeroTextColor>(initialSettings.textColor || "auto")
   const [blur, setBlur] = useState(initialSettings.blurAmount)
 
   const [isUploading, setIsUploading] = useState(false)
@@ -101,6 +105,7 @@ export function HeroBackgroundSettingsManager({
         url: customUrl.trim(),
         overlayOpacity: opacity,
         overlayTheme: theme,
+        textColor,
         blurAmount: blur,
       })
 
@@ -335,7 +340,7 @@ export function HeroBackgroundSettingsManager({
             <span>3. Pengaturan Kontras &amp; Keterbacaan Teks Warga</span>
           </label>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-xs">
             {/* Overlay Opacity */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -384,6 +389,35 @@ export function HeroBackgroundSettingsManager({
               </div>
             </div>
 
+            {/* Dynamic Text Color */}
+            <div className="space-y-1.5">
+              <span className="font-semibold text-slate-700 block">Warna Teks Judul &amp; Konten</span>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { key: "auto", label: "⚡ Auto" },
+                  { key: "white", label: "⚪ Putih" },
+                  { key: "dark", label: "🟢 Hijau" },
+                ].map((tc) => (
+                  <button
+                    key={tc.key}
+                    type="button"
+                    onClick={() => setTextColor(tc.key as any)}
+                    className={cn(
+                      "py-1.5 rounded-lg font-semibold text-[11px] border transition-colors",
+                      textColor === tc.key
+                        ? "bg-[#2F4A3C] text-white border-[#2F4A3C] shadow-xs"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                    )}
+                  >
+                    {tc.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10.5px] text-slate-400 leading-tight">
+                Pilih Putih bila penutup tipis/video gelap agar judul langsung tajam terbaca.
+              </p>
+            </div>
+
             {/* Blur */}
             <div className="space-y-1.5">
               <span className="font-semibold text-slate-700 block">Efek Blur Latar</span>
@@ -418,92 +452,108 @@ export function HeroBackgroundSettingsManager({
             <Eye className="w-3.5 h-3.5" /> Pratinjau Tampilan Hero:
           </span>
 
-          <div className="relative rounded-2xl overflow-hidden border border-slate-300 h-56 flex items-center justify-center p-6 text-center select-none shadow-xs">
-            {/* Background Simulator */}
-            {enabled && selectedType === "video" && customUrl && (
-              <video
-                key={customUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className={cn(
-                  "absolute inset-0 w-full h-full object-cover",
-                  blur === "md" ? "blur-md" : blur === "sm" ? "blur-xs" : "blur-none"
-                )}
-              >
-                <source src={customUrl} type="video/mp4" />
-              </video>
-            )}
+          {(() => {
+            const previewIsWhite = isHeroTextWhite({
+              enabled,
+              type: selectedType,
+              overlayTheme: theme,
+              overlayOpacity: opacity,
+              textColor,
+            })
 
-            {enabled && selectedType === "image" && customUrl && (
-              <div
-                className={cn(
-                  "absolute inset-0 w-full h-full bg-cover bg-center animate-pulse",
-                  blur === "md" ? "blur-md" : blur === "sm" ? "blur-xs" : "blur-none"
+            return (
+              <div className="relative rounded-2xl overflow-hidden border border-slate-300 h-56 flex items-center justify-center p-6 text-center select-none shadow-xs">
+                {/* Background Simulator */}
+                {enabled && selectedType === "video" && customUrl && (
+                  <video
+                    key={customUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className={cn(
+                      "absolute inset-0 w-full h-full object-cover",
+                      blur === "md" ? "blur-md" : blur === "sm" ? "blur-xs" : "blur-none"
+                    )}
+                  >
+                    <source src={customUrl} type="video/mp4" />
+                  </video>
                 )}
-                style={{ backgroundImage: `url('${customUrl}')`, animationDuration: "8s" }}
-              />
-            )}
 
-            {enabled && selectedType === "mesh" && (
-              <div className="absolute inset-0 overflow-hidden bg-slate-50">
-                <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-emerald-400/30 blur-2xl animate-pulse" />
-                <div className="absolute top-10 right-0 w-40 h-40 rounded-full bg-[#D9A400]/25 blur-2xl animate-pulse" />
+                {enabled && selectedType === "image" && customUrl && (
+                  <div
+                    className={cn(
+                      "absolute inset-0 w-full h-full bg-cover bg-center animate-pulse",
+                      blur === "md" ? "blur-md" : blur === "sm" ? "blur-xs" : "blur-none"
+                    )}
+                    style={{ backgroundImage: `url('${customUrl}')`, animationDuration: "8s" }}
+                  />
+                )}
+
+                {enabled && selectedType === "mesh" && (
+                  <div className="absolute inset-0 overflow-hidden bg-slate-50">
+                    <div className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-emerald-400/30 blur-2xl animate-pulse" />
+                    <div className="absolute top-10 right-0 w-40 h-40 rounded-full bg-[#D9A400]/25 blur-2xl animate-pulse" />
+                  </div>
+                )}
+
+                {/* Scrim */}
+                <div
+                  className={cn(
+                    "absolute inset-0",
+                    theme === "forest"
+                      ? "bg-[#1f3328]"
+                      : theme === "dark"
+                      ? "bg-slate-950"
+                      : "bg-white"
+                  )}
+                  style={{ opacity }}
+                />
+
+                {/* Foreground Content */}
+                <div className="relative z-10 space-y-2 max-w-md">
+                  <span
+                    className={cn(
+                      "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border shadow-2xs",
+                      previewIsWhite
+                        ? "bg-white/15 border-white/20 text-white backdrop-blur-md"
+                        : "bg-white/90 border-[#D9A400]/40 text-[#2F4A3C]"
+                    )}
+                  >
+                    PORTAL RESMI LAYANAN ASPIRASI &amp; INFORMASI
+                  </span>
+                  <h3
+                    className={cn(
+                      "font-serif font-bold text-xl sm:text-2xl leading-tight",
+                      previewIsWhite
+                        ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                        : "text-[#2F4A3C]"
+                    )}
+                  >
+                    Satu Sistem, Surat Tertib, Aduan Terpantau
+                  </h3>
+                  <p
+                    className={cn(
+                      "text-[11px] line-clamp-2",
+                      previewIsWhite
+                        ? "text-white/85 drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
+                        : "text-slate-600"
+                    )}
+                  >
+                    Platform keterbukaan informasi digital Kecamatan Temiang Pesisir, Kabupaten Lingga.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    <span className="px-3 py-1 rounded-lg bg-[#2F4A3C] text-white text-[10px] font-bold shadow-xs">
+                      Buat Pengaduan
+                    </span>
+                    <span className="px-3 py-1 rounded-lg bg-white border border-slate-300 text-[#2F4A3C] text-[10px] font-bold shadow-xs">
+                      Lacak Tiket
+                    </span>
+                  </div>
+                </div>
               </div>
-            )}
-
-            {/* Scrim */}
-            <div
-              className={cn(
-                "absolute inset-0",
-                theme === "forest"
-                  ? "bg-[#1f3328]"
-                  : theme === "dark"
-                  ? "bg-slate-950"
-                  : "bg-white"
-              )}
-              style={{ opacity }}
-            />
-
-            {/* Foreground Content */}
-            <div className="relative z-10 space-y-2 max-w-md">
-              <span
-                className={cn(
-                  "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border shadow-2xs",
-                  theme === "forest" || theme === "dark"
-                    ? "bg-white/15 border-white/20 text-white"
-                    : "bg-white/90 border-[#D9A400]/40 text-[#2F4A3C]"
-                )}
-              >
-                PORTAL RESMI LAYANAN ASPIRASI &amp; INFORMASI
-              </span>
-              <h3
-                className={cn(
-                  "font-serif font-bold text-xl sm:text-2xl leading-tight",
-                  theme === "forest" || theme === "dark" ? "text-white" : "text-[#2F4A3C]"
-                )}
-              >
-                Satu Sistem, Surat Tertib, Aduan Terpantau
-              </h3>
-              <p
-                className={cn(
-                  "text-[11px] line-clamp-2",
-                  theme === "forest" || theme === "dark" ? "text-white/80" : "text-slate-600"
-                )}
-              >
-                Platform keterbukaan informasi digital Kecamatan Temiang Pesisir, Kabupaten Lingga.
-              </p>
-              <div className="flex items-center justify-center gap-2 pt-1">
-                <span className="px-3 py-1 rounded-lg bg-[#2F4A3C] text-white text-[10px] font-bold">
-                  Buat Pengaduan
-                </span>
-                <span className="px-3 py-1 rounded-lg bg-white border border-slate-300 text-[#2F4A3C] text-[10px] font-bold">
-                  Lacak Tiket
-                </span>
-              </div>
-            </div>
-          </div>
+            )
+          })()}
         </div>
 
         {/* Save Button Bar */}

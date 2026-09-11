@@ -19,6 +19,7 @@ import {
 import { createServiceClient } from "@/lib/supabase/server"
 import { getInformasiList } from "@/lib/actions/informasi"
 import { getHeroBackgroundSettings } from "@/lib/data/hero-settings"
+import { isHeroTextWhite } from "@/lib/data/hero-types"
 import { StatsCounter } from "./stats-counter"
 import { HeroSlideShow } from "@/components/publik/hero-slideshow"
 import { HeroAnimatedBackground } from "@/components/publik/hero-animated-background"
@@ -29,6 +30,7 @@ export const revalidate = 0
 
 export default async function PublikHomePage() {
   const heroSettings = getHeroBackgroundSettings()
+  const isWhite = isHeroTextWhite(heroSettings)
   const allNews = await getInformasiList({ publishedOnly: true })
   const headlineSlides = allNews.filter((n) => n.is_headline).length > 0
     ? allNews.filter((n) => n.is_headline)
@@ -75,7 +77,7 @@ export default async function PublikHomePage() {
           <div
             className={cn(
               "inline-flex items-center gap-2 px-3 py-1 rounded-full border shadow-xs transition-colors",
-              heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
+              isWhite
                 ? "bg-white/15 backdrop-blur-md border-white/25 text-white"
                 : "bg-white border-[#D9A400]/40 text-[#2F4A3C]"
             )}
@@ -90,8 +92,8 @@ export default async function PublikHomePage() {
           <h1
             className={cn(
               "text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight transition-colors",
-              heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
-                ? "text-white"
+              isWhite
+                ? "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.85)]"
                 : "text-[#2F4A3C]"
             )}
           >
@@ -99,8 +101,8 @@ export default async function PublikHomePage() {
             <span
               className={cn(
                 "bg-clip-text text-transparent",
-                heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
-                  ? "bg-gradient-to-r from-emerald-200 via-amber-200 to-emerald-300"
+                isWhite
+                  ? "bg-gradient-to-r from-emerald-300 via-amber-200 to-teal-200"
                   : "bg-gradient-to-r from-[#2F4A3C] via-[#2F4A3C] to-[#10B981]"
               )}
             >
@@ -111,8 +113,8 @@ export default async function PublikHomePage() {
           <p
             className={cn(
               "text-sm sm:text-base max-w-2xl mx-auto leading-relaxed transition-colors",
-              heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
-                ? "text-white/85"
+              isWhite
+                ? "text-white/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.8)]"
                 : "text-slate-600"
             )}
           >

@@ -1,15 +1,29 @@
 export type HeroBackgroundType = "video" | "image" | "mesh"
+export type HeroTextColor = "auto" | "white" | "dark"
 
 export interface HeroBackgroundSettings {
   enabled: boolean
   type: HeroBackgroundType
   url: string
   title: string
-  overlayOpacity: number // 0.3 to 0.95 (e.g. 0.8 keeps text contrast pristine)
+  overlayOpacity: number // 0 to 1
   overlayTheme: "light" | "forest" | "dark"
+  textColor?: HeroTextColor
   blurAmount: "none" | "sm" | "md"
   updatedAt: string
   updatedBy: string
+}
+
+export function isHeroTextWhite(settings: Partial<HeroBackgroundSettings> | null | undefined): boolean {
+  if (!settings || !settings.enabled) return false
+  if (settings.textColor === "white") return true
+  if (settings.textColor === "dark") return false
+  // "auto" or undefined:
+  // If overlay is forest or dark, text must be white
+  if (settings.overlayTheme === "forest" || settings.overlayTheme === "dark") return true
+  // If overlay opacity is less than 55% with a video/image background, background dominates -> use white text
+  if (typeof settings.overlayOpacity === "number" && settings.overlayOpacity < 0.55) return true
+  return false
 }
 
 export const HERO_PRESETS = [
@@ -46,6 +60,7 @@ export const DEFAULT_HERO_SETTINGS: HeroBackgroundSettings = {
   title: "Lautan & Ombak Pesisir Kepulauan (Video Loop HD)",
   overlayOpacity: 0.45,
   overlayTheme: "light",
+  textColor: "auto",
   blurAmount: "none",
   updatedAt: new Date().toISOString(),
   updatedBy: "Super Administrator",
