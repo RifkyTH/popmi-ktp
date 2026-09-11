@@ -76,14 +76,17 @@ export default async function PublikHomePage() {
           {/* Official badge */}
           <div
             className={cn(
-              "inline-flex items-center gap-2 px-3 py-1 rounded-full border shadow-xs transition-colors",
+              "inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border transition-all duration-300",
               isWhite
-                ? "bg-white/15 backdrop-blur-md border-white/25 text-white"
-                : "bg-white border-[#D9A400]/40 text-[#2F4A3C]"
+                ? "bg-white/10 backdrop-blur-xl border-white/20 text-white shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-white/10"
+                : "bg-white/90 backdrop-blur-sm border-[#D9A400]/40 text-[#2F4A3C] shadow-xs"
             )}
           >
-            <span className="w-2 h-2 rounded-full bg-[#D9A400] animate-pulse" />
-            <span className="text-[11px] font-bold uppercase tracking-widest">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D9A400] shadow-[0_0_10px_rgba(217,164,0,0.9)]" />
+            </span>
+            <span className="text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.16em] text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
               Portal Resmi Layanan Aspirasi &amp; Informasi Publik
             </span>
           </div>
@@ -123,34 +126,69 @@ export default async function PublikHomePage() {
           </p>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
             <Link href="/publik/pengaduan/buat" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-[#2F4A3C] hover:bg-[#23382D] text-white font-bold px-7 py-3.5 rounded-xl border border-[#D9A400]/40 shadow-md flex items-center justify-center gap-2.5 text-xs uppercase tracking-wider transition-all hover:shadow-lg hover:-translate-y-0.5">
-                <MessageSquare className="w-4 h-4 text-[#D9A400]" /> Buat Pengaduan Warga
+              <button
+                className={cn(
+                  "w-full sm:w-auto group relative overflow-hidden px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 active:scale-95",
+                  isWhite
+                    ? "bg-gradient-to-r from-emerald-600 via-teal-700 to-[#2F4A3C] text-white shadow-[0_8px_25px_rgba(16,185,129,0.35),inset_0_1px_1px_rgba(255,255,255,0.35)] border border-emerald-400/40 hover:shadow-[0_10px_35px_rgba(16,185,129,0.5)] hover:-translate-y-0.5"
+                    : "bg-gradient-to-r from-[#2F4A3C] to-[#23382D] text-white shadow-md hover:shadow-lg border border-[#D9A400]/40 hover:-translate-y-0.5"
+                )}
+              >
+                <span className="p-1 rounded-full bg-white/15 text-amber-300 group-hover:scale-110 transition-transform">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </span>
+                <span>Buat Pengaduan Warga</span>
               </button>
             </Link>
+
             <Link href="/publik/pengaduan/cek" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto bg-white hover:bg-slate-50 text-[#2F4A3C] border border-slate-300 font-bold px-7 py-3.5 rounded-xl shadow-xs flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all hover:border-[#2F4A3C]/40 hover:-translate-y-0.5">
-                <Eye className="w-4 h-4 text-[#2F4A3C]" /> Lacak Tiket Laporan
+              <button
+                className={cn(
+                  "w-full sm:w-auto group px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 active:scale-95",
+                  isWhite
+                    ? "bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-xl shadow-[0_8px_25px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:border-white/50 hover:-translate-y-0.5"
+                    : "bg-white hover:bg-slate-50 text-[#2F4A3C] border border-slate-300 shadow-xs hover:border-[#2F4A3C]/40 hover:shadow-md hover:-translate-y-0.5"
+                )}
+              >
+                <span
+                  className={cn(
+                    "p-1 rounded-full transition-transform group-hover:scale-110",
+                    isWhite ? "bg-white/15 text-white" : "bg-slate-100 text-[#2F4A3C]"
+                  )}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                </span>
+                <span>Lacak Tiket Laporan</span>
               </button>
             </Link>
           </div>
 
           {/* Quick Ticket Lookup Mini Box */}
           <div className="pt-4 max-w-xl mx-auto">
-            <form action="/publik/pengaduan/cek" method="GET" className="bg-white p-1.5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-2">
-              <div className="pl-3.5 text-slate-400">
+            <form
+              action="/publik/pengaduan/cek"
+              method="GET"
+              className={cn(
+                "p-1.5 rounded-full border shadow-lg flex items-center gap-2 transition-all duration-300",
+                isWhite
+                  ? "bg-white/95 backdrop-blur-xl border-white/50 shadow-[0_12px_40px_rgba(0,0,0,0.35)] ring-1 ring-black/5"
+                  : "bg-white border-slate-200/90 shadow-sm"
+              )}
+            >
+              <div className="pl-4 text-slate-400">
                 <Search className="w-4 h-4" />
               </div>
               <input
                 type="text"
                 name="q"
                 placeholder="Punya nomor tiket? Ketik di sini (contoh: TP-2026-00121)..."
-                className="w-full text-xs sm:text-sm bg-transparent border-0 focus:outline-none text-slate-800 placeholder:text-slate-400"
+                className="w-full text-xs sm:text-sm bg-transparent border-0 focus:outline-none text-slate-800 placeholder:text-slate-400 font-medium"
               />
               <button
                 type="submit"
-                className="bg-[#2F4A3C] hover:bg-[#23382D] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shrink-0 transition-colors"
+                className="bg-gradient-to-r from-emerald-700 to-[#2F4A3C] hover:from-emerald-800 hover:to-[#23382D] text-white text-xs font-semibold px-5 py-2.5 rounded-full shrink-0 transition-all shadow-xs hover:shadow-md cursor-pointer"
               >
                 Cek Progres
               </button>

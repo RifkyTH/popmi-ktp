@@ -512,16 +512,22 @@ export function HeroBackgroundSettingsManager({
 
                 {/* Foreground Content */}
                 <div className="relative z-10 space-y-2 max-w-md">
-                  <span
+                  <div
                     className={cn(
-                      "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border shadow-2xs",
+                      "inline-flex items-center gap-1.5 px-3 py-1 rounded-full border transition-all duration-300",
                       previewIsWhite
-                        ? "bg-white/15 border-white/20 text-white backdrop-blur-md"
-                        : "bg-white/90 border-[#D9A400]/40 text-[#2F4A3C]"
+                        ? "bg-white/10 backdrop-blur-xl border-white/20 text-white shadow-[0_2px_12px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-white/10"
+                        : "bg-white/90 backdrop-blur-sm border-[#D9A400]/40 text-[#2F4A3C] shadow-xs"
                     )}
                   >
-                    PORTAL RESMI LAYANAN ASPIRASI &amp; INFORMASI
-                  </span>
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#D9A400]" />
+                    </span>
+                    <span className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                      Portal Resmi Layanan Aspirasi &amp; Informasi
+                    </span>
+                  </div>
                   <h3
                     className={cn(
                       "font-serif font-bold text-xl sm:text-2xl leading-tight",
@@ -543,10 +549,24 @@ export function HeroBackgroundSettingsManager({
                     Platform keterbukaan informasi digital Kecamatan Temiang Pesisir, Kabupaten Lingga.
                   </p>
                   <div className="flex items-center justify-center gap-2 pt-1">
-                    <span className="px-3 py-1 rounded-lg bg-[#2F4A3C] text-white text-[10px] font-bold shadow-xs">
+                    <span
+                      className={cn(
+                        "px-4 py-1.5 rounded-full text-[10px] font-bold shadow-xs flex items-center gap-1.5",
+                        previewIsWhite
+                          ? "bg-gradient-to-r from-emerald-600 to-[#2F4A3C] text-white border border-emerald-400/40 shadow-[0_4px_15px_rgba(16,185,129,0.35)]"
+                          : "bg-[#2F4A3C] text-white"
+                      )}
+                    >
                       Buat Pengaduan
                     </span>
-                    <span className="px-3 py-1 rounded-lg bg-white border border-slate-300 text-[#2F4A3C] text-[10px] font-bold shadow-xs">
+                    <span
+                      className={cn(
+                        "px-4 py-1.5 rounded-full text-[10px] font-bold shadow-xs",
+                        previewIsWhite
+                          ? "bg-white/15 text-white border border-white/30 backdrop-blur-md"
+                          : "bg-white border border-slate-300 text-[#2F4A3C]"
+                      )}
+                    >
                       Lacak Tiket
                     </span>
                   </div>
