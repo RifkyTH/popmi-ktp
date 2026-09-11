@@ -346,15 +346,15 @@ export function HeroBackgroundSettingsManager({
               </div>
               <input
                 type="range"
-                min="0.4"
-                max="0.95"
-                step="0.02"
+                min="0"
+                max="1"
+                step="0.01"
                 value={opacity}
                 onChange={(e) => setOpacity(parseFloat(e.target.value))}
                 className="w-full accent-[#2F4A3C] cursor-pointer"
               />
               <p className="text-[10.5px] text-slate-400 leading-tight">
-                Disarankan 75% - 85% agar tulisan judul tetap tajam dan terbaca jelas oleh warga.
+                Rentang 0% (tanpa penutup) hingga 100% (penutup penuh). Nilai 30% - 50% memberikan keseimbangan visual dan keterbacaan yang ideal.
               </p>
             </div>
 
@@ -468,13 +468,30 @@ export function HeroBackgroundSettingsManager({
 
             {/* Foreground Content */}
             <div className="relative z-10 space-y-2 max-w-md">
-              <span className="inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white/90 border border-[#D9A400]/40 text-[#2F4A3C] shadow-2xs">
+              <span
+                className={cn(
+                  "inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border shadow-2xs",
+                  theme === "forest" || theme === "dark"
+                    ? "bg-white/15 border-white/20 text-white"
+                    : "bg-white/90 border-[#D9A400]/40 text-[#2F4A3C]"
+                )}
+              >
                 PORTAL RESMI LAYANAN ASPIRASI &amp; INFORMASI
               </span>
-              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#2F4A3C] leading-tight">
+              <h3
+                className={cn(
+                  "font-serif font-bold text-xl sm:text-2xl leading-tight",
+                  theme === "forest" || theme === "dark" ? "text-white" : "text-[#2F4A3C]"
+                )}
+              >
                 Satu Sistem, Surat Tertib, Aduan Terpantau
               </h3>
-              <p className="text-[11px] text-slate-600 line-clamp-2">
+              <p
+                className={cn(
+                  "text-[11px] line-clamp-2",
+                  theme === "forest" || theme === "dark" ? "text-white/80" : "text-slate-600"
+                )}
+              >
                 Platform keterbukaan informasi digital Kecamatan Temiang Pesisir, Kabupaten Lingga.
               </p>
               <div className="flex items-center justify-center gap-2 pt-1">

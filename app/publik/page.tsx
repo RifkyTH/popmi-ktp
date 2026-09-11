@@ -22,6 +22,7 @@ import { getHeroBackgroundSettings } from "@/lib/data/hero-settings"
 import { StatsCounter } from "./stats-counter"
 import { HeroSlideShow } from "@/components/publik/hero-slideshow"
 import { HeroAnimatedBackground } from "@/components/publik/hero-animated-background"
+import { cn } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -71,22 +72,50 @@ export default async function PublikHomePage() {
 
         <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
           {/* Official badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#D9A400]/40 shadow-xs">
+          <div
+            className={cn(
+              "inline-flex items-center gap-2 px-3 py-1 rounded-full border shadow-xs transition-colors",
+              heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
+                ? "bg-white/15 backdrop-blur-md border-white/25 text-white"
+                : "bg-white border-[#D9A400]/40 text-[#2F4A3C]"
+            )}
+          >
             <span className="w-2 h-2 rounded-full bg-[#D9A400] animate-pulse" />
-            <span className="text-[11px] font-bold uppercase tracking-widest text-[#2F4A3C]">
-              Portal Resmi Layanan Aspirasi & Informasi Publik
+            <span className="text-[11px] font-bold uppercase tracking-widest">
+              Portal Resmi Layanan Aspirasi &amp; Informasi Publik
             </span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#2F4A3C] leading-tight tracking-tight">
+          <h1
+            className={cn(
+              "text-4xl sm:text-5xl lg:text-6xl font-serif font-bold leading-tight tracking-tight transition-colors",
+              heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
+                ? "text-white"
+                : "text-[#2F4A3C]"
+            )}
+          >
             Satu Sistem, Surat Tertib, <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#2F4A3C] via-[#2F4A3C] to-[#10B981] bg-clip-text text-transparent">
+            <span
+              className={cn(
+                "bg-clip-text text-transparent",
+                heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
+                  ? "bg-gradient-to-r from-emerald-200 via-amber-200 to-emerald-300"
+                  : "bg-gradient-to-r from-[#2F4A3C] via-[#2F4A3C] to-[#10B981]"
+              )}
+            >
               Aduan Terpantau
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          <p
+            className={cn(
+              "text-sm sm:text-base max-w-2xl mx-auto leading-relaxed transition-colors",
+              heroSettings.enabled && (heroSettings.overlayTheme === "forest" || heroSettings.overlayTheme === "dark")
+                ? "text-white/85"
+                : "text-slate-600"
+            )}
+          >
             Platform pengaduan dan keterbukaan informasi digital Kecamatan Temiang Pesisir, Kabupaten Lingga.
             Laporkan masalah fasilitas, lingkungan, dan pelayanan di desa Anda secara terverifikasi dan transparan.
           </p>

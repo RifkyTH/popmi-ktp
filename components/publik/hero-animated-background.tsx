@@ -100,7 +100,7 @@ export function HeroAnimatedBackground({
             : "bg-white"
         )}
         style={{
-          opacity: Math.min(Math.max(settings.overlayOpacity ?? 0.45, 0.2), 0.75),
+          opacity: typeof settings.overlayOpacity === "number" ? Math.min(Math.max(settings.overlayOpacity, 0), 1) : 0.45,
         }}
       />
 
