@@ -43,10 +43,22 @@ export function HeroSlideShow({ items }: { items: Informasi[] }) {
     setCurrentIndex(index)
   }
 
-  // Handle touch swipe on mobile
+  // Only pause on desktop with a real mouse pointer, ignore mobile touch emulation
+  const handleMouseEnter = () => {
+    if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
+      setIsPaused(true)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setIsPaused(false)
+  }
+
+  // Handle touch swipe on mobile with auto-resume
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX
     touchEndX.current = null
+    setIsPaused(true)
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -54,15 +66,18 @@ export function HeroSlideShow({ items }: { items: Informasi[] }) {
   }
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return
-    const diff = touchStartX.current - touchEndX.current
-    if (diff > 45) {
-      nextSlide() // Swipe left -> next
-    } else if (diff < -45) {
-      prevSlide() // Swipe right -> prev
+    if (touchStartX.current !== null && touchEndX.current !== null) {
+      const diff = touchStartX.current - touchEndX.current
+      if (diff > 40) {
+        nextSlide() // Swipe left -> next
+      } else if (diff < -40) {
+        prevSlide() // Swipe right -> prev
+      }
     }
     touchStartX.current = null
     touchEndX.current = null
+    // Crucial: ALWAYS resume autoplay on mobile as soon as the finger lifts
+    setIsPaused(false)
   }
 
   useEffect(() => {
@@ -70,7 +85,7 @@ export function HeroSlideShow({ items }: { items: Informasi[] }) {
 
     autoPlayTimerRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalSlides)
-    }, 5500)
+    }, 4500)
 
     return () => {
       if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current)
@@ -84,8 +99,8 @@ export function HeroSlideShow({ items }: { items: Informasi[] }) {
   return (
     <div
       className="relative rounded-3xl overflow-hidden border border-slate-200/90 shadow-lg bg-slate-950 group select-none touch-pan-y"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

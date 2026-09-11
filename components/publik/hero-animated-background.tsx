@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { HeroBackgroundSettings } from "@/lib/data/hero-types"
 import { cn } from "@/lib/utils"
 
@@ -10,6 +10,7 @@ export function HeroAnimatedBackground({
   settings: HeroBackgroundSettings
 }) {
   const [videoFailed, setVideoFailed] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   if (!settings || !settings.enabled) {
     // Default subtle glow if disabled
@@ -29,6 +30,45 @@ export function HeroAnimatedBackground({
   const defaultPoster =
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop"
 
+  // Enforce autoplay on mobile (iOS Safari & Android Chrome require explicit muted property)
+  useEffect(() => {
+    if (!settings.enabled || settings.type !== "video") return
+
+    const video = videoRef.current
+    if (!video) return
+
+    video.muted = true
+    video.defaultMuted = true
+
+    const attemptPlay = () => {
+      const promise = video.play()
+      if (promise !== undefined) {
+        promise.catch(() => {
+          // Will play on user interaction
+        })
+      }
+    }
+
+    attemptPlay()
+
+    // Unlock on first touch/interaction if blocked by low power mode
+    const handleFirstInteraction = () => {
+      if (video && video.paused) {
+        attemptPlay()
+      }
+      window.removeEventListener("touchstart", handleFirstInteraction)
+      window.removeEventListener("click", handleFirstInteraction)
+    }
+
+    window.addEventListener("touchstart", handleFirstInteraction, { passive: true })
+    window.addEventListener("click", handleFirstInteraction, { passive: true })
+
+    return () => {
+      window.removeEventListener("touchstart", handleFirstInteraction)
+      window.removeEventListener("click", handleFirstInteraction)
+    }
+  }, [videoUrl, settings.enabled, settings.type])
+
   return (
     <div
       className="absolute inset-0 overflow-hidden pointer-events-none z-0 select-none"
@@ -37,6 +77,7 @@ export function HeroAnimatedBackground({
       {/* 1. Video Animation */}
       {settings.type === "video" && !videoFailed && (
         <video
+          ref={videoRef}
           key={videoUrl}
           autoPlay
           loop
