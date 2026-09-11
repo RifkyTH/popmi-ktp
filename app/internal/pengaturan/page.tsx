@@ -21,10 +21,13 @@ import {
   ChevronRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getHeroBackgroundSettings } from "@/lib/data/hero-settings"
+import { HeroBackgroundSettingsManager } from "@/components/internal/hero-background-settings"
 
 export const revalidate = 0
 
 export default async function PengaturanPage() {
+  const heroSettings = getHeroBackgroundSettings()
   const supabase = await createServiceClient()
 
   // Fetch counts
@@ -158,6 +161,9 @@ export default async function PengaturanPage() {
           <p className="text-xs text-teks/50 mt-1">Enkripsi autentikasi RBAC aktif</p>
         </div>
       </div>
+
+      {/* Modul Kustomisasi Background Animasi Hero Portal Publik (Superadmin & Admin) */}
+      <HeroBackgroundSettingsManager initialSettings={heroSettings} />
 
       {/* Grid Konfigurasi & Integrasi */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

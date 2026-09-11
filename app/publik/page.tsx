@@ -18,13 +18,16 @@ import {
 } from "lucide-react"
 import { createServiceClient } from "@/lib/supabase/server"
 import { getInformasiList } from "@/lib/actions/informasi"
+import { getHeroBackgroundSettings } from "@/lib/data/hero-settings"
 import { StatsCounter } from "./stats-counter"
 import { HeroSlideShow } from "@/components/publik/hero-slideshow"
+import { HeroAnimatedBackground } from "@/components/publik/hero-animated-background"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export default async function PublikHomePage() {
+  const heroSettings = getHeroBackgroundSettings()
   const allNews = await getInformasiList({ publishedOnly: true })
   const headlineSlides = allNews.filter((n) => n.is_headline).length > 0
     ? allNews.filter((n) => n.is_headline)
@@ -62,9 +65,9 @@ export default async function PublikHomePage() {
   return (
     <div className="space-y-12 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/40 pt-12 pb-16 px-4 border-b border-slate-200/80">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[320px] bg-[#2F4A3C]/5 blur-3xl -z-10 rounded-full pointer-events-none" />
+      <section className="relative overflow-hidden pt-14 pb-18 px-4 border-b border-slate-200/80">
+        {/* Animated Background (Uploaded and managed by Superadmin) */}
+        <HeroAnimatedBackground settings={heroSettings} />
 
         <div className="max-w-4xl mx-auto text-center space-y-6">
           {/* Official badge */}
