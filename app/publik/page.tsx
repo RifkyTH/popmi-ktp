@@ -26,7 +26,7 @@ import { HeroAnimatedBackground } from "@/components/publik/hero-animated-backgr
 import { cn } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
-export const revalidate = 0
+export const revalidate = 15
 
 export default async function PublikHomePage() {
   const heroSettings = getHeroBackgroundSettings()
@@ -78,8 +78,8 @@ export default async function PublikHomePage() {
             className={cn(
               "inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border transition-all duration-300",
               isWhite
-                ? "bg-white/10 backdrop-blur-xl border-white/20 text-white shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-white/10"
-                : "bg-white/90 backdrop-blur-sm border-[#D9A400]/40 text-[#2F4A3C] shadow-xs"
+                ? "bg-white/10 backdrop-blur-md border-white/20 text-white shadow-[0_4px_20px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.3)] ring-1 ring-white/10"
+                : "bg-white/90 backdrop-blur-xs border-[#D9A400]/40 text-[#2F4A3C] shadow-xs"
             )}
           >
             <span className="relative flex h-2 w-2">
@@ -148,7 +148,7 @@ export default async function PublikHomePage() {
                 className={cn(
                   "w-full sm:w-auto group px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2.5 active:scale-95",
                   isWhite
-                    ? "bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-xl shadow-[0_8px_25px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:border-white/50 hover:-translate-y-0.5"
+                    ? "bg-white/15 hover:bg-white/25 text-white border border-white/30 backdrop-blur-md shadow-[0_8px_25px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:border-white/50 hover:-translate-y-0.5"
                     : "bg-white hover:bg-slate-50 text-[#2F4A3C] border border-slate-300 shadow-xs hover:border-[#2F4A3C]/40 hover:shadow-md hover:-translate-y-0.5"
                 )}
               >
@@ -173,7 +173,7 @@ export default async function PublikHomePage() {
               className={cn(
                 "p-1.5 rounded-full border shadow-lg flex items-center gap-2 transition-all duration-300",
                 isWhite
-                  ? "bg-white/95 backdrop-blur-xl border-white/50 shadow-[0_12px_40px_rgba(0,0,0,0.35)] ring-1 ring-black/5"
+                  ? "bg-white/95 backdrop-blur-md border-white/50 shadow-[0_12px_40px_rgba(0,0,0,0.35)] ring-1 ring-black/5"
                   : "bg-white border-slate-200/90 shadow-sm"
               )}
             >
@@ -248,6 +248,8 @@ export default async function PublikHomePage() {
                 <img
                   src="/images/quick-access/quick-lapor.jpg"
                   alt="Ilustrasi Lapor Permasalahan Warga"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-emerald-700 shadow-xs flex items-center justify-center border border-white/60">
@@ -278,6 +280,8 @@ export default async function PublikHomePage() {
                 <img
                   src="/images/quick-access/quick-lacak.jpg"
                   alt="Ilustrasi Pantau Tiket Laporan"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-blue-700 shadow-xs flex items-center justify-center border border-white/60">
@@ -308,6 +312,8 @@ export default async function PublikHomePage() {
                 <img
                   src="/images/quick-access/quick-peta.jpg"
                   alt="Ilustrasi Peta Sebaran Laporan"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-amber-700 shadow-xs flex items-center justify-center border border-white/60">
@@ -338,6 +344,8 @@ export default async function PublikHomePage() {
                 <img
                   src="/images/quick-access/quick-transparansi.jpg"
                   alt="Ilustrasi Transparansi dan Statistik Data"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute top-3 left-3 w-9 h-9 rounded-xl bg-white/90 backdrop-blur-md text-[#2F4A3C] shadow-xs flex items-center justify-center border border-white/60">
@@ -524,6 +532,8 @@ export default async function PublikHomePage() {
                   <img
                     src={info.gambar}
                     alt={info.judul}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-3 left-3">

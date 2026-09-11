@@ -28,7 +28,7 @@ export function HeroAnimatedBackground({
 
   const videoUrl = settings.url || "/videos/hero-oceans.mp4"
   const defaultPoster =
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=65&w=960&auto=format&fit=crop"
 
   // Enforce autoplay on mobile (iOS Safari & Android Chrome require explicit muted property)
   useEffect(() => {
@@ -83,6 +83,7 @@ export function HeroAnimatedBackground({
           loop
           muted
           playsInline
+          preload="metadata"
           poster={defaultPoster}
           onError={() => setVideoFailed(true)}
           className={cn(

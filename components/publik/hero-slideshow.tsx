@@ -124,10 +124,9 @@ export function HeroSlideShow({ items }: { items: Informasi[] }) {
                 <img
                   src={slide.gambar}
                   alt={slide.judul}
-                  className={cn(
-                    "w-full h-full object-cover object-center transition-transform duration-10000 ease-out",
-                    isActive ? "scale-105" : "scale-100"
-                  )}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  className="w-full h-full object-cover object-center"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-[#1f3328] via-[#2F4A3C] to-slate-900" />

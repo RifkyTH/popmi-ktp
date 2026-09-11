@@ -35,6 +35,9 @@ export default function PublikLayout({
                 <img
                   src="/logo-lingga.png"
                   alt="Lambang Kabupaten Lingga"
+                  width={36}
+                  height={36}
+                  decoding="async"
                   className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
                 />
                 <div className="flex flex-col">
@@ -167,7 +170,15 @@ export default function PublikLayout({
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 shrink-0 flex items-center justify-center bg-white/10 rounded-xl p-1 border border-white/20">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo-lingga.png" alt="Logo Lingga" className="h-full w-auto object-contain" />
+                  <img
+                    src="/logo-lingga.png"
+                    alt="Logo Lingga"
+                    width={40}
+                    height={40}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-auto object-contain"
+                  />
                 </div>
                 <div>
                   <h3 className="font-serif font-bold text-lg text-white leading-tight">
